@@ -4,10 +4,73 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-<TextView  
-    android:layout_width="fill_parent" 
-    android:layout_height="wrap_content" 
-    android:text="@string/hello"
-    />
+
+    <TextView  
+	android:layout_width="fill_parent" 
+	android:layout_height="wrap_content" 
+	android:text="@string/main_title"
+	android:textSize="16pt"
+	android:gravity="center"
+	android:shadowColor="#000000"
+	android:shadowRadius="2"
+	android:shadowDx="1"
+	android:shadowDy="1"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="20dip"
+        android:layout_marginTop="10dip"
+        android:layout_marginBottom="10dip"
+	/>
+
+    <TextView  
+	android:layout_width="fill_parent" 
+	android:layout_height="wrap_content" 
+	android:text="@string/learn"
+	android:textSize="10pt"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="20dip"
+        android:layout_marginTop="10dip"
+        android:layout_marginBottom="10dip"
+	/>
+
+    <Button
+        android:id="@+id/browse_words"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dip"
+        android:layout_marginRight="10dip"
+	android:text="@string/browse_words"
+	/>
+
+    <TextView  
+	android:layout_width="fill_parent" 
+	android:layout_height="wrap_content" 
+	android:text="@string/practice"
+	android:textSize="10pt"
+        android:layout_marginLeft="20dip"
+        android:layout_marginRight="20dip"
+        android:layout_marginTop="10dip"
+        android:layout_marginBottom="10dip"
+	/>
+
+    <Button
+        android:id="@+id/foreign_native"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dip"
+        android:layout_marginRight="10dip"
+        android:layout_marginTop="10dip"
+	android:text="@string/foreign_native"
+	/>
+
+    <Button
+        android:id="@+id/native_foreign"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dip"
+        android:layout_marginRight="10dip"
+        android:layout_marginTop="10dip"
+	android:text="@string/native_foreign"
+	/>
+
 </LinearLayout>
 

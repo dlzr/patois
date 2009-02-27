@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Patois</string>
-    <string name="hello">Hello World, PatoisMainActivity</string>
+    <string name="main_title"><b>Norwegian</b></string>
+    <string name="learn">Learn:</string>
+    <string name="browse_words">Browse Words</string>
+    <string name="practice">Practice:</string>
+    <string name="foreign_native">Foreign to Native</string>
+    <string name="native_foreign">Native to Foreign</string>
 </resources>
