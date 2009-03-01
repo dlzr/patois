@@ -19,15 +19,16 @@
         />
 
     <LinearLayout
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         >
 
         <LinearLayout
             android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
             >
 
             <TextView
@@ -36,7 +37,7 @@
                 android:text="@string/learn"
                 android:textSize="10pt"
                 android:layout_marginLeft="32dip"
-                android:layout_marginRight="32dip"
+                android:layout_marginRight="24dip"
                 android:layout_marginBottom="10dip"
                 />
 
@@ -45,7 +46,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="16dip"
-                android:layout_marginRight="16dip"
+                android:layout_marginRight="8dip"
                 android:text="@string/browse_words"
                 />
 
@@ -53,8 +54,9 @@
 
         <LinearLayout
             android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
             >
 
             <TextView
@@ -62,9 +64,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/practice"
                 android:textSize="10pt"
-                android:layout_marginLeft="32dip"
+                android:layout_marginLeft="24dip"
                 android:layout_marginRight="32dip"
-                android:layout_marginTop="10dip"
                 android:layout_marginBottom="10dip"
                 />
 
@@ -72,7 +73,7 @@
                 android:id="@+id/foreign_native"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dip"
+                android:layout_marginLeft="8dip"
                 android:layout_marginRight="16dip"
                 android:text="@string/foreign_native"
                 />
@@ -81,7 +82,7 @@
                 android:id="@+id/native_foreign"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dip"
+                android:layout_marginLeft="8dip"
                 android:layout_marginRight="16dip"
                 android:layout_marginTop="16dip"
                 android:text="@string/native_foreign"
