@@ -1,0 +1,24 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/change_language"
+          android:title="Languages">
+
+        <menu>
+            <group android:id="@+id/language_group"
+                   android:checkableBehavior="single">
+
+                <item android:id="@+id/lang_no"
+                      android:title="Norwegian" />
+                <item android:id="@+id/lang_de"
+                      android:title="German" />
+                <item android:id="@+id/lang_jp"
+                      android:title="Japanese" />
+            </group>
+
+            <item android:id="@+id/new_language"
+                  android:title="Add Language" />
+        </menu>
+    </item>
+
+    <item android:id="@+id/edit_language"
+          android:title="Properties" />
+</menu>
