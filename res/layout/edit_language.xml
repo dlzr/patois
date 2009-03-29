@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="none">
+
+    <TableLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="8dip"
+        android:stretchColumns="1">
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dip"
+                android:layout_span="2"
+                android:text="@string/foreign_language"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="?android:attr/textColorPrimary"
+                />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/foreign_language_code_edittext"
+                android:layout_width="70sp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dip"
+                android:layout_marginBottom="2dip"
+                android:maxEms="3"
+                android:gravity="center"
+                android:text="@string/language_code"
+                />
+
+            <EditText
+                android:id="@+id/foreign_language_name_edittext"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dip"
+                android:layout_marginRight="8dip"
+                android:layout_marginBottom="2dip"
+                android:text="@string/language_name"
+                />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dip"
+                android:layout_span="2"
+                android:text="@string/native_languages"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="?android:attr/textColorPrimary"
+                />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/native_language_code_edittext"
+                android:layout_width="70sp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dip"
+                android:layout_marginBottom="2dip"
+                android:maxEms="3"
+                android:gravity="center"
+                android:text="@string/language_code"
+                />
+
+            <EditText
+                android:id="@+id/native_language_name_edittext"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dip"
+                android:layout_marginRight="8dip"
+                android:layout_marginBottom="2dip"
+                android:text="@string/language_name"
+                />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:id="@+id/native_language_1_code_edittext"
+                android:layout_width="70sp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dip"
+                android:layout_marginBottom="2dip"
+                android:maxEms="3"
+                android:gravity="center"
+                android:text="@string/language_code"
+                />
+
+            <EditText
+                android:id="@+id/native_language_1_name_edittext"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="8dip"
+                android:layout_marginRight="8dip"
+                android:layout_marginBottom="2dip"
+                android:text="@string/language_name"
+                />
+        </TableRow>
+    </TableLayout>
+</ScrollView>

@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Patois</string>
-    <string name="foreign_language">Norwegian</string>
+
+    <!-- Strings in the main activity -->
+    <string name="foreign_language_name">Norwegian</string>
     <string name="learn">Learn:</string>
     <string name="browse_words">Browse Words</string>
     <string name="practice">Practice:</string>
     <string name="foreign_native">Foreign to Native</string>
     <string name="native_foreign">Native to Foreign</string>
+
+    <!-- Strings in the "edit language" activity -->
+    <string name="foreign_language">Foreign language</string>
+    <string name="native_languages">Native languages</string>
+    <string name="language_name">Language Name</string>
+    <string name="language_code">CODE</string>
 </resources>
