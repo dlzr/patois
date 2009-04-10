@@ -1,6 +1,7 @@
 package ro.undef.patois;
 
 import android.content.Context;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
@@ -31,6 +32,8 @@ public class PatoisDatabase {
     };
 
     private final Context mCtx;
+    private DatabaseHelper mDbHelper;
+    private SQLiteDatabase mDb;
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -59,5 +62,22 @@ public class PatoisDatabase {
      */
     PatoisDatabase(Context ctx) {
         this.mCtx = ctx;
+    }
+
+    /**
+     * Opens a new database connection, and initializes the database if necessary.
+     *
+     * @throws SQLException if the database could not be opened nor created.
+     */
+    public void open() throws SQLException {
+        mDbHelper = new DatabaseHelper(mCtx);
+        mDb = mDbHelper.getWritableDatabase();
+    }
+
+    /**
+     * Closes the database connection.
+     */
+    public void close() {
+        mDbHelper.close();
     }
 }
