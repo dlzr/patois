@@ -10,10 +10,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class PatoisDatabase {
 
     private static final String DATABASE_NAME = "patois";
-    private static final String DATABASE_VERSION = "1";
+    private static final int DATABASE_VERSION = 1;
     private static final String[] DATABASE_SCHEMA = new String[] {
         "CREATE TABLE languages ( " +
         "    id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+        "    code TEXT NOT NULL, " +
         "    name TEXT NOT NULL, " +
         ");",
 
