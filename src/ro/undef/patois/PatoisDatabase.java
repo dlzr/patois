@@ -1,4 +1,4 @@
-package ro.undef;
+package ro.undef.patois;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

@@ -1,4 +1,4 @@
-package ro.undef;
+package ro.undef.patois;
 
 import android.app.Activity;
 import android.os.Bundle;
