@@ -13,13 +13,13 @@ public class PatoisDatabase {
     private static final int DATABASE_VERSION = 1;
     private static final String[] DATABASE_SCHEMA = new String[] {
         "CREATE TABLE languages ( " +
-        "    id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+        "    _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
         "    code TEXT NOT NULL, " +
         "    name TEXT NOT NULL, " +
         ");",
 
         "CREATE TABLE words ( " +
-        "    id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+        "    _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
         "    name TEXT NOT NULL, " +
         "    language_id INTEGER NOT NULL, " +
         ");",
