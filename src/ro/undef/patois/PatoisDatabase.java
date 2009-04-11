@@ -1,9 +1,13 @@
 package ro.undef.patois;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import java.util.ArrayList;
+
 
 /**
  * Abstracts access to the Patois database.
@@ -79,5 +83,19 @@ public class PatoisDatabase {
      */
     public void close() {
         mDbHelper.close();
+    }
+
+    public ArrayList<Language> getLanguages() {
+        ArrayList<Language> languages = new ArrayList<Language>();
+
+        Cursor cursor = mDb.query("languages", new String[] { "_id", "code", "name" },
+                null, null, null, null, null);
+        while (cursor.moveToNext()) {
+            languages.add(
+                    new Language(cursor.getInt(0), cursor.getString(1), cursor.getString(2)));
+        };
+        cursor.close();
+
+        return languages;
     }
 }
