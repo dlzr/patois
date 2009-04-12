@@ -20,18 +20,18 @@ public class PatoisDatabase {
         "CREATE TABLE languages ( " +
         "    _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
         "    code TEXT NOT NULL, " +
-        "    name TEXT NOT NULL, " +
+        "    name TEXT NOT NULL " +
         ");",
 
         "CREATE TABLE words ( " +
         "    _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
         "    name TEXT NOT NULL, " +
-        "    language_id INTEGER NOT NULL, " +
+        "    language_id INTEGER NOT NULL " +
         ");",
 
         "CREATE TABLE translations ( " +
         "    word_id1 INTEGER NOT NULL, " +
-        "    word_id2 INTEGER NOT NULL, " +
+        "    word_id2 INTEGER NOT NULL " +
         ");",
     };
 
