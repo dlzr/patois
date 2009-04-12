@@ -10,10 +10,6 @@
     <string name="foreign_native">Foreign to Native</string>
     <string name="native_foreign">Native to Foreign</string>
 
-    <!-- Strings only in the "edit language" activity - DEPRECATED -->
-    <string name="foreign_language">Foreign language</string>
-    <string name="native_languages">Native languages</string>
-
     <!-- Strings in the "edit languages" activity. -->
     <string name="enter_languages">Native and foreign languages:</string>
     <string name="language_name">Language Name</string>
