@@ -1,6 +1,8 @@
 package ro.undef.patois;
 
+import android.R.color;
 import android.app.Activity;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,8 +27,8 @@ public class EditLanguagesActivity extends Activity {
      * Called when the activity is first created.
      */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreate(Bundle inState) {
+        super.onCreate(inState);
 
         mInflater = getLayoutInflater();
         setContentView(R.layout.edit_languages);
@@ -49,19 +51,33 @@ public class EditLanguagesActivity extends Activity {
         }
 
         // Add an empty language entry for new languages.
+        // TODO: Maybe replace this with a "add language" button.
         layout.addView(buildViewForLanguage(null));
     }
 
     private View buildViewForLanguage(final Language language) {
         View view = mInflater.inflate(R.layout.edit_language_entry, mLayout, false);
 
-        if (language != null) {
-            EditText code_text = (EditText) view.findViewById(R.id.language_code);
-            code_text.setText(language.code);
-            EditText name_text = (EditText) view.findViewById(R.id.language_name);
-            name_text.setText(language.name);
+        EditText code_textbox = (EditText) view.findViewById(R.id.language_code);
+        EditText name_textbox = (EditText) view.findViewById(R.id.language_name);
+
+        if (language == null) {
+            Resources res = getResources();
+            code_textbox.setText(res.getString(R.string.language_code));
+            code_textbox.setTextColor(res.getColor(android.R.color.tertiary_text_light));
+            name_textbox.setText(res.getString(R.string.language_name));
+            name_textbox.setTextColor(res.getColor(android.R.color.tertiary_text_light));
+        } else {
+            code_textbox.setText(language.code);
+            name_textbox.setText(language.name);
         }
 
+
         return view;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        // TODO: Save the edits made by the user to outState.
     }
 }
