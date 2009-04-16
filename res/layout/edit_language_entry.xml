@@ -6,13 +6,12 @@
     >
 
     <EditText android:id="@+id/language_code"
-        android:layout_width="70sp"
+        android:layout_width="57sp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dip"
         android:layout_marginBottom="2dip"
-        android:maxEms="3"
         android:gravity="center"
-        android:text="@string/language_code"
+        android:singleLine="true"
         />
 
     <EditText android:id="@+id/language_name"
@@ -22,7 +21,7 @@
         android:layout_marginLeft="8dip"
         android:layout_marginRight="8dip"
         android:layout_marginBottom="2dip"
-        android:text="@string/language_name"
+        android:singleLine="true"
         />
 
 </LinearLayout>
