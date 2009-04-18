@@ -6,11 +6,10 @@
     >
 
     <EditText android:id="@+id/language_code"
-        android:layout_width="57sp"
+        android:layout_width="60sp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dip"
         android:layout_marginBottom="2dip"
-        android:gravity="center"
         android:singleLine="true"
         android:hint="@string/language_code"
         />
