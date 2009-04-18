@@ -12,6 +12,6 @@
 
     <!-- Strings in the "edit languages" activity. -->
     <string name="enter_languages">Native and foreign languages:</string>
-    <string name="language_name">Language Name</string>
     <string name="language_code">code</string>
+    <string name="language_name">Language name</string>
 </resources>

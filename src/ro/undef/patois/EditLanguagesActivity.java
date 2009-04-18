@@ -61,17 +61,10 @@ public class EditLanguagesActivity extends Activity {
         EditText code_textbox = (EditText) view.findViewById(R.id.language_code);
         EditText name_textbox = (EditText) view.findViewById(R.id.language_name);
 
-        if (language == null) {
-            Resources res = getResources();
-            code_textbox.setText(res.getString(R.string.language_code));
-            code_textbox.setTextColor(res.getColor(android.R.color.tertiary_text_light));
-            name_textbox.setText(res.getString(R.string.language_name));
-            name_textbox.setTextColor(res.getColor(android.R.color.tertiary_text_light));
-        } else {
+        if (language != null) {
             code_textbox.setText(language.code);
             name_textbox.setText(language.name);
         }
-
 
         return view;
     }
