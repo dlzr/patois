@@ -1,5 +1,6 @@
 package ro.undef.patois;
 
+import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -35,7 +36,7 @@ public class PatoisDatabase {
         ");",
     };
 
-    private final Context mCtx;
+    private final Activity mActivity;
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
 
@@ -59,43 +60,28 @@ public class PatoisDatabase {
         }
     }
 
-    /**
-     * Creates a new PatoisDatabase.
-     *
-     * @param ctx the Context to use to access the database.
-     */
-    PatoisDatabase(Context ctx) {
-        this.mCtx = ctx;
+    PatoisDatabase(Activity activity) {
+        this.mActivity = activity;
     }
 
-    /**
-     * Opens a new database connection, and initializes the database if necessary.
-     *
-     * @throws SQLException if the database could not be opened nor created.
-     */
     public void open() throws SQLException {
-        mDbHelper = new DatabaseHelper(mCtx);
+        mDbHelper = new DatabaseHelper(mActivity);
         mDb = mDbHelper.getWritableDatabase();
     }
 
-    /**
-     * Closes the database connection.
-     */
     public void close() {
         mDbHelper.close();
     }
 
-    public ArrayList<Language> getLanguages() {
-        ArrayList<Language> languages = new ArrayList<Language>();
+    public static final int LANGUAGE_ID_COLUMN = 0;
+    public static final int LANGUAGE_CODE_COLUMN = 1;
+    public static final int LANGUAGE_NAME_COLUMN = 2;
 
+    public Cursor getLanguages() {
         Cursor cursor = mDb.query("languages", new String[] { "_id", "code", "name" },
                 null, null, null, null, null);
-        while (cursor.moveToNext()) {
-            languages.add(
-                    new Language(cursor.getInt(0), cursor.getString(1), cursor.getString(2)));
-        };
-        cursor.close();
+        mActivity.startManagingCursor(cursor);
 
-        return languages;
+        return cursor;
     }
 }

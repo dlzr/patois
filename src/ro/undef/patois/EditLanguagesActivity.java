@@ -1,8 +1,7 @@
 package ro.undef.patois;
 
-import android.R.color;
 import android.app.Activity;
-import android.content.res.Resources;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,11 +20,8 @@ public class EditLanguagesActivity extends Activity {
     private LayoutInflater mInflater;
 
     private PatoisDatabase mDb;
-    private ArrayList<Language> mLanguages;
+    private ArrayList<LanguageEntry> mLanguages;
 
-    /**
-     * Called when the activity is first created.
-     */
     @Override
     public void onCreate(Bundle inState) {
         super.onCreate(inState);
@@ -36,41 +32,76 @@ public class EditLanguagesActivity extends Activity {
         mDb = new PatoisDatabase(this);
         mDb.open();
 
-        mLanguages = mDb.getLanguages();
+        mLanguages = getLanguagesFromDB(mDb);
 
         mLayout = (LinearLayout) findViewById(R.id.list);
         buildViews();
     }
 
-    private void buildViews() {
-        final LinearLayout layout = mLayout;
-        layout.removeAllViews();
+    private ArrayList<LanguageEntry> getLanguagesFromDB(PatoisDatabase db) {
+        Cursor cursor = db.getLanguages();
+        ArrayList<LanguageEntry> languages = new ArrayList<LanguageEntry>();
 
-        for (Language language : mLanguages) {
-            layout.addView(buildViewForLanguage(language));
+        while (cursor.moveToNext()) {
+            languages.add(new LanguageEntry(cursor));
         }
 
-        // Add an empty language entry for new languages.
-        // TODO: Maybe replace this with a "add language" button.
-        layout.addView(buildViewForLanguage(null));
+        return languages;
     }
 
-    private View buildViewForLanguage(final Language language) {
-        View view = mInflater.inflate(R.layout.edit_language_entry, mLayout, false);
+    private void buildViews() {
+        LinearLayout layout = mLayout;
+        layout.removeAllViews();
 
-        EditText code_textbox = (EditText) view.findViewById(R.id.language_code);
-        EditText name_textbox = (EditText) view.findViewById(R.id.language_name);
-
-        if (language != null) {
-            code_textbox.setText(language.code);
-            name_textbox.setText(language.name);
+        for (LanguageEntry language : mLanguages) {
+            layout.addView(language.buildView(layout));
         }
-
-        return view;
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         // TODO: Save the edits made by the user to outState.
+    }
+
+    private class LanguageEntry {
+        // These fields are saved in the parcel.
+        public String code;
+        public String name;
+        public Integer id;
+
+        // These fields are NOT saved in the parcel.
+        public EditText codeEditText;
+        public EditText nameEditText;
+
+        public LanguageEntry() {
+            code = "";
+            name = "";
+        }
+
+        public LanguageEntry(int id, String code, String name) {
+            this.id = id;
+            this.code = code;
+            this.name = name;
+        }
+
+        public LanguageEntry(Cursor cursor) {
+            this(cursor.getInt(PatoisDatabase.LANGUAGE_ID_COLUMN),
+                 cursor.getString(PatoisDatabase.LANGUAGE_CODE_COLUMN),
+                 cursor.getString(PatoisDatabase.LANGUAGE_NAME_COLUMN));
+        }
+
+        public View buildView(LinearLayout parent) {
+            View view = mInflater.inflate(R.layout.edit_language_entry, parent, false);
+
+            codeEditText = (EditText) view.findViewById(R.id.language_code);
+            nameEditText = (EditText) view.findViewById(R.id.language_name);
+
+            codeEditText.setText(code);
+            nameEditText.setText(name);
+
+            view.setTag(this);
+
+            return view;
+        }
     }
 }
