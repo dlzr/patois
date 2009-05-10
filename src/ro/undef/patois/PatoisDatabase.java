@@ -1,6 +1,7 @@
 package ro.undef.patois;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -83,5 +84,27 @@ public class PatoisDatabase {
         mActivity.startManagingCursor(cursor);
 
         return cursor;
+    }
+
+    public long insertLanguage(String code, String name) {
+        ContentValues values = new ContentValues();
+        values.put("code", code);
+        values.put("name", name);
+
+        return mDb.insert("languages", null, values);
+    }
+
+    public boolean updateLanguage(long id, String code, String name) {
+        ContentValues values = new ContentValues();
+        values.put("code", code);
+        values.put("name", name);
+
+        return mDb.update("languages", values, "_id = ?",
+                          new String[] { Long.toString(id) }) == 1;
+    }
+
+    public boolean deleteLanguage(long id) {
+        return mDb.delete("languages", "_id = ?",
+                          new String[] { Long.toString(id) }) == 1;
     }
 }

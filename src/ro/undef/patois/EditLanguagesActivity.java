@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -37,16 +38,36 @@ public class EditLanguagesActivity extends Activity {
         mDb.open();
 
         if (savedInstanceState != null) {
-            getLanguagesFromBundle(savedInstanceState);
+            loadLanguagesFromBundle(savedInstanceState);
         } else {
-            getLanguagesFromDB(mDb);
+            loadLanguagesFromDatabase(mDb);
         }
 
         mLayout = (LinearLayout) findViewById(R.id.list);
         buildViews();
     }
 
-    private void getLanguagesFromDB(PatoisDatabase db) {
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        for (LanguageEntry language : mLanguages) {
+            language.syncFromView();
+        }
+
+        outState.putParcelableArrayList("languages", mLanguages);
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_BACK: {
+                doSaveAction();
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    private void loadLanguagesFromDatabase(PatoisDatabase db) {
         ArrayList<LanguageEntry> languages = new ArrayList<LanguageEntry>();
         Cursor cursor = db.getLanguages();
 
@@ -57,7 +78,7 @@ public class EditLanguagesActivity extends Activity {
         mLanguages = languages;
     }
 
-    private void getLanguagesFromBundle(Bundle savedInstanceState) {
+    private void loadLanguagesFromBundle(Bundle savedInstanceState) {
         mLanguages = savedInstanceState.getParcelableArrayList("languages");
     }
 
@@ -71,13 +92,11 @@ public class EditLanguagesActivity extends Activity {
         }
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
+    private void doSaveAction() {
         for (LanguageEntry language : mLanguages) {
-            language.syncFromView();
+            language.saveToDatabase(mDb);
         }
-
-        outState.putParcelableArrayList("languages", mLanguages);
+        finish();
     }
 
     private static class LanguageEntry implements Parcelable {
@@ -86,7 +105,7 @@ public class EditLanguagesActivity extends Activity {
         /**
          * ID number of the the language row in the database.
          */
-        public int id;
+        public long id;
 
         /**
          * Short code for the language (e.g., "EN" for "English").
@@ -103,6 +122,11 @@ public class EditLanguagesActivity extends Activity {
          * stored in the database.
          */
         public boolean modified;
+
+        /**
+         * True if the user pressed the 'delete' button on this LanguageEntry.
+         */
+        public boolean deleted;
 
         /**
          * Position of the beginning of the selection in the "code" EditText
@@ -132,11 +156,12 @@ public class EditLanguagesActivity extends Activity {
         private EditText mCodeEditText;
         private EditText mNameEditText;
 
-        public LanguageEntry(int id, String code, String name) {
+        public LanguageEntry(long id, String code, String name) {
             this.id = id;
             this.code = code;
             this.name = name;
             this.modified = false;
+            this.deleted = false;
             this.codeSelectionStart = -1;
             this.codeSelectionStart = -1;
             this.nameSelectionEnd = -1;
@@ -202,6 +227,18 @@ public class EditLanguagesActivity extends Activity {
             }
         }
 
+        public void saveToDatabase(PatoisDatabase db) {
+            syncFromView();
+
+            if (id == -1 && !deleted) {
+                id = db.insertLanguage(code, name);
+            } else if (modified && !deleted) {
+                db.updateLanguage(id, code, name);
+            } else if (deleted) {
+                db.deleteLanguage(id);
+            }
+        }
+
         // The Parcelable interface implementation.
 
         public int describeContents() {
@@ -209,7 +246,7 @@ public class EditLanguagesActivity extends Activity {
         }
 
         public void writeToParcel(Parcel out, int flags) {
-            out.writeInt(id);
+            out.writeLong(id);
             out.writeString(code);
             out.writeString(name);
             out.writeInt(modified ? 1 : 0);
@@ -223,7 +260,7 @@ public class EditLanguagesActivity extends Activity {
                 = new Parcelable.Creator() {
 
             public LanguageEntry createFromParcel(Parcel in) {
-                LanguageEntry language = new LanguageEntry(in.readInt(),
+                LanguageEntry language = new LanguageEntry(in.readLong(),
                                                            in.readString(),
                                                            in.readString());
                 language.modified = in.readInt() == 1;
