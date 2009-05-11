@@ -33,6 +33,7 @@ public class EditLanguagesActivity extends Activity {
 
         mInflater = getLayoutInflater();
         setContentView(R.layout.edit_languages);
+        mLayout = (LinearLayout) findViewById(R.id.list);
 
         mDb = new PatoisDatabase(this);
         mDb.open();
@@ -42,8 +43,6 @@ public class EditLanguagesActivity extends Activity {
         } else {
             loadLanguagesFromDatabase(mDb);
         }
-
-        mLayout = (LinearLayout) findViewById(R.id.list);
         buildViews();
     }
 
