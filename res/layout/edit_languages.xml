@@ -19,11 +19,43 @@
             android:textColor="?android:attr/textColorPrimary"
             />
 
+        <!--
+        The language list is populated with views expanded from
+        edit_language_entry.xml.
+        -->
         <LinearLayout android:id="@+id/list"
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             />
 
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dip"
+            >
+
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginRight="12dip"
+                android:text="@string/add_language"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="?android:attr/textColorPrimary"
+                android:gravity="fill_vertical|right"
+                />
+
+            <Button android:id="@+id/add_language"
+                android:layout_width="45sp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="8dip"
+                android:text="+"
+                android:textStyle="bold"
+                android:textSize="20sp"
+                />
+
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>
