@@ -38,22 +38,20 @@
 
             <TextView
                 android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="fill_parent"
                 android:layout_weight="1"
                 android:layout_marginRight="12dip"
                 android:text="@string/add_language"
                 android:textAppearance="?android:attr/textAppearanceMedium"
-                android:textColor="?android:attr/textColorPrimary"
-                android:gravity="fill_vertical|right"
+                android:textColor="?android:attr/textColorSecondary"
+                android:gravity="center_vertical|right"
                 />
 
-            <Button android:id="@+id/add_language"
-                android:layout_width="45sp"
+            <ImageButton android:id="@+id/add_language"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="8dip"
-                android:text="+"
-                android:textStyle="bold"
-                android:textSize="20sp"
+                style="@style/add_button"
                 />
 
         </LinearLayout>

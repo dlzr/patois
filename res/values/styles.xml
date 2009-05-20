@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="add_button">
+        <item name="android:background">@android:drawable/btn_default_small</item>
+        <item name="android:src">@drawable/add_sign</item>
+    </style>
+
+    <style name="delete_button">
+        <item name="android:background">@android:drawable/btn_default_small</item>
+        <item name="android:src">@drawable/delete_sign</item>
+    </style>
+</resources>
