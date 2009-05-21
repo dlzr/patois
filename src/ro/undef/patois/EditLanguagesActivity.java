@@ -102,7 +102,7 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
         layout.removeAllViews();
 
         for (LanguageEntry language : mLanguages) {
-            if (!language.deleted)
+            if (!language.isDeleted())
                 layout.addView(language.buildView(inflater, layout));
         }
 
@@ -123,52 +123,55 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
         /**
          * ID number of the the language row in the database.
          */
-        public long id;
+        private long mId;
 
         /**
          * Short code for the language (e.g., "EN" for "English").
          */
-        public String code;
+        private String mCode;
 
         /**
          * Language name (e.g., "English").
          */
-        public String name;
+        private String mName;
 
         /**
          * True if the data in the LanguageEntry is different from what's
          * stored in the database.
          */
-        public boolean modified;
+        private boolean mModified;
 
         /**
          * True if the user pressed the 'delete' button on this LanguageEntry.
          */
-        public boolean deleted;
+        private boolean mDeleted;
+        public boolean isDeleted() {
+            return mDeleted;
+        }
 
         /**
          * Position of the beginning of the selection in the "code" EditText
          * (-1 if there is no selection).
          */
-        public int codeSelectionStart;
+        private int mCodeSelectionStart;
 
         /**
          * Position of the end of the selection in the "code" EditText
          * (-1 if there is no selection).
          */
-        public int codeSelectionEnd;
+        private int mCodeSelectionEnd;
 
         /**
          * Position of the beginning of the selection in the "name" EditText
          * (-1 if there is no selection).
          */
-        public int nameSelectionStart;
+        private int mNameSelectionStart;
 
         /**
          * Position of the end of the selection in the "name" EditText
          * (-1 if there is no selection).
          */
-        public int nameSelectionEnd;
+        private int mNameSelectionEnd;
 
         // These fields are NOT saved in the parcel.
         private View mView;
@@ -176,15 +179,15 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
         private EditText mNameEditText;
 
         public LanguageEntry(long id, String code, String name) {
-            this.id = id;
-            this.code = code;
-            this.name = name;
-            this.modified = false;
-            this.deleted = false;
-            this.codeSelectionStart = -1;
-            this.codeSelectionStart = -1;
-            this.nameSelectionEnd = -1;
-            this.nameSelectionEnd = -1;
+            mId = id;
+            mCode = code;
+            mName = name;
+            mModified = false;
+            mDeleted = false;
+            mCodeSelectionStart = -1;
+            mCodeSelectionStart = -1;
+            mNameSelectionEnd = -1;
+            mNameSelectionEnd = -1;
         }
 
         public LanguageEntry() {
@@ -204,16 +207,16 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
             mCodeEditText = (EditText) view.findViewById(R.id.language_code);
             mNameEditText = (EditText) view.findViewById(R.id.language_name);
 
-            mCodeEditText.setText(code);
-            mNameEditText.setText(name);
+            mCodeEditText.setText(mCode);
+            mNameEditText.setText(mName);
 
-            if (codeSelectionStart != -1 && codeSelectionEnd != -1) {
+            if (mCodeSelectionStart != -1 && mCodeSelectionEnd != -1) {
                 mCodeEditText.requestFocus();
-                mCodeEditText.setSelection(codeSelectionStart, codeSelectionEnd);
+                mCodeEditText.setSelection(mCodeSelectionStart, mCodeSelectionEnd);
             }
-            if (nameSelectionStart != -1 && nameSelectionEnd != -1) {
+            if (mNameSelectionStart != -1 && mNameSelectionEnd != -1) {
                 mNameEditText.requestFocus();
-                mNameEditText.setSelection(nameSelectionStart, nameSelectionEnd);
+                mNameEditText.setSelection(mNameSelectionStart, mNameSelectionEnd);
             }
 
             View deleteButton = view.findViewById(R.id.delete_language);
@@ -226,25 +229,25 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
             String new_code = mCodeEditText.getText().toString();
             String new_name = mNameEditText.getText().toString();
 
-            if (new_code != code || new_name != name)
-                modified = true;
+            if (new_code != mCode || new_name != mName)
+                mModified = true;
 
-            code = new_code;
-            name = new_name;
+            mCode = new_code;
+            mName = new_name;
 
             if (mCodeEditText.hasFocus()) {
-                codeSelectionStart = mCodeEditText.getSelectionStart();
-                codeSelectionEnd = mCodeEditText.getSelectionEnd();
+                mCodeSelectionStart = mCodeEditText.getSelectionStart();
+                mCodeSelectionEnd = mCodeEditText.getSelectionEnd();
             } else {
-                codeSelectionStart = -1;
-                codeSelectionEnd = -1;
+                mCodeSelectionStart = -1;
+                mCodeSelectionEnd = -1;
             }
             if (mNameEditText.hasFocus()) {
-                nameSelectionStart = mNameEditText.getSelectionStart();
-                nameSelectionEnd = mNameEditText.getSelectionEnd();
+                mNameSelectionStart = mNameEditText.getSelectionStart();
+                mNameSelectionEnd = mNameEditText.getSelectionEnd();
             } else {
-                nameSelectionStart = -1;
-                nameSelectionEnd = -1;
+                mNameSelectionStart = -1;
+                mNameSelectionEnd = -1;
             }
         }
 
@@ -253,18 +256,18 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
             // zero, ask the user to confirm the deletion.
             LinearLayout layout = (LinearLayout) mView.getParent();
             layout.removeView(mView);
-            deleted = true;
+            mDeleted = true;
         }
 
         public void saveToDatabase(PatoisDatabase db) {
             syncFromView();
 
-            if (id == -1 && !deleted) {
-                id = db.insertLanguage(code, name);
-            } else if (modified && !deleted) {
-                db.updateLanguage(id, code, name);
-            } else if (deleted) {
-                db.deleteLanguage(id);
+            if (mId == -1 && !mDeleted) {
+                mId = db.insertLanguage(mCode, mName);
+            } else if (mModified && !mDeleted) {
+                db.updateLanguage(mId, mCode, mName);
+            } else if (mDeleted) {
+                db.deleteLanguage(mId);
             }
         }
 
@@ -284,15 +287,15 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
         }
 
         public void writeToParcel(Parcel out, int flags) {
-            out.writeLong(id);
-            out.writeString(code);
-            out.writeString(name);
-            out.writeInt(modified ? 1 : 0);
-            out.writeInt(deleted ? 1 : 0);
-            out.writeInt(codeSelectionStart);
-            out.writeInt(codeSelectionEnd);
-            out.writeInt(nameSelectionStart);
-            out.writeInt(nameSelectionEnd);
+            out.writeLong(mId);
+            out.writeString(mCode);
+            out.writeString(mName);
+            out.writeInt(mModified ? 1 : 0);
+            out.writeInt(mDeleted ? 1 : 0);
+            out.writeInt(mCodeSelectionStart);
+            out.writeInt(mCodeSelectionEnd);
+            out.writeInt(mNameSelectionStart);
+            out.writeInt(mNameSelectionEnd);
         }
 
         public static final Parcelable.Creator CREATOR
@@ -302,13 +305,13 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
                 LanguageEntry language = new LanguageEntry(in.readLong(),
                                                            in.readString(),
                                                            in.readString());
-                language.modified = in.readInt() == 1;
-                language.deleted = in.readInt() == 1;
+                language.mModified = in.readInt() == 1;
+                language.mDeleted = in.readInt() == 1;
 
-                language.codeSelectionStart = in.readInt();
-                language.codeSelectionEnd = in.readInt();
-                language.nameSelectionStart = in.readInt();
-                language.nameSelectionEnd = in.readInt();
+                language.mCodeSelectionStart = in.readInt();
+                language.mCodeSelectionEnd = in.readInt();
+                language.mNameSelectionStart = in.readInt();
+                language.mNameSelectionEnd = in.readInt();
 
                 return language;
             }
