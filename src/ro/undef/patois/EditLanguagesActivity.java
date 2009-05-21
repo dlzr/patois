@@ -72,6 +72,14 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
                 addNewLanguage();
                 break;
             }
+            case R.id.done: {
+                doSaveAction();
+                break;
+            }
+            case R.id.revert: {
+                doRevertAction();
+                break;
+            }
         }
     }
 
@@ -108,12 +116,20 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
 
         View view = findViewById(R.id.add_language);
         view.setOnClickListener(this);
+        view = findViewById(R.id.done);
+        view.setOnClickListener(this);
+        view = findViewById(R.id.revert);
+        view.setOnClickListener(this);
     }
 
     private void doSaveAction() {
         for (LanguageEntry language : mLanguages) {
             language.saveToDatabase(mDb);
         }
+        finish();
+    }
+
+    private void doRevertAction() {
         finish();
     }
 

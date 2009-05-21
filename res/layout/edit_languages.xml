@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:scrollbars="none">
+    android:layout_height="fill_parent"
+    android:fillViewport="true"
+    android:scrollbars="none"
+    >
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="fill_parent"
         >
 
         <TextView
@@ -52,6 +54,40 @@
                 android:layout_height="wrap_content"
                 android:layout_marginRight="8dip"
                 style="@style/add_button"
+                />
+
+        </LinearLayout>
+
+        <!--
+        Space filler for when the ScrollView is smaller than the screen.
+        This will push the Done/Revert buttons to the bottom of the screen.
+        -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            style="@android:style/ButtonBar"
+            >
+
+            <Button android:id="@+id/done"
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/done"
+                />
+
+            <Button android:id="@+id/revert"
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/revert"
                 />
 
         </LinearLayout>

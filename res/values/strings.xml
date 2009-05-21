@@ -15,4 +15,6 @@
     <string name="add_language">Add a new language</string>
     <string name="language_code">code</string>
     <string name="language_name">Language name</string>
+    <string name="done">Done</string>
+    <string name="revert">Revert</string>
 </resources>
