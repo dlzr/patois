@@ -16,7 +16,7 @@ import java.util.ArrayList;
  */
 public class PatoisDatabase {
 
-    private static final String DATABASE_NAME = "patois";
+    private static final String DATABASE_NAME = "patois.db";
     private static final int DATABASE_VERSION = 1;
     private static final String[] DATABASE_SCHEMA = new String[] {
         "CREATE TABLE languages ( " +
