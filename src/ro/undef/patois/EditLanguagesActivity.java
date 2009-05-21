@@ -18,7 +18,7 @@ import java.util.ArrayList;
 /**
  * Activity for editting the list of languages.
  */
-public class EditLanguagesActivity extends Activity {
+public class EditLanguagesActivity extends Activity implements View.OnClickListener {
     private final static String TAG = "EditLanguagesActivity";
 
     private LinearLayout mLayout;
@@ -66,6 +66,15 @@ public class EditLanguagesActivity extends Activity {
         return super.onKeyDown(keyCode, event);
     }
 
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.add_language: {
+                addNewLanguage();
+                break;
+            }
+        }
+    }
+
     private void loadLanguagesFromDatabase(PatoisDatabase db) {
         ArrayList<LanguageEntry> languages = new ArrayList<LanguageEntry>();
         Cursor cursor = db.getLanguages();
@@ -81,6 +90,12 @@ public class EditLanguagesActivity extends Activity {
         mLanguages = savedInstanceState.getParcelableArrayList("languages");
     }
 
+    private void addNewLanguage() {
+        LanguageEntry language = new LanguageEntry();
+        mLanguages.add(language);
+        mLayout.addView(language.buildView(mInflater, mLayout));
+    }
+
     private void buildViews() {
         LayoutInflater inflater = mInflater;
         LinearLayout layout = mLayout;
@@ -89,6 +104,9 @@ public class EditLanguagesActivity extends Activity {
         for (LanguageEntry language : mLanguages) {
             layout.addView(language.buildView(inflater, layout));
         }
+
+        View view = findViewById(R.id.add_language);
+        view.setOnClickListener(this);
     }
 
     private void doSaveAction() {
