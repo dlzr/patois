@@ -1,0 +1,21 @@
+Database:
+  - Add triggers to the database to insure consistency:
+    - When deleting a language, all words in that language should be
+      deleted too.
+    - When deleting a word, all translations of that word should be
+      deleted too.
+    - When adding/deleting a translation, update the "translations"
+      count of the affected words.
+
+EditLanguagesActivity:
+  - When deleting a language, first check that there are no words
+    defined in that language.  If this is not true, ask the user for
+    confirmation.
+
+Other:
+  - When editting an existing translation for a word, ask user if the
+    new translation is a spelling correction, or a completely new word
+    (i.e., a better translation).
+
+__________________________
+vim:ai:sw=2:sts=2:et:tw=72
