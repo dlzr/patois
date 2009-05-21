@@ -102,7 +102,8 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
         layout.removeAllViews();
 
         for (LanguageEntry language : mLanguages) {
-            layout.addView(language.buildView(inflater, layout));
+            if (!language.deleted)
+                layout.addView(language.buildView(inflater, layout));
         }
 
         View view = findViewById(R.id.add_language);
@@ -116,7 +117,7 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
         finish();
     }
 
-    private static class LanguageEntry implements Parcelable {
+    private static class LanguageEntry implements Parcelable, View.OnClickListener {
         // These fields are saved in the parcel.
 
         /**
@@ -170,6 +171,7 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
         public int nameSelectionEnd;
 
         // These fields are NOT saved in the parcel.
+        private View mView;
         private EditText mCodeEditText;
         private EditText mNameEditText;
 
@@ -197,6 +199,7 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
 
         public View buildView(LayoutInflater inflater, LinearLayout parent) {
             View view = inflater.inflate(R.layout.edit_language_entry, parent, false);
+            mView = view;
 
             mCodeEditText = (EditText) view.findViewById(R.id.language_code);
             mNameEditText = (EditText) view.findViewById(R.id.language_name);
@@ -213,7 +216,8 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
                 mNameEditText.setSelection(nameSelectionStart, nameSelectionEnd);
             }
 
-            view.setTag(this);
+            View deleteButton = view.findViewById(R.id.delete_language);
+            deleteButton.setOnClickListener(this);
 
             return view;
         }
@@ -244,6 +248,14 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
             }
         }
 
+        private void markAsDeleted() {
+            // TODO: Count the number of words in this language, and if not
+            // zero, ask the user to confirm the deletion.
+            LinearLayout layout = (LinearLayout) mView.getParent();
+            layout.removeView(mView);
+            deleted = true;
+        }
+
         public void saveToDatabase(PatoisDatabase db) {
             syncFromView();
 
@@ -253,6 +265,15 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
                 db.updateLanguage(id, code, name);
             } else if (deleted) {
                 db.deleteLanguage(id);
+            }
+        }
+
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.delete_language: {
+                    markAsDeleted();
+                    break;
+                }
             }
         }
 
@@ -267,6 +288,7 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
             out.writeString(code);
             out.writeString(name);
             out.writeInt(modified ? 1 : 0);
+            out.writeInt(deleted ? 1 : 0);
             out.writeInt(codeSelectionStart);
             out.writeInt(codeSelectionEnd);
             out.writeInt(nameSelectionStart);
@@ -281,6 +303,7 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
                                                            in.readString(),
                                                            in.readString());
                 language.modified = in.readInt() == 1;
+                language.deleted = in.readInt() == 1;
 
                 language.codeSelectionStart = in.readInt();
                 language.codeSelectionEnd = in.readInt();
