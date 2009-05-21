@@ -47,6 +47,12 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mDb.close();
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         for (LanguageEntry language : mLanguages) {
             language.syncFromView();
