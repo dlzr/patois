@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 /**
  * Activity for editting the list of languages.
  */
-public class EditLanguagesActivity extends Activity implements View.OnClickListener {
+public class EditLanguagesActivity extends Activity {
     private final static String TAG = "EditLanguagesActivity";
 
     private LinearLayout mLayout;
@@ -72,23 +73,6 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
         return super.onKeyDown(keyCode, event);
     }
 
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.add_language: {
-                addNewLanguage();
-                break;
-            }
-            case R.id.done: {
-                doSaveAction();
-                break;
-            }
-            case R.id.revert: {
-                doRevertAction();
-                break;
-            }
-        }
-    }
-
     private void loadLanguagesFromDatabase(PatoisDatabase db) {
         ArrayList<LanguageEntry> languages = new ArrayList<LanguageEntry>();
         Cursor cursor = db.getLanguages();
@@ -121,11 +105,25 @@ public class EditLanguagesActivity extends Activity implements View.OnClickListe
         }
 
         View view = findViewById(R.id.add_language);
-        view.setOnClickListener(this);
+        view.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                addNewLanguage();
+            }
+        });
+
         view = findViewById(R.id.done);
-        view.setOnClickListener(this);
+        view.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                doSaveAction();
+            }
+        });
+
         view = findViewById(R.id.revert);
-        view.setOnClickListener(this);
+        view.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                doRevertAction();
+            }
+        });
     }
 
     private void doSaveAction() {
