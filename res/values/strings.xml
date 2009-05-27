@@ -3,12 +3,16 @@
     <string name="app_name">Patois</string>
 
     <!-- Strings in the main activity. -->
-    <string name="foreign_language_name">Norwegian</string>
+    <string name="main_title">Patois</string>
     <string name="learn">Learn:</string>
     <string name="browse_words">Browse Words</string>
     <string name="practice">Practice:</string>
     <string name="foreign_native">Foreign to Native</string>
     <string name="native_foreign">Native to Foreign</string>
+
+    <!-- Strings in the "select language" dialog. -->
+    <string name="select_language">Select language</string>
+    <string name="edit_languages">Edit languages</string>
 
     <!-- Strings in the "edit languages" activity. -->
     <string name="enter_languages">Native and foreign languages:</string>
@@ -16,5 +20,5 @@
     <string name="language_code">code</string>
     <string name="language_name">Language name</string>
     <string name="done">Done</string>
-    <string name="revert">Revert</string>
+    <string name="cancel">Cancel</string>
 </resources>

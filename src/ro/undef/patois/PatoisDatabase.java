@@ -11,9 +11,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
 
 
-/**
- * Abstracts access to the Patois database.
- */
 public class PatoisDatabase {
 
     private static final String DATABASE_NAME = "patois.db";

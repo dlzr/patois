@@ -16,9 +16,6 @@ import android.widget.LinearLayout;
 import java.util.ArrayList;
 
 
-/**
- * Activity for editting the list of languages.
- */
 public class EditLanguagesActivity extends Activity {
     private final static String TAG = "EditLanguagesActivity";
 
@@ -118,7 +115,7 @@ public class EditLanguagesActivity extends Activity {
             }
         });
 
-        view = findViewById(R.id.revert);
+        view = findViewById(R.id.cancel);
         view.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
                 doRevertAction();
