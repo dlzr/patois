@@ -65,33 +65,40 @@ public class PatoisMainActivity extends Activity {
     protected Dialog onCreateDialog(int id) {
         switch (id) {
             case R.id.select_language:
-                return new AlertDialog.Builder(this)
-                    .setTitle(R.string.select_language)
-                    .setCursor(mDb.getLanguages(), new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(PatoisMainActivity.this,
-                                           "Selected language " + which + ".",
-                                           Toast.LENGTH_SHORT).show();
-                            // TODO: Save the selected language to "properties"
-                            // and update the title of the main window.
-                        }
-                    }, "name")
-                    .setNeutralButton(R.string.edit_languages,
-                                      new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent intent = new Intent();
-                            intent.setClass(PatoisMainActivity.this,
-                                            EditLanguagesActivity.class);
-                            startActivity(intent);
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel, null)
-                    .create();
+                return buildSelectLanguageDialog();
         }
         return null;
     }
 
     private void doSelectLanguageAction() {
         showDialog(R.id.select_language);
+    }
+
+    private Dialog buildSelectLanguageDialog() {
+        return new AlertDialog.Builder(this)
+            .setTitle(R.string.select_language)
+            .setCursor(mDb.getLanguages(), new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    Toast.makeText(PatoisMainActivity.this,
+                                   "Selected language " + which + ".",
+                                   Toast.LENGTH_SHORT).show();
+                    // TODO: Save the selected language to "properties"
+                    // and update the title of the main window.
+                }
+            }, "name")
+            .setNeutralButton(R.string.edit_languages,
+                              new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    startEditLanguagesActivity();
+                }
+            })
+            .setNegativeButton(R.string.cancel, null)
+            .create();
+    }
+
+    private void startEditLanguagesActivity() {
+        Intent intent = new Intent();
+        intent.setClass(PatoisMainActivity.this, EditLanguagesActivity.class);
+        startActivity(intent);
     }
 }
