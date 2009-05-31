@@ -2,35 +2,33 @@
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
 
     <TextView
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:text="@string/practice"
-	android:textSize="18sp"
-	android:layout_marginTop="8dip"
-	android:layout_marginLeft="32dip"
-	android:layout_marginRight="32dip"
-	android:layout_marginBottom="10dip"
-	/>
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/practice"
+        android:textSize="18sp"
+        android:layout_marginTop="8dip"
+        android:layout_marginLeft="32dip"
+        android:layout_marginRight="32dip"
+        android:layout_marginBottom="10dip"
+        />
 
-    <Button
-	android:id="@+id/foreign_native"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:layout_marginRight="8dip"
-	android:layout_marginBottom="8dip"
-	android:layout_marginLeft="8dip"
-	android:text="@string/foreign_native"
-	/>
+    <Button android:id="@+id/from_foreign"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="8dip"
+        android:layout_marginBottom="8dip"
+        android:layout_marginLeft="8dip"
+        android:text="@string/from_foreign"
+        />
 
-    <Button
-	android:id="@+id/native_foreign"
-	android:layout_width="fill_parent"
-	android:layout_height="wrap_content"
-	android:layout_marginTop="8dip"
-	android:layout_marginRight="8dip"
-	android:layout_marginBottom="8dip"
-	android:layout_marginLeft="8dip"
-	android:text="@string/native_foreign"
-	/>
+    <Button android:id="@+id/to_foreign"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dip"
+        android:layout_marginRight="8dip"
+        android:layout_marginBottom="8dip"
+        android:layout_marginLeft="8dip"
+        android:text="@string/to_foreign"
+        />
 
 </merge>

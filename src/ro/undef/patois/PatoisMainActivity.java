@@ -5,15 +5,16 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View.OnClickListener;
 import android.view.View;
-
-// XXX: Temporary imports
-import android.widget.Toast;
+import android.widget.Button;
+import android.widget.TextView;
 
 
 public class PatoisMainActivity extends Activity {
@@ -24,23 +25,41 @@ public class PatoisMainActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mDb = new PatoisDatabase(this);
+
         setContentView(R.layout.main_activity);
+        updateLabels();
 
         View view = findViewById(R.id.main_title);
         view.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                doSelectLanguageAction();
+                showDialog(R.id.select_language);
             }
         });
-
-        mDb = new PatoisDatabase(this);
-        mDb.open();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mDb.close();
+    }
+
+    private void updateLabels() {
+        Resources res = getResources();
+
+        String language = mDb.getActiveLanguageName();
+        if (language == null)
+            language = res.getString(R.string.foreign);
+
+        TextView mainTitle = (TextView) findViewById(R.id.main_title);
+        mainTitle.setText(language);
+
+        Button button = (Button) findViewById(R.id.from_foreign);
+        button.setText(String.format(res.getString(R.string.from_foreign), language));
+
+        button = (Button) findViewById(R.id.to_foreign);
+        button.setText(String.format(res.getString(R.string.to_foreign), language));
     }
 
     @Override
@@ -54,7 +73,7 @@ public class PatoisMainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.select_language: {
-                doSelectLanguageAction();
+                showDialog(R.id.select_language);
                 return true;
             }
         }
@@ -70,20 +89,14 @@ public class PatoisMainActivity extends Activity {
         return null;
     }
 
-    private void doSelectLanguageAction() {
-        showDialog(R.id.select_language);
-    }
-
     private Dialog buildSelectLanguageDialog() {
+        final Cursor cursor = mDb.getLanguages();
         return new AlertDialog.Builder(this)
             .setTitle(R.string.select_language)
-            .setCursor(mDb.getLanguages(), new DialogInterface.OnClickListener() {
+            .setCursor(cursor, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
-                    Toast.makeText(PatoisMainActivity.this,
-                                   "Selected language " + which + ".",
-                                   Toast.LENGTH_SHORT).show();
-                    // TODO: Save the selected language to "properties"
-                    // and update the title of the main window.
+                    cursor.moveToPosition(which);
+                    activateLanguage(cursor.getLong(PatoisDatabase.LANGUAGE_ID_COLUMN));
                 }
             }, "name")
             .setNeutralButton(R.string.edit_languages,
@@ -96,9 +109,23 @@ public class PatoisMainActivity extends Activity {
             .create();
     }
 
+    private void activateLanguage(long id) {
+        mDb.setActiveLanguage(id);
+        updateLabels();
+    }
+
     private void startEditLanguagesActivity() {
         Intent intent = new Intent();
         intent.setClass(PatoisMainActivity.this, EditLanguagesActivity.class);
-        startActivity(intent);
+        startActivityForResult(intent, R.id.select_language);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case R.id.select_language:
+                updateLabels();
+                break;
+        }
     }
 }

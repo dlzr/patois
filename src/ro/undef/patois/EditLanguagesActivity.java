@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-
 import java.util.ArrayList;
 
 
@@ -34,7 +33,6 @@ public class EditLanguagesActivity extends Activity {
         mLayout = (LinearLayout) findViewById(R.id.list);
 
         mDb = new PatoisDatabase(this);
-        mDb.open();
 
         if (savedInstanceState != null) {
             loadLanguagesFromBundle(savedInstanceState);
@@ -212,7 +210,7 @@ public class EditLanguagesActivity extends Activity {
         }
 
         public LanguageEntry(Cursor cursor) {
-            this(cursor.getInt(PatoisDatabase.LANGUAGE_ID_COLUMN),
+            this(cursor.getLong(PatoisDatabase.LANGUAGE_ID_COLUMN),
                  cursor.getString(PatoisDatabase.LANGUAGE_CODE_COLUMN),
                  cursor.getString(PatoisDatabase.LANGUAGE_NAME_COLUMN));
         }

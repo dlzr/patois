@@ -3,12 +3,11 @@ package ro.undef.patois;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-
-import java.util.ArrayList;
 
 
 public class PatoisDatabase {
@@ -33,10 +32,12 @@ public class PatoisDatabase {
         "    word_id2 INTEGER NOT NULL " +
         ");",
     };
+    private static final String PREFERENCES_NAME = "patois.prefs";
 
     private final Activity mActivity;
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
+    private SharedPreferences mPrefs;
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -59,12 +60,10 @@ public class PatoisDatabase {
     }
 
     PatoisDatabase(Activity activity) {
-        this.mActivity = activity;
-    }
-
-    public void open() throws SQLException {
+        mActivity = activity;
         mDbHelper = new DatabaseHelper(mActivity);
         mDb = mDbHelper.getWritableDatabase();
+        mPrefs = mActivity.getSharedPreferences(PREFERENCES_NAME, 0);
     }
 
     public void close() {
@@ -103,5 +102,31 @@ public class PatoisDatabase {
     public boolean deleteLanguage(long id) {
         return mDb.delete("languages", "_id = ?",
                           new String[] { Long.toString(id) }) == 1;
+    }
+
+    private static final String ACTIVE_LANGUAGE_PREF = "active_language";
+
+    public void setActiveLanguage(long id) {
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.putLong(ACTIVE_LANGUAGE_PREF, id);
+        editor.commit();
+    }
+
+    public String getActiveLanguageName() {
+        long id = mPrefs.getLong(ACTIVE_LANGUAGE_PREF, -1);
+        if (id == -1)
+            return null;
+
+        Cursor cursor = mDb.query("languages", new String[] { "name" },
+                                  "_id = ?", new String[] { Long.toString(id) },
+                                  null, null, null);
+        try {
+            if (cursor.getCount() != 1)
+                return null;
+            cursor.moveToFirst();
+            return cursor.getString(0);
+        } finally {
+            cursor.close();
+        }
     }
 }
