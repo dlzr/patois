@@ -3,28 +3,30 @@
     android:orientation="horizontal"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
+    android:baselineAligned="false"
+    android:gravity="top"
     >
 
-    <EditText android:id="@+id/language_code"
+    <Button android:id="@+id/language"
         android:layout_width="60sp"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dip"
         android:layout_marginBottom="2dip"
         android:singleLine="true"
-        android:hint="@string/language_code"
+        android:text="EN"
         />
 
-    <EditText android:id="@+id/language_name"
+    <EditText android:id="@+id/word"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layout_marginLeft="2dip"
         android:layout_marginBottom="2dip"
         android:singleLine="true"
-        android:hint="@string/language_name"
+        android:hint="@string/translation"
         />
 
-    <ImageButton android:id="@+id/delete_language"
+    <ImageButton android:id="@+id/delete_translation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="2dip"

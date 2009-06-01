@@ -22,4 +22,10 @@
     <string name="language_name">Language name</string>
     <string name="done">Done</string>
     <string name="cancel">Cancel</string>
+
+    <!-- Strings in the "edit word" activity. -->
+    <string name="translation">Translation</string>
+    <string name="add_translation">Add a new translation</string>
+    <string name="new_word">New word</string>
+
 </resources>
