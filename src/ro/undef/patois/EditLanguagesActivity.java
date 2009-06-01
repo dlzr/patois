@@ -28,9 +28,9 @@ public class EditLanguagesActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mInflater = getLayoutInflater();
         setContentView(R.layout.edit_languages);
         mLayout = (LinearLayout) findViewById(R.id.list);
+        mInflater = getLayoutInflater();
 
         mDb = new PatoisDatabase(this);
 
