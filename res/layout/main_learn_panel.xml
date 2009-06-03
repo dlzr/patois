@@ -4,21 +4,26 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/explore"
+        android:text="@string/vocabulary"
         android:textSize="18sp"
         android:layout_marginTop="8dip"
         android:layout_marginLeft="32dip"
         android:layout_marginRight="32dip"
-        android:layout_marginBottom="10dip"
+        android:layout_marginBottom="2dip"
         />
 
     <Button android:id="@+id/browse_words"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginRight="8dip"
-        android:layout_marginBottom="8dip"
-        android:layout_marginLeft="8dip"
+        android:layout_margin="8dip"
         android:text="@string/browse_words"
+        />
+
+    <Button android:id="@+id/add_words"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dip"
+        android:text="@string/add_words"
         />
 
 </merge>

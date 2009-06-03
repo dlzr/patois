@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View.OnClickListener;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -32,9 +31,16 @@ public class PatoisMainActivity extends Activity {
         updateLabels();
 
         View view = findViewById(R.id.main_title);
-        view.setOnClickListener(new OnClickListener() {
+        view.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 showDialog(R.id.select_language);
+            }
+        });
+
+        Button button = (Button) findViewById(R.id.add_words);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startEditWordActivity();
             }
         });
     }
@@ -116,8 +122,14 @@ public class PatoisMainActivity extends Activity {
 
     private void startEditLanguagesActivity() {
         Intent intent = new Intent();
-        intent.setClass(PatoisMainActivity.this, EditLanguagesActivity.class);
+        intent.setClass(this, EditLanguagesActivity.class);
         startActivityForResult(intent, R.id.select_language);
+    }
+
+    private void startEditWordActivity() {
+        Intent intent = new Intent();
+        intent.setClass(this, EditWordActivity.class);
+        startActivity(intent);
     }
 
     @Override
