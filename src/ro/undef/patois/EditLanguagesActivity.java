@@ -42,43 +42,14 @@ public class EditLanguagesActivity extends Activity {
         mDb = new PatoisDatabase(this);
 
         if (savedInstanceState != null) {
-            loadLanguagesFromBundle(savedInstanceState);
+            loadStateFromBundle(savedInstanceState);
         } else {
-            loadLanguagesFromDatabase(mDb);
+            loadStateFromDatabase(mDb);
         }
         buildViews();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mDb.close();
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        for (LanguageEntry language : mLanguages) {
-            language.syncFromView();
-        }
-
-        outState.putParcelableArrayList("languages", mLanguages);
-        outState.putBoolean("addButtonHasFocus", mAddButton.hasFocus());
-        outState.putBoolean("doneButtonHasFocus", mDoneButton.hasFocus());
-        outState.putBoolean("cancelButtonHasFocus", mCancelButton.hasFocus());
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        switch (keyCode) {
-            case KeyEvent.KEYCODE_BACK: {
-                doSaveAction();
-                return true;
-            }
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-    private void loadLanguagesFromDatabase(PatoisDatabase db) {
+    private void loadStateFromDatabase(PatoisDatabase db) {
         ArrayList<LanguageEntry> languages = new ArrayList<LanguageEntry>();
         Cursor cursor = db.getLanguages();
 
@@ -89,7 +60,7 @@ public class EditLanguagesActivity extends Activity {
         mLanguages = languages;
     }
 
-    private void loadLanguagesFromBundle(Bundle savedInstanceState) {
+    private void loadStateFromBundle(Bundle savedInstanceState) {
         mLanguages = savedInstanceState.getParcelableArrayList("languages");
         mAddButtonHasFocus = savedInstanceState.getBoolean("addButtonHasFocus");
         mDoneButtonHasFocus = savedInstanceState.getBoolean("doneButtonHasFocus");
@@ -138,6 +109,35 @@ public class EditLanguagesActivity extends Activity {
         LanguageEntry language = new LanguageEntry();
         mLanguages.add(language);
         mLayout.addView(language.buildView(mInflater, mLayout));
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        for (LanguageEntry language : mLanguages) {
+            language.syncFromView();
+        }
+
+        outState.putParcelableArrayList("languages", mLanguages);
+        outState.putBoolean("addButtonHasFocus", mAddButton.hasFocus());
+        outState.putBoolean("doneButtonHasFocus", mDoneButton.hasFocus());
+        outState.putBoolean("cancelButtonHasFocus", mCancelButton.hasFocus());
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mDb.close();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch (keyCode) {
+            case KeyEvent.KEYCODE_BACK: {
+                doSaveAction();
+                return true;
+            }
+        }
+        return super.onKeyDown(keyCode, event);
     }
 
     private void doSaveAction() {
