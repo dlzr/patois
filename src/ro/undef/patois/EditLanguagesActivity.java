@@ -9,7 +9,6 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import java.util.ArrayList;
@@ -18,11 +17,19 @@ import java.util.ArrayList;
 public class EditLanguagesActivity extends Activity {
     private final static String TAG = "EditLanguagesActivity";
 
+    private PatoisDatabase mDb;
+
     private LinearLayout mLayout;
     private LayoutInflater mInflater;
+    private View mAddButton;
+    private View mDoneButton;
+    private View mCancelButton;
 
-    private PatoisDatabase mDb;
+    // These fields are saved accross restarts.
     private ArrayList<LanguageEntry> mLanguages;
+    private boolean mAddButtonHasFocus;
+    private boolean mDoneButtonHasFocus;
+    private boolean mCancelButtonHasFocus;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,6 +62,9 @@ public class EditLanguagesActivity extends Activity {
         }
 
         outState.putParcelableArrayList("languages", mLanguages);
+        outState.putBoolean("addButtonHasFocus", mAddButton.hasFocus());
+        outState.putBoolean("doneButtonHasFocus", mDoneButton.hasFocus());
+        outState.putBoolean("cancelButtonHasFocus", mCancelButton.hasFocus());
     }
 
     @Override
@@ -81,12 +91,9 @@ public class EditLanguagesActivity extends Activity {
 
     private void loadLanguagesFromBundle(Bundle savedInstanceState) {
         mLanguages = savedInstanceState.getParcelableArrayList("languages");
-    }
-
-    private void addNewLanguage() {
-        LanguageEntry language = new LanguageEntry();
-        mLanguages.add(language);
-        mLayout.addView(language.buildView(mInflater, mLayout));
+        mAddButtonHasFocus = savedInstanceState.getBoolean("addButtonHasFocus");
+        mDoneButtonHasFocus = savedInstanceState.getBoolean("doneButtonHasFocus");
+        mCancelButtonHasFocus = savedInstanceState.getBoolean("cancelButtonHasFocus");
     }
 
     private void buildViews() {
@@ -99,26 +106,38 @@ public class EditLanguagesActivity extends Activity {
                 layout.addView(language.buildView(inflater, layout));
         }
 
-        View view = findViewById(R.id.add_language);
-        view.setOnClickListener(new OnClickListener() {
+        mAddButton = findViewById(R.id.add_language);
+        mAddButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 addNewLanguage();
             }
         });
+        if (mAddButtonHasFocus)
+            mAddButton.requestFocus();
 
-        view = findViewById(R.id.done);
-        view.setOnClickListener(new OnClickListener() {
+        mDoneButton = findViewById(R.id.done);
+        mDoneButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 doSaveAction();
             }
         });
+        if (mDoneButtonHasFocus)
+            mDoneButton.requestFocus();
 
-        view = findViewById(R.id.cancel);
-        view.setOnClickListener(new OnClickListener() {
+        mCancelButton = findViewById(R.id.cancel);
+        mCancelButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 doRevertAction();
             }
         });
+        if (mCancelButtonHasFocus)
+            mCancelButton.requestFocus();
+    }
+
+    private void addNewLanguage() {
+        LanguageEntry language = new LanguageEntry();
+        mLanguages.add(language);
+        mLayout.addView(language.buildView(mInflater, mLayout));
     }
 
     private void doSaveAction() {
@@ -134,64 +153,23 @@ public class EditLanguagesActivity extends Activity {
 
     private static class LanguageEntry implements Parcelable, View.OnClickListener {
         // These fields are saved in the parcel.
-
-        /**
-         * ID number of the the language row in the database.
-         */
         private long mId;
-
-        /**
-         * Short code for the language (e.g., "EN" for "English").
-         */
         private String mCode;
-
-        /**
-         * Language name (e.g., "English").
-         */
         private String mName;
 
-        /**
-         * True if the data in the LanguageEntry is different from what's
-         * stored in the database.
-         */
         private boolean mModified;
-
-        /**
-         * True if the user pressed the 'delete' button on this LanguageEntry.
-         */
         private boolean mDeleted;
-        public boolean isDeleted() {
-            return mDeleted;
-        }
-
-        /**
-         * Position of the beginning of the selection in the "code" EditText
-         * (-1 if there is no selection).
-         */
         private int mCodeSelectionStart;
-
-        /**
-         * Position of the end of the selection in the "code" EditText
-         * (-1 if there is no selection).
-         */
         private int mCodeSelectionEnd;
-
-        /**
-         * Position of the beginning of the selection in the "name" EditText
-         * (-1 if there is no selection).
-         */
         private int mNameSelectionStart;
-
-        /**
-         * Position of the end of the selection in the "name" EditText
-         * (-1 if there is no selection).
-         */
         private int mNameSelectionEnd;
+        private boolean mDeleteButtonHasFocus;
 
         // These fields are NOT saved in the parcel.
         private View mView;
         private EditText mCodeEditText;
         private EditText mNameEditText;
+        private View mDeleteButton;
 
         public LanguageEntry(long id, String code, String name) {
             mId = id;
@@ -203,6 +181,7 @@ public class EditLanguagesActivity extends Activity {
             mCodeSelectionStart = -1;
             mNameSelectionEnd = -1;
             mNameSelectionEnd = -1;
+            mDeleteButtonHasFocus = false;
         }
 
         public LanguageEntry() {
@@ -234,8 +213,10 @@ public class EditLanguagesActivity extends Activity {
                 mNameEditText.setSelection(mNameSelectionStart, mNameSelectionEnd);
             }
 
-            View deleteButton = view.findViewById(R.id.delete_language);
-            deleteButton.setOnClickListener(this);
+            mDeleteButton = view.findViewById(R.id.delete_language);
+            mDeleteButton.setOnClickListener(this);
+            if (mDeleteButtonHasFocus)
+                mDeleteButton.requestFocus();
 
             return view;
         }
@@ -264,6 +245,7 @@ public class EditLanguagesActivity extends Activity {
                 mNameSelectionStart = -1;
                 mNameSelectionEnd = -1;
             }
+            mDeleteButtonHasFocus = mDeleteButton.hasFocus();
         }
 
         private void markAsDeleted() {
@@ -272,6 +254,10 @@ public class EditLanguagesActivity extends Activity {
             LinearLayout layout = (LinearLayout) mView.getParent();
             layout.removeView(mView);
             mDeleted = true;
+        }
+
+        public boolean isDeleted() {
+            return mDeleted;
         }
 
         public void saveToDatabase(PatoisDatabase db) {
@@ -311,6 +297,7 @@ public class EditLanguagesActivity extends Activity {
             out.writeInt(mCodeSelectionEnd);
             out.writeInt(mNameSelectionStart);
             out.writeInt(mNameSelectionEnd);
+            out.writeInt(mDeleteButtonHasFocus ? 1 : 0);
         }
 
         public static final Parcelable.Creator CREATOR
@@ -327,6 +314,7 @@ public class EditLanguagesActivity extends Activity {
                 language.mCodeSelectionEnd = in.readInt();
                 language.mNameSelectionStart = in.readInt();
                 language.mNameSelectionEnd = in.readInt();
+                language.mDeleteButtonHasFocus = in.readInt() == 1;
 
                 return language;
             }
