@@ -151,7 +151,7 @@ public class EditLanguagesActivity extends Activity {
         finish();
     }
 
-    private static class LanguageEntry implements Parcelable, View.OnClickListener {
+    private static class LanguageEntry implements Parcelable {
         // These fields are saved in the parcel.
         private long mId;
         private String mCode;
@@ -214,7 +214,11 @@ public class EditLanguagesActivity extends Activity {
             }
 
             mDeleteButton = view.findViewById(R.id.delete_language);
-            mDeleteButton.setOnClickListener(this);
+            mDeleteButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    markAsDeleted();
+                }
+            });
             if (mDeleteButtonHasFocus)
                 mDeleteButton.requestFocus();
 
@@ -269,15 +273,6 @@ public class EditLanguagesActivity extends Activity {
                 db.updateLanguage(mId, mCode, mName);
             } else if (mDeleted) {
                 db.deleteLanguage(mId);
-            }
-        }
-
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.delete_language: {
-                    markAsDeleted();
-                    break;
-                }
             }
         }
 
