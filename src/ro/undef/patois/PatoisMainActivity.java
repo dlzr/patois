@@ -53,21 +53,36 @@ public class PatoisMainActivity extends Activity {
 
     private void updateLabels() {
         Resources res = getResources();
+        boolean enabled = true;
 
         Language language = mDb.getActiveLanguage();
-        if (language == null)
+        if (language == null) {
             language = new Language(-1, "XX", res.getString(R.string.foreign));
+            enabled = false;
+        }
 
         TextView mainTitle = (TextView) findViewById(R.id.main_title);
-        mainTitle.setText(language.getName());
+        if (enabled) {
+            mainTitle.setText(language.getName());
+        } else {
+            mainTitle.setText(R.string.select_language);
+        }
 
-        Button button = (Button) findViewById(R.id.from_foreign);
+        Button button = (Button) findViewById(R.id.browse_words);
+        button.setEnabled(enabled);
+
+        button = (Button) findViewById(R.id.add_words);
+        button.setEnabled(enabled);
+
+        button = (Button) findViewById(R.id.from_foreign);
         button.setText(String.format(res.getString(R.string.from_foreign),
                                      language.getName()));
+        button.setEnabled(enabled);
 
         button = (Button) findViewById(R.id.to_foreign);
         button.setText(String.format(res.getString(R.string.to_foreign),
                                      language.getName()));
+        button.setEnabled(enabled);
     }
 
     @Override
