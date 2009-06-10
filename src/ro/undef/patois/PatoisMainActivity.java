@@ -54,18 +54,20 @@ public class PatoisMainActivity extends Activity {
     private void updateLabels() {
         Resources res = getResources();
 
-        String language = mDb.getActiveLanguageName();
+        Language language = mDb.getActiveLanguage();
         if (language == null)
-            language = res.getString(R.string.foreign);
+            language = new Language(-1, "XX", res.getString(R.string.foreign));
 
         TextView mainTitle = (TextView) findViewById(R.id.main_title);
-        mainTitle.setText(language);
+        mainTitle.setText(language.getName());
 
         Button button = (Button) findViewById(R.id.from_foreign);
-        button.setText(String.format(res.getString(R.string.from_foreign), language));
+        button.setText(String.format(res.getString(R.string.from_foreign),
+                                     language.getName()));
 
         button = (Button) findViewById(R.id.to_foreign);
-        button.setText(String.format(res.getString(R.string.to_foreign), language));
+        button.setText(String.format(res.getString(R.string.to_foreign),
+                                     language.getName()));
     }
 
     @Override
@@ -96,13 +98,13 @@ public class PatoisMainActivity extends Activity {
     }
 
     private Dialog buildSelectLanguageDialog() {
-        final Cursor cursor = mDb.getLanguages();
+        final Cursor cursor = mDb.getLanguagesCursor();
         return new AlertDialog.Builder(this)
             .setTitle(R.string.select_language)
             .setCursor(cursor, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     cursor.moveToPosition(which);
-                    activateLanguage(cursor.getLong(PatoisDatabase.LANGUAGE_ID_COLUMN));
+                    activateLanguageId(cursor.getLong(PatoisDatabase.LANGUAGE_ID_COLUMN));
                 }
             }, "name")
             .setNeutralButton(R.string.edit_languages,
@@ -115,8 +117,8 @@ public class PatoisMainActivity extends Activity {
             .create();
     }
 
-    private void activateLanguage(long id) {
-        mDb.setActiveLanguage(id);
+    private void activateLanguageId(long id) {
+        mDb.setActiveLanguageId(id);
         updateLabels();
     }
 

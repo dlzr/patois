@@ -8,6 +8,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import java.util.ArrayList;
 
 
 public class PatoisDatabase {
@@ -74,7 +75,7 @@ public class PatoisDatabase {
     public static final int LANGUAGE_CODE_COLUMN = 1;
     public static final int LANGUAGE_NAME_COLUMN = 2;
 
-    public Cursor getLanguages() {
+    public Cursor getLanguagesCursor() {
         Cursor cursor = mDb.query("languages", new String[] { "_id", "code", "name" },
                 null, null, null, null, null);
         mActivity.startManagingCursor(cursor);
@@ -82,49 +83,72 @@ public class PatoisDatabase {
         return cursor;
     }
 
-    public long insertLanguage(String code, String name) {
-        ContentValues values = new ContentValues();
-        values.put("code", code);
-        values.put("name", name);
+    public ArrayList<Language> getLanguages() {
+        ArrayList<Language> languages = new ArrayList<Language>();
 
-        return mDb.insert("languages", null, values);
+        Cursor cursor = mDb.query("languages", new String[] { "_id", "code", "name" },
+                null, null, null, null, null);
+        try {
+            while (cursor.moveToNext()) {
+                languages.add(new Language(cursor.getLong(0),
+                                           cursor.getString(1),
+                                           cursor.getString(2)));
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return languages;
     }
 
-    public boolean updateLanguage(long id, String code, String name) {
+    public boolean insertLanguage(Language language) {
         ContentValues values = new ContentValues();
-        values.put("code", code);
-        values.put("name", name);
+        values.put("code", language.getCode());
+        values.put("name", language.getName());
+
+        long id = mDb.insert("languages", null, values);
+        language.setId(id);
+
+        return id != -1;
+    }
+
+    public boolean updateLanguage(Language language) {
+        ContentValues values = new ContentValues();
+        values.put("code", language.getCode());
+        values.put("name", language.getName());
 
         return mDb.update("languages", values, "_id = ?",
-                          new String[] { Long.toString(id) }) == 1;
+                          new String[] { language.getIdString() }) == 1;
     }
 
-    public boolean deleteLanguage(long id) {
+    public boolean deleteLanguage(Language language) {
         return mDb.delete("languages", "_id = ?",
-                          new String[] { Long.toString(id) }) == 1;
+                          new String[] { language.getIdString() }) == 1;
     }
 
     private static final String ACTIVE_LANGUAGE_PREF = "active_language";
 
-    public void setActiveLanguage(long id) {
+    public void setActiveLanguageId(long id) {
         SharedPreferences.Editor editor = mPrefs.edit();
         editor.putLong(ACTIVE_LANGUAGE_PREF, id);
         editor.commit();
     }
 
-    public String getActiveLanguageName() {
+    public Language getActiveLanguage() {
         long id = mPrefs.getLong(ACTIVE_LANGUAGE_PREF, -1);
         if (id == -1)
             return null;
 
-        Cursor cursor = mDb.query("languages", new String[] { "name" },
+        Cursor cursor = mDb.query("languages", new String[] { "_id", "code", "name" },
                                   "_id = ?", new String[] { Long.toString(id) },
                                   null, null, null);
         try {
             if (cursor.getCount() != 1)
                 return null;
             cursor.moveToFirst();
-            return cursor.getString(0);
+            return new Language(cursor.getLong(0),
+                                cursor.getString(1),
+                                cursor.getString(2));
         } finally {
             cursor.close();
         }
