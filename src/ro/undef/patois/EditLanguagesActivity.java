@@ -185,21 +185,21 @@ public class EditLanguagesActivity extends Activity {
             View view = inflater.inflate(R.layout.edit_language_entry, parent, false);
             mView = view;
 
-            mCodeEditText = (EditText) view.findViewById(R.id.language_code);
+            mCodeEditText = (EditText) view.findViewById(R.id.code);
             mCodeEditText.setText(mLanguage.getCode());
             if (mCodeSelectionStart != -1 && mCodeSelectionEnd != -1) {
                 mCodeEditText.requestFocus();
                 mCodeEditText.setSelection(mCodeSelectionStart, mCodeSelectionEnd);
             }
 
-            mNameEditText = (EditText) view.findViewById(R.id.language_name);
+            mNameEditText = (EditText) view.findViewById(R.id.name);
             mNameEditText.setText(mLanguage.getName());
             if (mNameSelectionStart != -1 && mNameSelectionEnd != -1) {
                 mNameEditText.requestFocus();
                 mNameEditText.setSelection(mNameSelectionStart, mNameSelectionEnd);
             }
 
-            mDeleteButton = view.findViewById(R.id.delete_language);
+            mDeleteButton = view.findViewById(R.id.delete);
             mDeleteButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     markAsDeleted();
