@@ -23,4 +23,17 @@ EditWordActivity:
     word (i.e., a better translation).
 
 __________________________
+
+Serializable HOWTO:
+
+When implementing the Serializable interface, the compiler recommends
+that you also add the "serialVersionUID" static field to the
+Serializable classes.  To generate it, use this command (run from the
+top-level directory of the project):
+
+    $ serialver -classpath \
+        $ANDROID_SDK_DIR/platforms/android-1.5/android.jar:bin/classes/ \
+        ro.undef.patois.EditWordActivity.TranslationEntry
+
+__________________________
 vim:ai:sw=2:sts=2:et:tw=72
