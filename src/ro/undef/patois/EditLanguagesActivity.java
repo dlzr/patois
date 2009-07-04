@@ -43,15 +43,15 @@ public class EditLanguagesActivity extends Activity {
         if (savedInstanceState != null) {
             loadStateFromBundle(savedInstanceState);
         } else {
-            loadStateFromDatabase(mDb);
+            loadStateFromDatabase();
         }
         buildViews();
     }
 
-    private void loadStateFromDatabase(PatoisDatabase db) {
+    private void loadStateFromDatabase() {
         ArrayList<LanguageEntry> entries = new ArrayList<LanguageEntry>();
 
-        for (Language language : db.getLanguages()) {
+        for (Language language : mDb.getLanguages()) {
             entries.add(new LanguageEntry(language));
         }
 
