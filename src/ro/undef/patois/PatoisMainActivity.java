@@ -146,6 +146,7 @@ public class PatoisMainActivity extends Activity {
     private void startEditWordActivity() {
         Intent intent = new Intent();
         intent.setClass(this, EditWordActivity.class);
+        intent.setAction(Intent.ACTION_INSERT);
         startActivity(intent);
     }
 

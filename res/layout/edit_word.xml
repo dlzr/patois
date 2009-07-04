@@ -12,7 +12,7 @@
         android:layout_height="fill_parent"
         >
 
-        <LinearLayout
+        <LinearLayout android:id="@+id/main_word"
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -23,7 +23,7 @@
             android:layout_marginBottom="8dip"
             >
 
-            <Button android:id="@+id/original_language"
+            <Button android:id="@+id/language"
                 android:layout_width="60sp"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="8dip"
@@ -32,7 +32,7 @@
                 android:text="DE"
                 />
 
-            <EditText android:id="@+id/original_word"
+            <EditText android:id="@+id/name"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -49,7 +49,7 @@
         The translations list is populated with views expanded from
         edit_word_entry.xml.
         -->
-        <LinearLayout android:id="@+id/list"
+        <LinearLayout android:id="@+id/translations"
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

@@ -71,6 +71,7 @@ public class PatoisDatabase {
         mDbHelper.close();
     }
 
+
     public static final int LANGUAGE_ID_COLUMN = 0;
     public static final int LANGUAGE_CODE_COLUMN = 1;
     public static final int LANGUAGE_NAME_COLUMN = 2;
@@ -101,6 +102,24 @@ public class PatoisDatabase {
         return languages;
     }
 
+    public Language getLanguage(long id) {
+        // TODO: Cache languages in memory.
+
+        Cursor cursor = mDb.query("languages", new String[] { "_id", "code", "name" },
+                                  "_id = ?", new String[] { Long.toString(id) },
+                                  null, null, null);
+        try {
+            if (cursor.getCount() != 1)
+                return null;
+            cursor.moveToFirst();
+            return new Language(cursor.getLong(0),
+                                cursor.getString(1),
+                                cursor.getString(2));
+        } finally {
+            cursor.close();
+        }
+    }
+
     public boolean insertLanguage(Language language) {
         ContentValues values = new ContentValues();
         values.put("code", language.getCode());
@@ -128,29 +147,43 @@ public class PatoisDatabase {
 
     private static final String ACTIVE_LANGUAGE_PREF = "active_language";
 
+    public Language getActiveLanguage() {
+        long id = mPrefs.getLong(ACTIVE_LANGUAGE_PREF, -1);
+        if (id == -1)
+            return null;
+
+        return getLanguage(id);
+    }
+
     public void setActiveLanguageId(long id) {
         SharedPreferences.Editor editor = mPrefs.edit();
         editor.putLong(ACTIVE_LANGUAGE_PREF, id);
         editor.commit();
     }
 
-    public Language getActiveLanguage() {
-        long id = mPrefs.getLong(ACTIVE_LANGUAGE_PREF, -1);
-        if (id == -1)
-            return null;
 
-        Cursor cursor = mDb.query("languages", new String[] { "_id", "code", "name" },
-                                  "_id = ?", new String[] { Long.toString(id) },
-                                  null, null, null);
-        try {
-            if (cursor.getCount() != 1)
-                return null;
-            cursor.moveToFirst();
-            return new Language(cursor.getLong(0),
-                                cursor.getString(1),
-                                cursor.getString(2));
-        } finally {
-            cursor.close();
-        }
+    public Word getWord(long id) {
+        // TODO: Implement me.
+        return null;
+    }
+
+    public ArrayList<Word> getTranslations(Word word) {
+        // TODO: Implement me.
+        return null;
+    }
+
+    public boolean insertWord(Word word) {
+        // TODO: Implement me.
+        return true;
+    }
+
+    public boolean updateWord(Word word) {
+        // TODO: Implement me.
+        return true;
+    }
+
+    public boolean deleteWord(Word word) {
+        // TODO: Implement me.
+        return true;
     }
 }
