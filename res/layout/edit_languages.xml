@@ -25,7 +25,7 @@
         The language list is populated with views expanded from
         edit_language_entry.xml.
         -->
-        <LinearLayout android:id="@+id/list"
+        <LinearLayout android:id="@+id/languages"
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"

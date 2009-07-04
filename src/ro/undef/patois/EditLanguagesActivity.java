@@ -18,7 +18,7 @@ public class EditLanguagesActivity extends Activity {
 
     private PatoisDatabase mDb;
 
-    private LinearLayout mLayout;
+    private LinearLayout mLanguagesLayout;
     private LayoutInflater mInflater;
     private View mAddButton;
     private View mDoneButton;
@@ -35,7 +35,7 @@ public class EditLanguagesActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.edit_languages);
-        mLayout = (LinearLayout) findViewById(R.id.list);
+        mLanguagesLayout = (LinearLayout) findViewById(R.id.languages);
         mInflater = getLayoutInflater();
 
         mDb = new PatoisDatabase(this);
@@ -62,14 +62,14 @@ public class EditLanguagesActivity extends Activity {
     private void loadStateFromBundle(Bundle savedInstanceState) {
         mLanguageEntries = (ArrayList<LanguageEntry>)
             savedInstanceState.getSerializable("languages");
-        mAddButtonHasFocus = savedInstanceState.getBoolean("addButtonHasFocus");
-        mDoneButtonHasFocus = savedInstanceState.getBoolean("doneButtonHasFocus");
-        mCancelButtonHasFocus = savedInstanceState.getBoolean("cancelButtonHasFocus");
+        mAddButtonHasFocus = savedInstanceState.getBoolean("add_language");
+        mDoneButtonHasFocus = savedInstanceState.getBoolean("done");
+        mCancelButtonHasFocus = savedInstanceState.getBoolean("cancel");
     }
 
     private void buildViews() {
         LayoutInflater inflater = mInflater;
-        LinearLayout layout = mLayout;
+        LinearLayout layout = mLanguagesLayout;
         layout.removeAllViews();
 
         for (LanguageEntry entry : mLanguageEntries) {
@@ -108,7 +108,7 @@ public class EditLanguagesActivity extends Activity {
     private void addNewLanguage() {
         LanguageEntry entry = new LanguageEntry();
         mLanguageEntries.add(entry);
-        mLayout.addView(entry.buildView(mInflater, mLayout));
+        mLanguagesLayout.addView(entry.buildView(mInflater, mLanguagesLayout));
     }
 
     @Override
@@ -118,9 +118,9 @@ public class EditLanguagesActivity extends Activity {
         }
 
         outState.putSerializable("languages", mLanguageEntries);
-        outState.putBoolean("addButtonHasFocus", mAddButton.hasFocus());
-        outState.putBoolean("doneButtonHasFocus", mDoneButton.hasFocus());
-        outState.putBoolean("cancelButtonHasFocus", mCancelButton.hasFocus());
+        outState.putBoolean("add_language", mAddButton.hasFocus());
+        outState.putBoolean("done", mDoneButton.hasFocus());
+        outState.putBoolean("cancel", mCancelButton.hasFocus());
     }
 
     @Override
