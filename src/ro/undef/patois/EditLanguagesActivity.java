@@ -116,8 +116,8 @@ public class EditLanguagesActivity extends Activity {
         for (LanguageEntry entry : mLanguageEntries) {
             entry.syncFromView();
         }
-
         outState.putSerializable("languages", mLanguageEntries);
+
         outState.putBoolean("add_language", mAddButton.hasFocus());
         outState.putBoolean("done", mDoneButton.hasFocus());
         outState.putBoolean("cancel", mCancelButton.hasFocus());
