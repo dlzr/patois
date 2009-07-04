@@ -34,10 +34,6 @@ public class EditLanguagesActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.edit_languages);
-        mLanguagesLayout = (LinearLayout) findViewById(R.id.languages);
-        mInflater = getLayoutInflater();
-
         mDb = new PatoisDatabase(this);
 
         if (savedInstanceState != null) {
@@ -45,17 +41,32 @@ public class EditLanguagesActivity extends Activity {
         } else {
             loadStateFromDatabase();
         }
-        buildViews();
+
+        setContentView(R.layout.edit_languages);
+        setupViews();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mDb.close();
     }
 
     private void loadStateFromDatabase() {
         ArrayList<LanguageEntry> entries = new ArrayList<LanguageEntry>();
-
-        for (Language language : mDb.getLanguages()) {
+        for (Language language : mDb.getLanguages())
             entries.add(new LanguageEntry(language));
-        }
-
         mLanguageEntries = entries;
+
+        mAddButtonHasFocus = false;
+        mDoneButtonHasFocus = false;
+        mCancelButtonHasFocus = false;
+    }
+
+    private void saveStateToDatabase() {
+        for (LanguageEntry entry : mLanguageEntries) {
+            entry.saveToDatabase(mDb);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -67,15 +78,23 @@ public class EditLanguagesActivity extends Activity {
         mCancelButtonHasFocus = savedInstanceState.getBoolean("cancel");
     }
 
-    private void buildViews() {
-        LayoutInflater inflater = mInflater;
-        LinearLayout layout = mLanguagesLayout;
-        layout.removeAllViews();
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        for (LanguageEntry entry : mLanguageEntries)
+            entry.syncFromView();
+        outState.putSerializable("languages", mLanguageEntries);
 
-        for (LanguageEntry entry : mLanguageEntries) {
-            if (!entry.isDeleted())
-                layout.addView(entry.buildView(inflater, layout));
-        }
+        outState.putBoolean("add_language", mAddButton.hasFocus());
+        outState.putBoolean("done", mDoneButton.hasFocus());
+        outState.putBoolean("cancel", mCancelButton.hasFocus());
+    }
+
+    private void setupViews() {
+        LayoutInflater inflater = mInflater = getLayoutInflater();
+        LinearLayout layout = mLanguagesLayout = (LinearLayout) findViewById(R.id.languages);
+        layout.removeAllViews();
+        for (LanguageEntry entry : mLanguageEntries)
+            entry.addViewToList(layout, inflater);
 
         mAddButton = findViewById(R.id.add_language);
         mAddButton.setOnClickListener(new View.OnClickListener() {
@@ -89,7 +108,8 @@ public class EditLanguagesActivity extends Activity {
         mDoneButton = findViewById(R.id.done);
         mDoneButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                doSaveAction();
+                saveStateToDatabase();
+                finish();
             }
         });
         if (mDoneButtonHasFocus)
@@ -98,7 +118,7 @@ public class EditLanguagesActivity extends Activity {
         mCancelButton = findViewById(R.id.cancel);
         mCancelButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                doRevertAction();
+                finish();
             }
         });
         if (mCancelButtonHasFocus)
@@ -108,48 +128,21 @@ public class EditLanguagesActivity extends Activity {
     private void addNewLanguage() {
         LanguageEntry entry = new LanguageEntry();
         mLanguageEntries.add(entry);
-        mLanguagesLayout.addView(entry.buildView(mInflater, mLanguagesLayout));
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        for (LanguageEntry entry : mLanguageEntries) {
-            entry.syncFromView();
-        }
-        outState.putSerializable("languages", mLanguageEntries);
-
-        outState.putBoolean("add_language", mAddButton.hasFocus());
-        outState.putBoolean("done", mDoneButton.hasFocus());
-        outState.putBoolean("cancel", mCancelButton.hasFocus());
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mDb.close();
+        entry.addViewToList(mLanguagesLayout, mInflater);
     }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK: {
-                doSaveAction();
+                saveStateToDatabase();
+                finish();
                 return true;
             }
         }
         return super.onKeyDown(keyCode, event);
     }
 
-    private void doSaveAction() {
-        for (LanguageEntry entry : mLanguageEntries) {
-            entry.saveToDatabase(mDb);
-        }
-        finish();
-    }
-
-    private void doRevertAction() {
-        finish();
-    }
 
     private static class LanguageEntry implements Serializable {
         private Language mLanguage;
@@ -181,8 +174,16 @@ public class EditLanguagesActivity extends Activity {
             this(new Language());
         }
 
-        public View buildView(LayoutInflater inflater, LinearLayout parent) {
-            View view = inflater.inflate(R.layout.edit_language_entry, parent, false);
+        public void addViewToList(LinearLayout parent, LayoutInflater inflater) {
+            if (mDeleted)
+                return;
+
+            View view = inflater.inflate(R.layout.edit_word_entry, parent, false);
+            setupView(view);
+            parent.addView(view);
+        }
+
+        public void setupView(View view) {
             mView = view;
 
             mCodeEditText = (EditText) view.findViewById(R.id.code);
@@ -207,11 +208,12 @@ public class EditLanguagesActivity extends Activity {
             });
             if (mDeleteButtonHasFocus)
                 mDeleteButton.requestFocus();
-
-            return view;
         }
 
         public void syncFromView() {
+            if (mDeleted)
+                return;
+
             String new_code = mCodeEditText.getText().toString();
             String new_name = mNameEditText.getText().toString();
 
@@ -241,13 +243,9 @@ public class EditLanguagesActivity extends Activity {
         private void markAsDeleted() {
             // TODO: Count the number of words in this language, and if not
             // zero, ask the user to confirm the deletion.
-            LinearLayout layout = (LinearLayout) mView.getParent();
-            layout.removeView(mView);
+            LinearLayout parent = (LinearLayout) mView.getParent();
+            parent.removeView(mView);
             mDeleted = true;
-        }
-
-        public boolean isDeleted() {
-            return mDeleted;
         }
 
         public void saveToDatabase(PatoisDatabase db) {
