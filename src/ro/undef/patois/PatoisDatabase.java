@@ -9,6 +9,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import java.util.ArrayList;
+import java.util.TreeMap;
 
 
 public class PatoisDatabase {
@@ -39,6 +40,7 @@ public class PatoisDatabase {
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
     private SharedPreferences mPrefs;
+    private TreeMap<Long, Language> mLanguagesCache;
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -65,10 +67,12 @@ public class PatoisDatabase {
         mDbHelper = new DatabaseHelper(mActivity);
         mDb = mDbHelper.getWritableDatabase();
         mPrefs = mActivity.getSharedPreferences(PREFERENCES_NAME, 0);
+        mLanguagesCache = new TreeMap<Long, Language>();
     }
 
     public void close() {
         mDbHelper.close();
+        mLanguagesCache.clear();
     }
 
 
@@ -78,7 +82,7 @@ public class PatoisDatabase {
 
     public Cursor getLanguagesCursor() {
         Cursor cursor = mDb.query("languages", new String[] { "_id", "code", "name" },
-                null, null, null, null, null);
+                                  null, null, null, null, null);
         mActivity.startManagingCursor(cursor);
 
         return cursor;
@@ -88,12 +92,14 @@ public class PatoisDatabase {
         ArrayList<Language> languages = new ArrayList<Language>();
 
         Cursor cursor = mDb.query("languages", new String[] { "_id", "code", "name" },
-                null, null, null, null, null);
+                                  null, null, null, null, null);
         try {
             while (cursor.moveToNext()) {
-                languages.add(new Language(cursor.getLong(0),
-                                           cursor.getString(1),
-                                           cursor.getString(2)));
+                Language language = new Language(cursor.getLong(0),
+                                                 cursor.getString(1),
+                                                 cursor.getString(2));
+                mLanguagesCache.put(language.getId(), language);
+                languages.add(language);
             }
         } finally {
             cursor.close();
@@ -103,24 +109,30 @@ public class PatoisDatabase {
     }
 
     public Language getLanguage(long id) {
-        // TODO: Cache languages in memory.
+        Language language = mLanguagesCache.get(id);
+        if (language != null)
+            return language;
 
-        Cursor cursor = mDb.query("languages", new String[] { "_id", "code", "name" },
+        Cursor cursor = mDb.query("languages", new String[] { "code", "name" },
                                   "_id = ?", new String[] { Long.toString(id) },
                                   null, null, null);
         try {
             if (cursor.getCount() != 1)
                 return null;
+
             cursor.moveToFirst();
-            return new Language(cursor.getLong(0),
-                                cursor.getString(1),
-                                cursor.getString(2));
+            language = new Language(id, cursor.getString(0), cursor.getString(1));
+            mLanguagesCache.put(id, language);
+
+            return language;
         } finally {
             cursor.close();
         }
     }
 
     public boolean insertLanguage(Language language) {
+        mLanguagesCache.put(language.getId(), language);
+
         ContentValues values = new ContentValues();
         values.put("code", language.getCode());
         values.put("name", language.getName());
@@ -132,6 +144,8 @@ public class PatoisDatabase {
     }
 
     public boolean updateLanguage(Language language) {
+        mLanguagesCache.put(language.getId(), language);
+
         ContentValues values = new ContentValues();
         values.put("code", language.getCode());
         values.put("name", language.getName());
@@ -141,6 +155,12 @@ public class PatoisDatabase {
     }
 
     public boolean deleteLanguage(Language language) {
+        mLanguagesCache.remove(language.getId());
+
+        // TODO: Add triggers that delete all the words in the language being
+        // deleted.  Presumably, the user has already confirmed that this is
+        // what he wants.
+
         return mDb.delete("languages", "_id = ?",
                           new String[] { language.getIdString() }) == 1;
     }
@@ -163,27 +183,61 @@ public class PatoisDatabase {
 
 
     public Word getWord(long id) {
-        // TODO: Implement me.
-        return null;
+        Cursor cursor = mDb.query("words", new String[] { "name", "language_id" },
+                                  "_id = ?", new String[] { Long.toString(id) },
+                                  null, null, null);
+        try {
+            if (cursor.getCount() != 1)
+                return null;
+
+            cursor.moveToFirst();
+            return new Word(id, cursor.getString(0), getLanguage(cursor.getLong(1)));
+        } finally {
+            cursor.close();
+        }
     }
 
     public ArrayList<Word> getTranslations(Word word) {
-        // TODO: Implement me.
-        return null;
+        ArrayList<Word> translations = new ArrayList<Word>();
+
+        Cursor cursor = mDb.query("translations", new String[] { "word_id2" },
+                                  "word_id1 = ?", new String[] { word.getIdString() },
+                                  null, null, null);
+        try {
+            while (cursor.moveToNext()) {
+                translations.add(getWord(cursor.getLong(0)));
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return translations;
     }
 
     public boolean insertWord(Word word) {
-        // TODO: Implement me.
-        return true;
+        ContentValues values = new ContentValues();
+        values.put("name", word.getName());
+        values.put("language_id", word.getLanguage().getId());
+
+        long id = mDb.insert("words", null, values);
+        word.setId(id);
+
+        return id != -1;
     }
 
     public boolean updateWord(Word word) {
-        // TODO: Implement me.
-        return true;
+        ContentValues values = new ContentValues();
+        values.put("name", word.getName());
+        values.put("language_id", word.getLanguage().getId());
+
+        return mDb.update("words", values, "_id = ?",
+                          new String[] { word.getIdString() }) == 1;
     }
 
     public boolean deleteWord(Word word) {
-        // TODO: Implement me.
-        return true;
+        // TODO: Add triggers that delete the translations referring to the
+        // word being deleted.
+        return mDb.delete("words", "_id = ?",
+                          new String[] { word.getIdString() }) == 1;
     }
 }
