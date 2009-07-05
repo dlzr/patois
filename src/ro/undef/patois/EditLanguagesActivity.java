@@ -178,7 +178,7 @@ public class EditLanguagesActivity extends Activity {
             if (mDeleted)
                 return;
 
-            View view = inflater.inflate(R.layout.edit_word_entry, parent, false);
+            View view = inflater.inflate(R.layout.edit_language_entry, parent, false);
             setupView(view);
             parent.addView(view);
         }
