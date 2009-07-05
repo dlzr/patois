@@ -5,35 +5,20 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
 
 public class PatoisDatabase {
+    private final static String TAG = "PatoisDatabase";
 
     private static final String DATABASE_NAME = "patois.db";
     private static final int DATABASE_VERSION = 1;
-    private static final String[] DATABASE_SCHEMA = new String[] {
-        "CREATE TABLE languages ( " +
-        "    _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-        "    code TEXT NOT NULL, " +
-        "    name TEXT NOT NULL " +
-        ");",
-
-        "CREATE TABLE words ( " +
-        "    _id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-        "    name TEXT NOT NULL, " +
-        "    language_id INTEGER NOT NULL " +
-        ");",
-
-        "CREATE TABLE translations ( " +
-        "    word_id1 INTEGER NOT NULL, " +
-        "    word_id2 INTEGER NOT NULL " +
-        ");",
-    };
     private static final String PREFERENCES_NAME = "patois.prefs";
 
     private final Activity mActivity;
@@ -44,21 +29,62 @@ public class PatoisDatabase {
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
+        private Context mCtx;
+
         DatabaseHelper(Context ctx) {
             super(ctx, DATABASE_NAME, null, DATABASE_VERSION);
+            mCtx = ctx;
         }
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            for (String statement : DATABASE_SCHEMA) {
+            for (String statement : readStatementsFromAsset("sql/patois.sql"))
                 db.execSQL(statement);
-            }
         }
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-            // TODO: When we'll have a new version of the database, implement
-            // this method.
+            // When we'll have a new version of the database, implement this
+            // method.
+        }
+
+        private ArrayList<String> readStatementsFromAsset(String fileName) {
+            try {
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(mCtx.getAssets().open(fileName)), 4096);
+
+                try {
+                    String eol = System.getProperty("line.separator");
+                    ArrayList<String> schema = new ArrayList<String>();
+                    StringBuffer statement = new StringBuffer("");
+                    String line;
+
+                    while ((line = in.readLine()) != null) {
+                        // Ignore comments.
+                        if (line.startsWith("--"))
+                            continue;
+
+                        // Empty lines terminate statements.
+                        if (line.trim().length() == 0) {
+                            if (statement.length() != 0)
+                                schema.add(statement.toString());
+                            statement.setLength(0);
+                            continue;
+                        }
+
+                        statement.append(line);
+                        statement.append(eol);  // readLine() strips the EOL characters.
+                    }
+                    if (statement.length() != 0)
+                        schema.add(statement.toString());
+
+                    return schema;
+                } finally {
+                    in.close();
+                }
+            } catch (java.io.IOException e) {
+                throw new RuntimeException("Could not read asset file: " + fileName, e);
+            }
         }
     }
 
