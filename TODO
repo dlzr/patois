@@ -12,6 +12,10 @@ EditWordActivity:
   - When editting an existing translation for a word, ask the user if
     the new translation is a spelling correction, or a completely new
     word (i.e., a better translation).
+  - When adding words, there should be checks for duplicates.
+
+BrowseWordsActivity:
+  - Words with no translations should be highlighted.
 
 __________________________
 
