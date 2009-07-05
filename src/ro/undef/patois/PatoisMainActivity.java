@@ -57,7 +57,7 @@ public class PatoisMainActivity extends Activity {
 
         Language language = mDb.getActiveLanguage();
         if (language == null) {
-            language = new Language(-1, "XX", res.getString(R.string.foreign));
+            language = new Language(-1, "XX", res.getString(R.string.foreign), 0);
             enabled = false;
         }
 

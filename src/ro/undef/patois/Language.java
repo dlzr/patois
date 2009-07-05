@@ -17,14 +17,35 @@ public class Language implements Serializable {
     public String getName() { return mName; }
     public void setName(String name) { mName = name.trim(); }
 
-    public Language(long id, String code, String name) {
+    private long mNumWords;
+    public long getNumWords() { return mNumWords; }
+
+    public Language(long id, String code, String name, long numWords) {
         mId = id;
         mCode = code;
         mName = name;
+        mNumWords = numWords;
     }
 
     public Language() {
-        this(-1, "", "");
+        this(-1, "", "", 0);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof Language))
+            return false;
+        Language that = (Language) o;
+        return this.mId == that.mId;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 37 * result + (int) (mId ^ (mId >>> 32));
+        return result ;
     }
 
     public boolean notInDatabase() {

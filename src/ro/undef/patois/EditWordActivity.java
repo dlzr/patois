@@ -175,9 +175,34 @@ public class EditWordActivity extends Activity {
     }
 
     private Language pickTranslationLanguage() {
-        // TODO: Choose the language with most words that is not already
-        // present in mTranslationEntries.
-        return mDb.getActiveLanguage();
+        // The "selected" language is the language with most words that is not
+        // used already.
+        Language selected = null;
+        // The "most_words" language is the language with most words,
+        // regardless if it was already used or not.  We only return it if no
+        // language satisfies the requirements for "selected" (i.e., all
+        // languages are used).
+        Language most_words = null;
+
+language_search:
+        for (Language language : mDb.getLanguages()) {
+            if (most_words == null || most_words.getNumWords() < language.getNumWords())
+                most_words = language;
+
+            if (language.equals(mMainWordEntry.getWord().getLanguage()))
+                continue language_search;
+            for (TranslationEntry entry : mTranslationEntries) {
+                if (!entry.isDeleted() && language.equals(entry.getWord().getLanguage()))
+                    continue language_search;
+            }
+            if (selected == null || selected.getNumWords() < language.getNumWords())
+                selected = language;
+        }
+
+        if (selected != null)
+            return selected;
+
+        return most_words;
     }
 
     @Override
@@ -195,6 +220,8 @@ public class EditWordActivity extends Activity {
 
     private static class WordEntry implements Serializable {
         protected Word mWord;
+        public Word getWord() { return mWord; }
+
         protected boolean mModified;
         protected int mNameSelectionStart;
         protected int mNameSelectionEnd;
@@ -325,6 +352,10 @@ public class EditWordActivity extends Activity {
             LinearLayout parent = (LinearLayout) mView.getParent();
             parent.removeView(mView);
             mDeleted = true;
+        }
+
+        public boolean isDeleted() {
+            return mDeleted;
         }
 
         public void saveToDatabase(PatoisDatabase db) {

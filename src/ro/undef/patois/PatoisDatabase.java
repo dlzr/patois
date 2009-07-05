@@ -117,13 +117,12 @@ public class PatoisDatabase {
     public ArrayList<Language> getLanguages() {
         ArrayList<Language> languages = new ArrayList<Language>();
 
-        Cursor cursor = mDb.query("languages", new String[] { "_id", "code", "name" },
+        Cursor cursor = mDb.query("languages", new String[] { "_id", "code", "name", "num_words" },
                                   null, null, null, null, null);
         try {
             while (cursor.moveToNext()) {
-                Language language = new Language(cursor.getLong(0),
-                                                 cursor.getString(1),
-                                                 cursor.getString(2));
+                Language language = new Language(cursor.getLong(0), cursor.getString(1),
+                                                 cursor.getString(2), cursor.getLong(3));
                 mLanguagesCache.put(language.getId(), language);
                 languages.add(language);
             }
@@ -139,7 +138,7 @@ public class PatoisDatabase {
         if (language != null)
             return language;
 
-        Cursor cursor = mDb.query("languages", new String[] { "code", "name" },
+        Cursor cursor = mDb.query("languages", new String[] { "code", "name", "num_words" },
                                   "_id = ?", new String[] { Long.toString(id) },
                                   null, null, null);
         try {
@@ -147,7 +146,8 @@ public class PatoisDatabase {
                 return null;
 
             cursor.moveToFirst();
-            language = new Language(id, cursor.getString(0), cursor.getString(1));
+            language = new Language(id, cursor.getString(0), cursor.getString(1),
+                                    cursor.getLong(2));
             mLanguagesCache.put(id, language);
 
             return language;
@@ -182,10 +182,6 @@ public class PatoisDatabase {
 
     public boolean deleteLanguage(Language language) {
         mLanguagesCache.remove(language.getId());
-
-        // TODO: Add triggers that delete all the words in the language being
-        // deleted.  Presumably, the user has already confirmed that this is
-        // what he wants.
 
         return mDb.delete("languages", "_id = ?",
                           new String[] { language.getIdString() }) == 1;
