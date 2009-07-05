@@ -256,9 +256,13 @@ public class EditWordActivity extends Activity {
             syncFromView();
 
             if (mWord.notInDatabase()) {
-                db.insertWord(mWord);
+                if (mWord.getName().length() != 0)
+                    db.insertWord(mWord);
             } else if (mModified) {
-                db.updateWord(mWord);
+                if (mWord.getName().length() != 0)
+                    db.updateWord(mWord);
+                else
+                    db.deleteWord(mWord);
             }
         }
 

@@ -11,7 +11,7 @@ public class Word implements Serializable {
 
     private String mName;
     public String getName() { return mName; }
-    public void setName(String name) { mName = name; }
+    public void setName(String name) { mName = name.trim(); }
 
     private Language mLanguage;
     public Language getLanguage() { return mLanguage; }

@@ -15,7 +15,7 @@ public class Language implements Serializable {
 
     private String mName;
     public String getName() { return mName; }
-    public void setName(String name) { mName = name; }
+    public void setName(String name) { mName = name.trim(); }
 
     public Language(long id, String code, String name) {
         mId = id;
