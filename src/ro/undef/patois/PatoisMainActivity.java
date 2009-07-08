@@ -107,29 +107,25 @@ public class PatoisMainActivity extends Activity {
     protected Dialog onCreateDialog(int id) {
         switch (id) {
             case R.id.select_language:
-                return buildSelectLanguageDialog();
+                final Cursor cursor = mDb.getLanguagesCursor();
+                return new AlertDialog.Builder(this)
+                    .setTitle(R.string.select_language)
+                    .setCursor(cursor, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            cursor.moveToPosition(which);
+                            activateLanguageId(cursor.getLong(PatoisDatabase.LANGUAGE_ID_COLUMN));
+                        }
+                    }, "name")
+                    .setNeutralButton(R.string.edit_languages,
+                                      new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                          startEditLanguagesActivity();
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, null)
+                    .create();
         }
         return null;
-    }
-
-    private Dialog buildSelectLanguageDialog() {
-        final Cursor cursor = mDb.getLanguagesCursor();
-        return new AlertDialog.Builder(this)
-            .setTitle(R.string.select_language)
-            .setCursor(cursor, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    cursor.moveToPosition(which);
-                    activateLanguageId(cursor.getLong(PatoisDatabase.LANGUAGE_ID_COLUMN));
-                }
-            }, "name")
-            .setNeutralButton(R.string.edit_languages,
-                              new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    startEditLanguagesActivity();
-                }
-            })
-            .setNegativeButton(R.string.cancel, null)
-            .create();
     }
 
     private void activateLanguageId(long id) {
