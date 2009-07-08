@@ -1,7 +1,11 @@
 package ro.undef.patois;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -25,6 +29,7 @@ public class EditWordActivity extends Activity {
     private View mDoneButton;
     private View mNewWordButton;
     private View mCancelButton;
+    private WordEntry mLanguageListener;
 
     // These fields are saved accross restarts.
     private WordEntry mMainWordEntry;
@@ -65,6 +70,8 @@ public class EditWordActivity extends Activity {
         mTranslationEntries = new ArrayList<TranslationEntry>();
         mTranslationEntries.add(new TranslationEntry(pickTranslationLanguage()));
 
+        mLanguageListener = null;
+
         mAddButtonHasFocus = false;
         mDoneButtonHasFocus = false;
         mNewWordButtonHasFocus = false;
@@ -79,6 +86,8 @@ public class EditWordActivity extends Activity {
         for (Word word : mDb.getTranslations(mainWord))
             entries.add(new TranslationEntry(word));
         mTranslationEntries = entries;
+
+        mLanguageListener = null;
 
         mAddButtonHasFocus = false;
         mDoneButtonHasFocus = false;
@@ -96,8 +105,12 @@ public class EditWordActivity extends Activity {
     @SuppressWarnings("unchecked")
     private void loadStateFromBundle(Bundle savedInstanceState) {
         mMainWordEntry = (WordEntry) savedInstanceState.getSerializable("main_word");
+
         mTranslationEntries = (ArrayList<TranslationEntry>)
             savedInstanceState.getSerializable("translations");
+
+        mLanguageListener = null;
+
         mAddButtonHasFocus = savedInstanceState.getBoolean("add_translation");
         mDoneButtonHasFocus = savedInstanceState.getBoolean("done");
         mNewWordButtonHasFocus = savedInstanceState.getBoolean("new_word");
@@ -120,13 +133,18 @@ public class EditWordActivity extends Activity {
     }
 
     private void setupViews() {
-        mMainWordEntry.setupView(findViewById(R.id.main_word));
+        mMainWordEntry.setupView(this, findViewById(R.id.main_word));
+        if (mMainWordEntry.hasLanguageDialogOpen())
+            mLanguageListener = mMainWordEntry;
 
         LayoutInflater inflater = mInflater = getLayoutInflater();
         LinearLayout layout = mTranslationsLayout = (LinearLayout) findViewById(R.id.translations);
         layout.removeAllViews();
-        for (TranslationEntry entry : mTranslationEntries)
-            entry.addViewToList(layout, inflater);
+        for (TranslationEntry entry : mTranslationEntries) {
+            entry.addViewToList(this, layout, inflater);
+            if (entry.hasLanguageDialogOpen())
+                mLanguageListener = entry;
+        }
 
         mAddButton = findViewById(R.id.add_translation);
         mAddButton.setOnClickListener(new View.OnClickListener() {
@@ -171,7 +189,7 @@ public class EditWordActivity extends Activity {
     private void addNewTranslation() {
         TranslationEntry entry = new TranslationEntry(pickTranslationLanguage());
         mTranslationEntries.add(entry);
-        entry.addViewToList(mTranslationsLayout, mInflater);
+        entry.addViewToList(this, mTranslationsLayout, mInflater);
     }
 
     private Language pickTranslationLanguage() {
@@ -217,6 +235,31 @@ language_search:
         return super.onKeyDown(keyCode, event);
     }
 
+    private void showSelectLanguageDialog(WordEntry listener) {
+        mLanguageListener = listener;
+        showDialog(R.id.select_language);
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+            case R.id.select_language:
+                final Cursor cursor = mDb.getLanguagesCursor();
+                return new AlertDialog.Builder(this)
+                    .setTitle(R.string.select_language)
+                    .setCursor(cursor, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            cursor.moveToPosition(which);
+                            Language language = mDb.getLanguage(
+                                    cursor.getLong(PatoisDatabase.LANGUAGE_ID_COLUMN));
+                            mLanguageListener.setLanguage(language);
+                            mLanguageListener = null;
+                        }
+                    }, "name")
+                    .create();
+        }
+        return null;
+    }
 
     private static class WordEntry implements Serializable {
         protected Word mWord;
@@ -226,6 +269,7 @@ language_search:
         protected int mNameSelectionStart;
         protected int mNameSelectionEnd;
         protected boolean mLanguageButtonHasFocus;
+        protected boolean mHasLanguageDialogOpen;
 
         transient protected Button mLanguageButton;
         transient protected EditText mNameEditText;
@@ -236,18 +280,20 @@ language_search:
             mNameSelectionStart = -1;
             mNameSelectionEnd = -1;
             mLanguageButtonHasFocus = false;
+            mHasLanguageDialogOpen = false;
         }
 
         public WordEntry(Language language) {
             this(new Word(language));
         }
 
-        public void setupView(View view) {
+        public void setupView(final EditWordActivity activity, View view) {
             mLanguageButton = (Button) view.findViewById(R.id.language);
             mLanguageButton.setText(mWord.getLanguage().getCode());
             mLanguageButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    // TODO: Show language selector.
+                    mHasLanguageDialogOpen = true;
+                    activity.showSelectLanguageDialog(WordEntry.this);
                 }
             });
             if (mLanguageButtonHasFocus)
@@ -293,6 +339,16 @@ language_search:
             }
         }
 
+        public void setLanguage(Language language) {
+            mWord.setLanguage(language);
+            mLanguageButton.setText(mWord.getLanguage().getCode());
+            mHasLanguageDialogOpen = false;
+        }
+
+        public boolean hasLanguageDialogOpen() {
+            return mHasLanguageDialogOpen;
+        }
+
         // Required for the Serializable interface.
         static final long serialVersionUID = 506921538917961504L;
     }
@@ -315,17 +371,18 @@ language_search:
             this(new Word(language));
         }
 
-        public void addViewToList(LinearLayout parent, LayoutInflater inflater) {
+        public void addViewToList(EditWordActivity activity,
+                                  LinearLayout parent, LayoutInflater inflater) {
             if (mDeleted)
                 return;
 
             View view = inflater.inflate(R.layout.edit_word_entry, parent, false);
-            setupView(view);
+            setupView(activity, view);
             parent.addView(view);
         }
 
-        public void setupView(View view) {
-            super.setupView(view);
+        public void setupView(EditWordActivity activity, View view) {
+            super.setupView(activity, view);
 
             mView = view;
 
