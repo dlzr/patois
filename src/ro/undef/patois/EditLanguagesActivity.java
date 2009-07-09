@@ -251,7 +251,7 @@ public class EditLanguagesActivity extends Activity {
         public void saveToDatabase(PatoisDatabase db) {
             syncFromView();
 
-            if (mLanguage.notInDatabase() && !mDeleted) {
+            if (mLanguage.isNew() && !mDeleted) {
                 db.insertLanguage(mLanguage);
             } else if (mModified && !mDeleted) {
                 db.updateLanguage(mLanguage);

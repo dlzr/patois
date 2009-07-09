@@ -48,7 +48,7 @@ public class Language implements Serializable {
         return result ;
     }
 
-    public boolean notInDatabase() {
+    public boolean isNew() {
         return mId == -1;
     }
 
