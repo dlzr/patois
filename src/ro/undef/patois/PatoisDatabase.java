@@ -219,23 +219,6 @@ public class PatoisDatabase {
         }
     }
 
-    public ArrayList<Word> getTranslations(Word word) {
-        ArrayList<Word> translations = new ArrayList<Word>();
-
-        Cursor cursor = mDb.query("translations", new String[] { "word_id2" },
-                                  "word_id1 = ?", new String[] { word.getIdString() },
-                                  null, null, null);
-        try {
-            while (cursor.moveToNext()) {
-                translations.add(getWord(cursor.getLong(0)));
-            }
-        } finally {
-            cursor.close();
-        }
-
-        return translations;
-    }
-
     public boolean insertWord(Word word) {
         ContentValues values = new ContentValues();
         values.put("name", word.getName());
@@ -261,5 +244,40 @@ public class PatoisDatabase {
         // word being deleted.
         return mDb.delete("words", "_id = ?",
                           new String[] { word.getIdString() }) == 1;
+    }
+
+    public ArrayList<Word> getTranslations(Word word) {
+        ArrayList<Word> translations = new ArrayList<Word>();
+
+        Cursor cursor = mDb.query("translations", new String[] { "word_id1, word_id2" },
+                                  "word_id1 = ? OR word_id2 = ?",
+                                  new String[] { word.getIdString(), word.getIdString() },
+                                  null, null, null);
+        try {
+            while (cursor.moveToNext()) {
+                long id1 = cursor.getLong(0);
+                long id2 = cursor.getLong(1);
+                if (word.getId() == id1)
+                    translations.add(getWord(id2));
+                else
+                    translations.add(getWord(id1));
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return translations;
+    }
+
+    public void insertTranslation(Word word1, Word word2) {
+        ContentValues values = new ContentValues();
+
+        // We're using min/max here to make sure that in the translations table
+        // word_id1 is always less than or equal to word_id2.  This will ensure
+        // that we don't accidentally add the same translation twice.
+        values.put("word_id1", Math.min(word1.getId(), word2.getId()));
+        values.put("word_id2", Math.max(word1.getId(), word2.getId()));
+
+        mDb.insert("translations", null, values);
     }
 }

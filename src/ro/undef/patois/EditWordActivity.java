@@ -98,8 +98,11 @@ public class EditWordActivity extends Activity {
     private void saveStateToDatabase() {
         mMainWordEntry.saveToDatabase(mDb);
 
-        for (TranslationEntry entry : mTranslationEntries)
+        for (TranslationEntry entry : mTranslationEntries) {
             entry.saveToDatabase(mDb);
+            if (!entry.isDeleted())
+                mDb.insertTranslation(mMainWordEntry.getWord(), entry.getWord());
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -305,6 +308,9 @@ language_search:
                 mNameEditText.requestFocus();
                 mNameEditText.setSelection(mNameSelectionStart, mNameSelectionEnd);
             }
+            // TODO: Replace this EditText with an AutoCompleteTextView, and
+            // use that to suggest words that already exist in the database.
+            // That should prevent entering duplicate words.
         }
 
         public void syncFromView() {
@@ -328,14 +334,11 @@ language_search:
         public void saveToDatabase(PatoisDatabase db) {
             syncFromView();
 
-            if (mWord.notInDatabase()) {
+            if (mWord.isNew()) {
                 if (mWord.getName().length() != 0)
                     db.insertWord(mWord);
             } else if (mModified) {
-                if (mWord.getName().length() != 0)
-                    db.updateWord(mWord);
-                else
-                    db.deleteWord(mWord);
+                db.updateWord(mWord);
             }
         }
 
@@ -343,6 +346,7 @@ language_search:
             mWord.setLanguage(language);
             mLanguageButton.setText(mWord.getLanguage().getCode());
             mHasLanguageDialogOpen = false;
+            mModified = true;
         }
 
         public boolean hasLanguageDialogOpen() {
@@ -416,9 +420,9 @@ language_search:
         }
 
         public void saveToDatabase(PatoisDatabase db) {
-            // TODO: Update "translations" table in the database.
             if (mDeleted) {
-                db.deleteWord(mWord);
+                if (!mWord.isNew())
+                    db.deleteWord(mWord);
             } else {
                 super.saveToDatabase(db);
             }

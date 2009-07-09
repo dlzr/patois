@@ -40,7 +40,8 @@ CREATE TABLE words (
 
 CREATE TABLE translations (
     word_id1 INTEGER NOT NULL,
-    word_id2 INTEGER NOT NULL
+    word_id2 INTEGER NOT NULL,
+    UNIQUE(word_id1, word_id2) ON CONFLICT IGNORE
 );
 
 CREATE TRIGGER delete_words_when_deleting_language DELETE ON languages

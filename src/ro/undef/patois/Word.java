@@ -27,7 +27,7 @@ public class Word implements Serializable {
         this(-1, "", language);
     }
 
-    public boolean notInDatabase() {
+    public boolean isNew() {
         return mId == -1;
     }
 
