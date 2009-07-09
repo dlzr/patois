@@ -240,8 +240,6 @@ public class PatoisDatabase {
     }
 
     public boolean deleteWord(Word word) {
-        // TODO: Add triggers that delete the translations referring to the
-        // word being deleted.
         return mDb.delete("words", "_id = ?",
                           new String[] { word.getIdString() }) == 1;
     }
