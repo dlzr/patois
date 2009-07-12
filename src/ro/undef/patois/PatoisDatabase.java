@@ -225,7 +225,7 @@ public class PatoisDatabase {
                 "    t.word_id1 = w1._id AND " +
                 "    t.word_id2 = w2._id AND " +
                 "    w2.language_id = l._id " +
-                "  GROUP BY (t.word_id1);",
+                "  GROUP BY (t.word_id1)",
                 new String[] { language.getIdString() });
         mActivity.startManagingCursor(cursor);
 
