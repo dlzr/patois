@@ -204,6 +204,34 @@ public class PatoisDatabase {
     }
 
 
+    public static final String WORD_NAME_COLUMN = "name";
+    public static final String WORD_TRANSLATIONS_COLUMN = "translations";
+
+    public Cursor getBrowseWordsCursor(Language language) {
+        Cursor cursor = mDb.rawQuery(
+                "SELECT " +
+                "    t.word_id1 AS _id, " +
+                "    w1.name AS name, " +
+                "    group_concat( " +
+                "      w2.name || ' (' || l.code || ') ', " +
+                "      ', ') AS translations " +
+                "  FROM " +
+                "    translations AS t, " +
+                "    words AS w1, " +
+                "    words AS w2, " +
+                "    languages AS l " +
+                "  WHERE " +
+                "    w1.language_id = ? AND " +
+                "    t.word_id1 = w1._id AND " +
+                "    t.word_id2 = w2._id AND " +
+                "    w2.language_id = l._id " +
+                "  GROUP BY (t.word_id1);",
+                new String[] { language.getIdString() });
+        mActivity.startManagingCursor(cursor);
+
+        return cursor;
+    }
+
     public Word getWord(long id) {
         Cursor cursor = mDb.query("words", new String[] { "name", "language_id" },
                                   "_id = ?", new String[] { Long.toString(id) },
@@ -247,19 +275,12 @@ public class PatoisDatabase {
     public ArrayList<Word> getTranslations(Word word) {
         ArrayList<Word> translations = new ArrayList<Word>();
 
-        Cursor cursor = mDb.query("translations", new String[] { "word_id1, word_id2" },
-                                  "word_id1 = ? OR word_id2 = ?",
-                                  new String[] { word.getIdString(), word.getIdString() },
+        Cursor cursor = mDb.query("translations", new String[] { "word_id2" },
+                                  "word_id1 = ?", new String[] { word.getIdString() },
                                   null, null, null);
         try {
-            while (cursor.moveToNext()) {
-                long id1 = cursor.getLong(0);
-                long id2 = cursor.getLong(1);
-                if (word.getId() == id1)
-                    translations.add(getWord(id2));
-                else
-                    translations.add(getWord(id1));
-            }
+            while (cursor.moveToNext())
+                translations.add(getWord(cursor.getLong(0)));
         } finally {
             cursor.close();
         }
@@ -270,12 +291,13 @@ public class PatoisDatabase {
     public void insertTranslation(Word word1, Word word2) {
         ContentValues values = new ContentValues();
 
-        // We're using min/max here to make sure that in the translations table
-        // word_id1 is always less than or equal to word_id2.  This will ensure
-        // that we don't accidentally add the same translation twice.
-        values.put("word_id1", Math.min(word1.getId(), word2.getId()));
-        values.put("word_id2", Math.max(word1.getId(), word2.getId()));
+        values.put("word_id1", word1.getId());
+        values.put("word_id2", word2.getId());
+        mDb.insert("translations", null, values);
 
+        values.clear();
+        values.put("word_id1", word2.getId());
+        values.put("word_id2", word1.getId());
         mDb.insert("translations", null, values);
     }
 }

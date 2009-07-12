@@ -37,7 +37,14 @@ public class PatoisMainActivity extends Activity {
             }
         });
 
-        Button button = (Button) findViewById(R.id.add_words);
+        Button button = (Button) findViewById(R.id.browse_words);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startBrowseWordsActivity();
+            }
+        });
+
+        button = (Button) findViewById(R.id.add_words);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 startEditWordActivity();
@@ -137,6 +144,12 @@ public class PatoisMainActivity extends Activity {
         Intent intent = new Intent();
         intent.setClass(this, EditLanguagesActivity.class);
         startActivityForResult(intent, R.id.select_language);
+    }
+
+    private void startBrowseWordsActivity() {
+        Intent intent = new Intent();
+        intent.setClass(this, BrowseWordsActivity.class);
+        startActivity(intent);
     }
 
     private void startEditWordActivity() {

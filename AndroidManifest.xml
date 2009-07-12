@@ -18,6 +18,8 @@
 
         <activity android:name=".EditLanguagesActivity" />
 
+        <activity android:name=".BrowseWordsActivity" />
+
         <activity android:name=".EditWordActivity" />
 
     </application>
