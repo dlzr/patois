@@ -1,12 +1,21 @@
 Database:
   - Add triggers to the database to ensure consistency:
     - When adding/deleting a translation, update the "translations"
-      count of the affected words.
+      count of the affected words (delete words with no translations
+      left).
+  - Add to words:
+    - scores
+    - date added
+    - num translations
 
 EditLanguagesActivity:
   - When deleting a language, first check that there are no words
     defined in that language.  If this is not true, ask the user for
     confirmation.
+
+BrowseWordsActivity:
+  - Words with no translations should be highlighted.
+  - Add different sort orders
 
 EditWordActivity:
   - When editting an existing translation for a word, ask the user if
@@ -14,8 +23,8 @@ EditWordActivity:
     word (i.e., a better translation).
   - When adding words, there should be checks for duplicates.
 
-BrowseWordsActivity:
-  - Words with no translations should be highlighted.
+ViewWordActivity:
+  - Implement me.
 
 __________________________
 
