@@ -1,7 +1,11 @@
 package ro.undef.patois;
 
 import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 public class BrowseWordsActivity extends ListActivity {
@@ -33,5 +37,18 @@ public class BrowseWordsActivity extends ListActivity {
     protected void onDestroy() {
         super.onDestroy();
         mDb.close();
+    }
+
+    @Override
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        Bundle extras = new Bundle();
+        extras.putLong("word_id", id);
+
+        Intent intent = new Intent();
+        intent.setClass(this, EditWordActivity.class);
+        intent.setAction(Intent.ACTION_EDIT);
+        intent.putExtras(extras);
+
+        startActivity(intent);
     }
 }

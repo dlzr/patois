@@ -48,7 +48,7 @@ public class EditWordActivity extends Activity {
         Intent intent = getIntent();
         if (savedInstanceState != null) {
             loadStateFromBundle(savedInstanceState);
-        } else if (intent.getAction() == Intent.ACTION_EDIT) {
+        } else if (intent.getAction().equals(Intent.ACTION_EDIT)) {
             loadStateFromDatabase(intent.getExtras().getLong("word_id"));
         } else {
             resetState();
