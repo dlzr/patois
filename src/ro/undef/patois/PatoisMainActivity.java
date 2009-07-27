@@ -120,7 +120,7 @@ public class PatoisMainActivity extends Activity {
                     .setCursor(cursor, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             cursor.moveToPosition(which);
-                            activateLanguageId(cursor.getLong(PatoisDatabase.LANGUAGE_ID_COLUMN));
+                            activateLanguageId(cursor.getLong(PatoisDatabase.LANGUAGES_ID_COLUMN));
                         }
                     }, "name")
                     .setNeutralButton(R.string.edit_languages,

@@ -254,7 +254,7 @@ language_search:
                         public void onClick(DialogInterface dialog, int which) {
                             cursor.moveToPosition(which);
                             Language language = mDb.getLanguage(
-                                    cursor.getLong(PatoisDatabase.LANGUAGE_ID_COLUMN));
+                                    cursor.getLong(PatoisDatabase.LANGUAGES_ID_COLUMN));
                             mLanguageListener.setLanguage(language);
                             mLanguageListener = null;
                         }

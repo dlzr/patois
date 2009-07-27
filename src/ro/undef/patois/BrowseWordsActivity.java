@@ -24,8 +24,8 @@ public class BrowseWordsActivity extends ListActivity {
                 R.layout.browse_words_list_item,
                 mDb.getBrowseWordsCursor(mDb.getActiveLanguage()),
                 new String[] {
-                    PatoisDatabase.WORD_NAME_COLUMN,
-                    PatoisDatabase.WORD_TRANSLATIONS_COLUMN,
+                    PatoisDatabase.BROWSE_WORDS_NAME_COLUMN,
+                    PatoisDatabase.BROWSE_WORDS_TRANSLATIONS_COLUMN,
                 },
                 new int[] {
                     R.id.name,

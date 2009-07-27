@@ -102,9 +102,9 @@ public class PatoisDatabase {
     }
 
 
-    public static final int LANGUAGE_ID_COLUMN = 0;
-    public static final int LANGUAGE_CODE_COLUMN = 1;
-    public static final int LANGUAGE_NAME_COLUMN = 2;
+    public static final int LANGUAGES_ID_COLUMN = 0;
+    public static final int LANGUAGES_CODE_COLUMN = 1;
+    public static final int LANGUAGES_NAME_COLUMN = 2;
 
     public Cursor getLanguagesCursor() {
         Cursor cursor = mDb.query("languages", new String[] { "_id", "code", "name" },
@@ -204,8 +204,8 @@ public class PatoisDatabase {
     }
 
 
-    public static final String WORD_NAME_COLUMN = "name";
-    public static final String WORD_TRANSLATIONS_COLUMN = "translations";
+    public static final String BROWSE_WORDS_NAME_COLUMN = "name";
+    public static final String BROWSE_WORDS_TRANSLATIONS_COLUMN = "translations";
 
     public Cursor getBrowseWordsCursor(Language language) {
         Cursor cursor = mDb.rawQuery(
