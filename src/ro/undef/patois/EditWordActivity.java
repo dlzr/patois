@@ -11,9 +11,12 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.CursorAdapter;
+import android.widget.FilterQueryProvider;
 import android.widget.LinearLayout;
+import android.widget.SimpleCursorAdapter;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -100,7 +103,7 @@ public class EditWordActivity extends Activity {
 
         for (TranslationEntry entry : mTranslationEntries) {
             entry.saveToDatabase(mDb);
-            if (!entry.isDeleted())
+            if (!entry.isDeleted() && entry.getWord().isInDatabase())
                 mDb.insertTranslation(mMainWordEntry.getWord(), entry.getWord());
         }
     }
@@ -264,6 +267,26 @@ language_search:
         return null;
     }
 
+    private CursorAdapter getWordsAdapter(final Word word) {
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(
+                this,
+                android.R.layout.simple_dropdown_item_1line,
+                mDb.getWordsCursor(word.getLanguage(), word.getName()),
+                new String[] {
+                    PatoisDatabase.WORDS_NAME_COLUMN,
+                },
+                new int[] {
+                    android.R.id.text1,
+                });
+        adapter.setStringConversionColumn(PatoisDatabase.WORDS_NAME_COLUMN_ID);
+        adapter.setFilterQueryProvider(new FilterQueryProvider() {
+            public Cursor runQuery(CharSequence constraint) {
+                return mDb.getWordsCursor(word.getLanguage(), constraint.toString());
+            }
+        });
+        return adapter;
+    }
+
     private static class WordEntry implements Serializable {
         protected Word mWord;
         public Word getWord() { return mWord; }
@@ -275,7 +298,7 @@ language_search:
         protected boolean mHasLanguageDialogOpen;
 
         transient protected Button mLanguageButton;
-        transient protected EditText mNameEditText;
+        transient protected AutoCompleteTextView mNameEditText;
 
         public WordEntry(Word word) {
             mWord = word;
@@ -302,15 +325,13 @@ language_search:
             if (mLanguageButtonHasFocus)
                 mLanguageButton.requestFocus();
 
-            mNameEditText = (EditText) view.findViewById(R.id.name);
+            mNameEditText = (AutoCompleteTextView) view.findViewById(R.id.name);
+            mNameEditText.setAdapter(activity.getWordsAdapter(mWord));
             mNameEditText.setText(mWord.getName());
             if (mNameSelectionStart != -1 && mNameSelectionEnd != -1) {
                 mNameEditText.requestFocus();
                 mNameEditText.setSelection(mNameSelectionStart, mNameSelectionEnd);
             }
-            // TODO: Replace this EditText with an AutoCompleteTextView, and
-            // use that to suggest words that already exist in the database.
-            // That should prevent entering duplicate words.
         }
 
         public void syncFromView() {
@@ -334,8 +355,8 @@ language_search:
         public void saveToDatabase(PatoisDatabase db) {
             syncFromView();
 
-            if (mWord.isNew()) {
-                if (mWord.getName().length() != 0)
+            if (!mWord.isInDatabase()) {
+                if (!mWord.isEmpty())
                     db.insertWord(mWord);
             } else if (mModified) {
                 db.updateWord(mWord);
@@ -421,7 +442,7 @@ language_search:
 
         public void saveToDatabase(PatoisDatabase db) {
             if (mDeleted) {
-                if (!mWord.isNew()) {
+                if (mWord.isInDatabase()) {
                     db.deleteWord(mWord);
                     // TODO: Only delete the translation.  Delete the word only
                     // if it reached 0 translations, maybe from a trigger.

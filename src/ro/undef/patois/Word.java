@@ -27,8 +27,12 @@ public class Word implements Serializable {
         this(-1, "", language);
     }
 
-    public boolean isNew() {
-        return mId == -1;
+    public boolean isInDatabase() {
+        return mId != -1;
+    }
+
+    public boolean isEmpty() {
+        return mName.length() == 0;
     }
 
     // Required for the Serializable interface.

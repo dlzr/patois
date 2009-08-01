@@ -208,6 +208,7 @@ public class PatoisDatabase {
     public static final String BROWSE_WORDS_TRANSLATIONS_COLUMN = "translations";
 
     public Cursor getBrowseWordsCursor(Language language) {
+        // TODO: Fix this query to also include words without translations.
         Cursor cursor = mDb.rawQuery(
                 "SELECT " +
                 "    t.word_id1 AS _id, " +
@@ -227,6 +228,22 @@ public class PatoisDatabase {
                 "    w2.language_id = l._id " +
                 "  GROUP BY (t.word_id1)",
                 new String[] { language.getIdString() });
+        mActivity.startManagingCursor(cursor);
+
+        return cursor;
+    }
+
+    public static final String WORDS_NAME_COLUMN = "name";
+    public static final int WORDS_NAME_COLUMN_ID = 1;
+
+    public Cursor getWordsCursor(Language language, String filter) {
+        Cursor cursor = mDb.query("words", new String[] { "_id", "name" },
+                                  "(language_id = ?) AND (name LIKE ?)",
+                                  new String[] {
+                                      language.getIdString(),
+                                      "%" + filter + "%",
+                                  },
+                                  null, null, null);
         mActivity.startManagingCursor(cursor);
 
         return cursor;
