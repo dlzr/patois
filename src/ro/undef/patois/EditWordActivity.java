@@ -103,7 +103,9 @@ public class EditWordActivity extends Activity {
 
         for (TranslationEntry entry : mTranslationEntries) {
             entry.saveToDatabase(mDb);
-            if (!entry.isDeleted() && entry.getWord().isInDatabase())
+            if (!entry.isDeleted()
+                    && mMainWordEntry.getWord().isInDatabase()
+                    && entry.getWord().isInDatabase())
                 mDb.insertTranslation(mMainWordEntry.getWord(), entry.getWord());
         }
     }
