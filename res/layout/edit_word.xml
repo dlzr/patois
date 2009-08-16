@@ -29,7 +29,6 @@
                 android:layout_marginLeft="8dip"
                 android:layout_marginBottom="2dip"
                 android:singleLine="true"
-                android:text="DE"
                 />
 
             <AutoCompleteTextView android:id="@+id/name"
@@ -40,6 +39,8 @@
                 android:layout_marginBottom="2dip"
                 android:layout_marginRight="8dip"
                 android:singleLine="true"
+                android:textSize="20sp"
+                android:textStyle="bold"
                 android:hint="@string/new_word"
                 />
 

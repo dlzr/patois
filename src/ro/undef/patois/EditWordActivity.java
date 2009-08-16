@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -333,6 +334,14 @@ language_search:
             if (mNameSelectionStart != -1 && mNameSelectionEnd != -1) {
                 mNameEditText.requestFocus();
                 mNameEditText.setSelection(mNameSelectionStart, mNameSelectionEnd);
+            }
+
+            if (mWord.isInDatabase()) {
+                Resources res = activity.getResources();
+                mLanguageButton.setEnabled(false);
+                mLanguageButton.setTextColor(res.getColor(android.R.color.primary_text_dark));
+                mNameEditText.setEnabled(false);
+                mNameEditText.setTextColor(res.getColor(android.R.color.primary_text_dark));
             }
         }
 
