@@ -103,11 +103,7 @@ public class EditWordActivity extends Activity {
         mMainWordEntry.saveToDatabase(mDb);
 
         for (TranslationEntry entry : mTranslationEntries) {
-            entry.saveToDatabase(mDb);
-            if (!entry.isDeleted()
-                    && mMainWordEntry.getWord().isInDatabase()
-                    && entry.getWord().isInDatabase())
-                mDb.insertTranslation(mMainWordEntry.getWord(), entry.getWord());
+            entry.saveToDatabase(mDb, mMainWordEntry.getWord());
         }
     }
 
@@ -294,7 +290,6 @@ language_search:
         protected Word mWord;
         public Word getWord() { return mWord; }
 
-        protected boolean mModified;
         protected int mNameSelectionStart;
         protected int mNameSelectionEnd;
         protected boolean mLanguageButtonHasFocus;
@@ -305,7 +300,6 @@ language_search:
 
         public WordEntry(Word word) {
             mWord = word;
-            mModified = false;
             mNameSelectionStart = -1;
             mNameSelectionEnd = -1;
             mLanguageButtonHasFocus = false;
@@ -346,12 +340,8 @@ language_search:
         }
 
         public void syncFromView() {
-            String new_name = mNameEditText.getText().toString();
-
-            if (new_name != mWord.getName())
-                mModified = true;
-
-            mWord.setName(new_name);
+            if (!mWord.isInDatabase())
+                mWord.setName(mNameEditText.getText().toString());
 
             if (mNameEditText.hasFocus()) {
                 mNameSelectionStart = mNameEditText.getSelectionStart();
@@ -366,19 +356,14 @@ language_search:
         public void saveToDatabase(PatoisDatabase db) {
             syncFromView();
 
-            if (!mWord.isInDatabase()) {
-                if (!mWord.isEmpty())
-                    db.insertWord(mWord);
-            } else if (mModified) {
-                db.updateWord(mWord);
-            }
+            if (!mWord.isInDatabase() && !mWord.isEmpty())
+                db.insertWord(mWord);
         }
 
         public void setLanguage(Language language) {
             mWord.setLanguage(language);
             mLanguageButton.setText(mWord.getLanguage().getCode());
             mHasLanguageDialogOpen = false;
-            mModified = true;
         }
 
         public boolean hasLanguageDialogOpen() {
@@ -451,7 +436,7 @@ language_search:
             return mDeleted;
         }
 
-        public void saveToDatabase(PatoisDatabase db) {
+        public void saveToDatabase(PatoisDatabase db, Word mainWord) {
             if (mDeleted) {
                 if (mWord.isInDatabase()) {
                     db.deleteWord(mWord);
@@ -460,6 +445,8 @@ language_search:
                 }
             } else {
                 super.saveToDatabase(db);
+                if (mainWord.isInDatabase() && mWord.isInDatabase())
+                    db.insertTranslation(mainWord, mWord);
             }
         }
 
