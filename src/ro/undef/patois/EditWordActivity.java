@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CursorAdapter;
@@ -197,6 +198,21 @@ public class EditWordActivity extends Activity {
         entry.addViewToList(this, mTranslationsLayout, mInflater);
     }
 
+    private void reloadTranslations(Word mainWord) {
+        for (Word word : mDb.getTranslations(mainWord)) {
+            boolean duplicate = false;
+            for (TranslationEntry entry : mTranslationEntries)
+                if (entry.getWord().equals(word))
+                    duplicate = true;
+
+            if (!duplicate) {
+                TranslationEntry entry = new TranslationEntry(word);
+                mTranslationEntries.add(entry);
+                entry.addViewToList(this, mTranslationsLayout, mInflater);
+            }
+        }
+    }
+
     private Language pickTranslationLanguage() {
         // The "selected" language is the language with most words that is not
         // used already.
@@ -286,6 +302,11 @@ language_search:
         return adapter;
     }
 
+    private Word getWord(long id) {
+        return mDb.getWord(id);
+    }
+
+
     private static class WordEntry implements Serializable {
         protected Word mWord;
         public Word getWord() { return mWord; }
@@ -324,19 +345,40 @@ language_search:
 
             mNameEditText = (AutoCompleteTextView) view.findViewById(R.id.name);
             mNameEditText.setAdapter(activity.getWordsAdapter(mWord));
+            mNameEditText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    changeWord(activity, activity.getWord(id));
+                }
+            });
             mNameEditText.setText(mWord.getName());
             if (mNameSelectionStart != -1 && mNameSelectionEnd != -1) {
                 mNameEditText.requestFocus();
                 mNameEditText.setSelection(mNameSelectionStart, mNameSelectionEnd);
             }
 
+            checkEditable(activity);
+        }
+
+        protected void checkEditable(final EditWordActivity activity) {
+            Resources res = activity.getResources();
+
             if (mWord.isInDatabase()) {
-                Resources res = activity.getResources();
                 mLanguageButton.setEnabled(false);
                 mLanguageButton.setTextColor(res.getColor(android.R.color.primary_text_dark));
                 mNameEditText.setEnabled(false);
                 mNameEditText.setTextColor(res.getColor(android.R.color.primary_text_dark));
+            } else {
+                mLanguageButton.setEnabled(true);
+                mLanguageButton.setTextColor(res.getColor(android.R.color.primary_text_light_nodisable));
+                mNameEditText.setEnabled(true);
+                mNameEditText.setTextColor(res.getColor(android.R.color.primary_text_light));
             }
+        }
+
+        protected void changeWord(final EditWordActivity activity, Word word) {
+            mWord = word;
+            checkEditable(activity);
+            activity.reloadTranslations(mWord);
         }
 
         public void syncFromView() {
@@ -415,6 +457,11 @@ language_search:
             });
             if (mDeleteButtonHasFocus)
                 mDeleteButton.requestFocus();
+        }
+
+        protected void changeWord(final EditWordActivity activity, Word word) {
+            mWord = word;
+            checkEditable(activity);
         }
 
         public void syncFromView() {

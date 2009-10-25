@@ -27,6 +27,23 @@ public class Word implements Serializable {
         this(-1, "", language);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == this)
+            return true;
+        if (!(o instanceof Word))
+            return false;
+        Word that = (Word) o;
+        return this.mId == that.mId;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 37 * result + (int) (mId ^ (mId >>> 32));
+        return result ;
+    }
+
     public boolean isInDatabase() {
         return mId != -1;
     }

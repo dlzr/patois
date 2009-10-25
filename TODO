@@ -18,7 +18,9 @@ BrowseWordsActivity:
   - Add different sort orders
 
 EditWordActivity:
-  - When adding words, there should be checks for duplicates.
+  - When adding words:
+    - should remove the empty translation entries when switching the
+      main word to an existing word (by chosing an autocompletion entry)
 
 ViewWordActivity:
   - Implement me.
