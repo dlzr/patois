@@ -18,6 +18,8 @@ BrowseWordsActivity:
   - Words with no translations should be highlighted.
   - Add different sort orders.
   - Add the option of removing words.
+  - Add the option to do incremental, filtering searches (à la
+    Contacts).
 
 EditWordActivity:
   - When removing translations entries, only the translation should be
