@@ -1,5 +1,5 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:id="@+id/select_language"
-        android:title="Languages"
+        android:title="@string/select_language"
         />
 </menu>
