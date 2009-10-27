@@ -14,20 +14,24 @@ EditLanguagesActivity:
     confirmation.
 
 BrowseWordsActivity:
+  - Words with no translations should be displayed too.
   - Words with no translations should be highlighted.
   - Add different sort orders.
   - Add the option of removing words.
 
 EditWordActivity:
-  - When adding words (in autocompletion mode):
-    - should remove the empty translation entries when switching the
-      main word to an existing word
   - When removing translations entries, only the translation should be
     removed from the database, not the translated word.  Words should be
     garbage collected when they have 0 translations.
   - Add option for renaming the main word.
 
 ViewWordActivity:
+  - Implement me.
+
+PracticeActivity:
+  - Implement me.
+
+StatisticsActivity:
   - Implement me.
 
 __________________________
