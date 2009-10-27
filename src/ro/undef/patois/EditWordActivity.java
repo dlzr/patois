@@ -199,6 +199,13 @@ public class EditWordActivity extends Activity {
     }
 
     private void reloadTranslations(Word mainWord) {
+        // First, clear all entries that don't contain any user-entered
+        // information.
+        for (TranslationEntry entry : mTranslationEntries)
+            if (entry.isEmpty())
+                entry.markAsDeleted();
+
+        // Then, add all the translations of new mainWord.
         for (Word word : mDb.getTranslations(mainWord)) {
             boolean duplicate = false;
             for (TranslationEntry entry : mTranslationEntries)
@@ -365,8 +372,10 @@ language_search:
             if (mWord.isInDatabase()) {
                 mLanguageButton.setEnabled(false);
                 mLanguageButton.setTextColor(res.getColor(android.R.color.primary_text_dark));
+                mLanguageButton.clearFocus();
                 mNameEditText.setEnabled(false);
                 mNameEditText.setTextColor(res.getColor(android.R.color.primary_text_dark));
+                mNameEditText.clearFocus();
             } else {
                 mLanguageButton.setEnabled(true);
                 mLanguageButton.setTextColor(res.getColor(android.R.color.primary_text_light_nodisable));
@@ -481,6 +490,18 @@ language_search:
 
         public boolean isDeleted() {
             return mDeleted;
+        }
+
+        public boolean isEmpty() {
+            // An "empty" TranslationEntry is one that doesn't contain any
+            // information that needs to be saved to persistent storage.
+            if (mDeleted)
+                return false;
+            if (mWord.isInDatabase())
+                return false;
+            if (mNameEditText.getText().length() != 0)
+                return false;
+            return true;
         }
 
         public void saveToDatabase(PatoisDatabase db, Word mainWord) {
