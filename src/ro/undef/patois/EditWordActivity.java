@@ -11,6 +11,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AutoCompleteTextView;
@@ -67,6 +70,28 @@ public class EditWordActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         mDb.close();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+	MenuInflater inflater = getMenuInflater();
+	inflater.inflate(R.menu.edit_word_activity_menu, menu);
+	return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.rename_word: {
+                // TODO: Rename the mainWord.
+                return true;
+            }
+            case R.id.delete_word: {
+                // TODO: Delete the mainWord and terminate the activity.
+                return true;
+            }
+        }
+        return false;
     }
 
     private void resetState() {

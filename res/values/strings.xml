@@ -28,5 +28,7 @@
     <string name="translation">Translation</string>
     <string name="add_translation">Add a new translation</string>
     <string name="new_word">New word</string>
+    <string name="rename_word">Rename word</string>
+    <string name="delete_word">Delete word</string>
 
 </resources>
