@@ -25,7 +25,7 @@ EditWordActivity:
   - When removing translations entries, only the translation should be
     removed from the database, not the translated word.  Words should be
     garbage collected when they have 0 translations.
-  - Add option for renaming the main word.
+  - Add option for deleting the main word.
 
 ViewWordActivity:
   - Implement me.
