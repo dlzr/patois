@@ -317,4 +317,15 @@ public class PatoisDatabase {
         values.put("word_id2", word1.getId());
         mDb.insert("translations", null, values);
     }
+
+    public void deleteTranslation(Word word1, Word word2) {
+        mDb.delete("translations",
+                   "(word_id1 = ? AND word_id2 = ?) OR (word_id1 = ? AND word_id2 = ?)",
+                   new String[] {
+                       word1.getIdString(),
+                       word2.getIdString(),
+                       word2.getIdString(),
+                       word1.getIdString(),
+                   });
+    }
 }

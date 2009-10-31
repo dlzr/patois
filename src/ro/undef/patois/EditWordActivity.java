@@ -552,11 +552,8 @@ language_search:
 
         public void saveToDatabase(PatoisDatabase db, Word mainWord) {
             if (mDeleted) {
-                if (mWord.isInDatabase()) {
-                    db.deleteWord(mWord);
-                    // TODO: Only delete the translation.  Delete the word only
-                    // if it reached 0 translations, maybe from a trigger.
-                }
+                if (mainWord.isInDatabase() && mWord.isInDatabase())
+                    db.deleteTranslation(mainWord, mWord);
             } else {
                 super.saveToDatabase(db);
                 if (mainWord.isInDatabase() && mWord.isInDatabase())
