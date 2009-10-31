@@ -18,8 +18,7 @@ BrowseWordsActivity:
     Contacts).
 
 EditWordActivity:
-  - When removing translations entries, only the translation should be
-    removed from the database, not the translated word.
+  - [Finished! (?)]
 
 ViewWordActivity:
   - Implement me.
