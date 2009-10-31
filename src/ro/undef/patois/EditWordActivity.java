@@ -87,7 +87,9 @@ public class EditWordActivity extends Activity {
                 return true;
             }
             case R.id.delete_word: {
-                // TODO: Delete the mainWord and terminate the activity.
+                if (mMainWordEntry.getWord().isInDatabase())
+                    mDb.deleteWord(mMainWordEntry.getWord());
+                finish();
                 return true;
             }
         }
