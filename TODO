@@ -1,8 +1,4 @@
 Database:
-  - Add triggers to the database to ensure consistency:
-    - When adding/deleting a translation, update the "translations"
-      count of the affected words (delete words with no translations
-      left).
   - Add to words:
     - scores
     - date added
@@ -23,9 +19,7 @@ BrowseWordsActivity:
 
 EditWordActivity:
   - When removing translations entries, only the translation should be
-    removed from the database, not the translated word.  Words should be
-    garbage collected when they have 0 translations.
-  - Add option for deleting the main word.
+    removed from the database, not the translated word.
 
 ViewWordActivity:
   - Implement me.
