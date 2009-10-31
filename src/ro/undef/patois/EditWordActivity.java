@@ -83,7 +83,7 @@ public class EditWordActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.rename_word: {
-                // TODO: Rename the mainWord.
+                mMainWordEntry.setEditable(true);
                 return true;
             }
             case R.id.delete_word: {
@@ -348,8 +348,11 @@ language_search:
         protected boolean mLanguageButtonHasFocus;
         protected boolean mHasLanguageDialogOpen;
 
+        protected boolean mEditable;
+
         transient protected Button mLanguageButton;
         transient protected AutoCompleteTextView mNameEditText;
+        transient protected EditWordActivity mActivity;
 
         public WordEntry(Word word) {
             mWord = word;
@@ -357,6 +360,7 @@ language_search:
             mNameSelectionEnd = -1;
             mLanguageButtonHasFocus = false;
             mHasLanguageDialogOpen = false;
+            mEditable = !mWord.isInDatabase();
         }
 
         public WordEntry(Language language) {
@@ -364,22 +368,24 @@ language_search:
         }
 
         public void setupView(final EditWordActivity activity, View view) {
+            mActivity = activity;
+
             mLanguageButton = (Button) view.findViewById(R.id.language);
             mLanguageButton.setText(mWord.getLanguage().getCode());
             mLanguageButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     mHasLanguageDialogOpen = true;
-                    activity.showSelectLanguageDialog(WordEntry.this);
+                    mActivity.showSelectLanguageDialog(WordEntry.this);
                 }
             });
             if (mLanguageButtonHasFocus)
                 mLanguageButton.requestFocus();
 
             mNameEditText = (AutoCompleteTextView) view.findViewById(R.id.name);
-            mNameEditText.setAdapter(activity.getWordsAdapter(mWord));
+            mNameEditText.setAdapter(mActivity.getWordsAdapter(mWord));
             mNameEditText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    changeWord(activity, activity.getWord(id));
+                    changeWord(mActivity.getWord(id));
                 }
             });
             mNameEditText.setText(mWord.getName());
@@ -388,33 +394,40 @@ language_search:
                 mNameEditText.setSelection(mNameSelectionStart, mNameSelectionEnd);
             }
 
-            checkEditable(activity);
+            checkEditable();
         }
 
-        protected void checkEditable(final EditWordActivity activity) {
-            Resources res = activity.getResources();
+        protected void checkEditable() {
+            Resources res = mActivity.getResources();
 
-            if (mWord.isInDatabase()) {
-                mLanguageButton.setEnabled(false);
-                mLanguageButton.setTextColor(res.getColor(android.R.color.primary_text_dark));
-                mNameEditText.setEnabled(false);
-                mNameEditText.setTextColor(res.getColor(android.R.color.primary_text_dark));
-            } else {
+            if (mEditable) {
                 mLanguageButton.setEnabled(true);
                 mLanguageButton.setTextColor(res.getColor(android.R.color.primary_text_light_nodisable));
                 mNameEditText.setEnabled(true);
                 mNameEditText.setTextColor(res.getColor(android.R.color.primary_text_light));
+            } else {
+                mLanguageButton.setEnabled(false);
+                mLanguageButton.setTextColor(res.getColor(android.R.color.primary_text_dark));
+                mNameEditText.setEnabled(false);
+                mNameEditText.setTextColor(res.getColor(android.R.color.primary_text_dark));
             }
         }
 
-        protected void changeWord(final EditWordActivity activity, Word word) {
+        protected void changeWord(Word word) {
             mWord = word;
-            checkEditable(activity);
-            activity.reloadTranslations(mWord);
+            mEditable = !mWord.isInDatabase();
+            checkEditable();
+            mActivity.reloadTranslations(mWord);
+        }
+
+        public void setEditable(boolean editable) {
+            mEditable = editable;
+            checkEditable();
+            mNameEditText.requestFocus();
         }
 
         public void syncFromView() {
-            if (!mWord.isInDatabase())
+            if (mEditable)
                 mWord.setName(mNameEditText.getText().toString());
 
             if (mNameEditText.hasFocus()) {
@@ -430,8 +443,15 @@ language_search:
         public void saveToDatabase(PatoisDatabase db) {
             syncFromView();
 
-            if (!mWord.isInDatabase() && !mWord.isEmpty())
+            if (mWord.isEmpty())
+                return;
+
+            if (mWord.isInDatabase()) {
+                if (mEditable)
+                    db.updateWord(mWord);
+            } else {
                 db.insertWord(mWord);
+            }
         }
 
         public void setLanguage(Language language) {
@@ -491,9 +511,10 @@ language_search:
                 mDeleteButton.requestFocus();
         }
 
-        protected void changeWord(final EditWordActivity activity, Word word) {
+        protected void changeWord(Word word) {
             mWord = word;
-            checkEditable(activity);
+            mEditable = !mWord.isInDatabase();
+            checkEditable();
         }
 
         public void syncFromView() {
@@ -520,7 +541,7 @@ language_search:
             // information that needs to be saved to persistent storage.
             if (mDeleted)
                 return false;
-            if (mWord.isInDatabase())
+            if (mWord.isInDatabase() && !mEditable)
                 return false;
             if (mNameEditText.getText().length() != 0)
                 return false;
