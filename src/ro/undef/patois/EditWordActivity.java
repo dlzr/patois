@@ -397,10 +397,8 @@ language_search:
             if (mWord.isInDatabase()) {
                 mLanguageButton.setEnabled(false);
                 mLanguageButton.setTextColor(res.getColor(android.R.color.primary_text_dark));
-                mLanguageButton.clearFocus();
                 mNameEditText.setEnabled(false);
                 mNameEditText.setTextColor(res.getColor(android.R.color.primary_text_dark));
-                mNameEditText.clearFocus();
             } else {
                 mLanguageButton.setEnabled(true);
                 mLanguageButton.setTextColor(res.getColor(android.R.color.primary_text_light_nodisable));
