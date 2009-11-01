@@ -212,10 +212,11 @@ public class PatoisDatabase {
         Cursor cursor = mDb.rawQuery(
                 "SELECT " +
                 "    t.word_id1 AS _id, " +
-                "    w1.name AS name, " +
+                // Simple escaping for BrowseWordsActivity.applyWordMarkup().
+                "    replace(w1.name, '.', '..') AS name, " +
                 "    group_concat( " +
-                "      w2.name || ' (' || l.code || ') ', " +
-                "      ', ') AS translations " +
+                "      replace(w2.name, '.', '..') || ' .c(' || " +
+                "      replace(l.code, '.', '..')  || ').C', '  ') AS translations " +
                 "  FROM " +
                 "    translations AS t, " +
                 "    words AS w1, " +

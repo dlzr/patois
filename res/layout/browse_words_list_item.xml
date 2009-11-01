@@ -6,8 +6,7 @@
     >
 
     <TextView android:id="@+id/name"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textStyle="bold"
+        android:textAppearance="@style/main_word"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dip"
@@ -15,8 +14,7 @@
         />
 
     <TextView android:id="@+id/translations"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="?android:attr/textColorSecondary"
+        android:textAppearance="@style/translations"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dip"
