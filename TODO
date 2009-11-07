@@ -19,7 +19,6 @@ BrowseWordsActivity:
 
 EditWordActivity:
   - Make sure to not save the same translation twice.
-  - Do not allow a word to translate to itself.
 
 ViewWordActivity:
   - Implement me.

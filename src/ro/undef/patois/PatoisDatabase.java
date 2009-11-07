@@ -237,12 +237,15 @@ public class PatoisDatabase {
     public static final String WORDS_NAME_COLUMN = "name";
     public static final int WORDS_NAME_COLUMN_ID = 1;
 
-    public Cursor getWordsCursor(Language language, String filter) {
+    public Cursor getWordsCursor(Language language, String filter, Word mainWord) {
+        // We want to avoid suggesting the main word as a translation of
+        // itself, so we have to explicitly filter it out here.
         Cursor cursor = mDb.query("words", new String[] { "_id", "name" },
-                                  "(language_id = ?) AND (name LIKE ?)",
+                                  "(language_id = ?) AND (name LIKE ?) AND (_id != ?)",
                                   new String[] {
                                       language.getIdString(),
                                       "%" + filter + "%",
+                                      mainWord.getIdString(),
                                   },
                                   null, null, null);
         mActivity.startManagingCursor(cursor);

@@ -320,7 +320,8 @@ language_search:
         SimpleCursorAdapter adapter = new SimpleCursorAdapter(
                 this,
                 android.R.layout.simple_dropdown_item_1line,
-                mDb.getWordsCursor(word.getLanguage(), word.getName()),
+                mDb.getWordsCursor(word.getLanguage(), word.getName(),
+                                   mMainWordEntry.getWord()),
                 new String[] {
                     PatoisDatabase.WORDS_NAME_COLUMN,
                 },
@@ -330,7 +331,8 @@ language_search:
         adapter.setStringConversionColumn(PatoisDatabase.WORDS_NAME_COLUMN_ID);
         adapter.setFilterQueryProvider(new FilterQueryProvider() {
             public Cursor runQuery(CharSequence constraint) {
-                return mDb.getWordsCursor(word.getLanguage(), constraint.toString());
+                return mDb.getWordsCursor(word.getLanguage(), constraint.toString(),
+                                          mMainWordEntry.getWord());
             }
         });
         return adapter;
