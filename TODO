@@ -29,6 +29,13 @@ StatisticsActivity:
 
 __________________________
 
+Release HOWTO:
+
+  - make sure a clean install works fine
+  - run some basic tests while watching 'adb logcat'
+
+__________________________
+
 Serializable HOWTO:
 
 When implementing the Serializable interface, the compiler recommends
