@@ -35,13 +35,14 @@ CREATE TABLE languages (
 CREATE TABLE words (
     _id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    language_id INTEGER NOT NULL
+    language_id INTEGER NOT NULL,
+    num_translations INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE translations (
     word_id1 INTEGER NOT NULL,
     word_id2 INTEGER NOT NULL,
-    UNIQUE(word_id1, word_id2) ON CONFLICT IGNORE
+    UNIQUE(word_id1, word_id2)
 );
 
 CREATE TRIGGER delete_words_when_deleting_language DELETE ON languages
@@ -79,4 +80,29 @@ CREATE TRIGGER count_words_on_delete DELETE ON words
         UPDATE languages
             SET num_words = num_words - 1
             WHERE _id = OLD.language_id;
+    END;
+
+CREATE TRIGGER count_translations_on_insert INSERT ON translations
+    BEGIN
+        UPDATE words
+            SET num_translations = num_translations + 1
+            WHERE _id = NEW.word_id1;
+    END;
+
+CREATE TRIGGER count_translations_on_update UPDATE ON translations
+    WHEN OLD.word_id1 != NEW.word_id1
+    BEGIN
+        UPDATE words
+            SET num_translations = num_translations - 1
+            WHERE _id = OLD.word_id1;
+        UPDATE words
+            SET num_translations = num_translations + 1
+            WHERE _id = NEW.word_id1;
+    END;
+
+CREATE TRIGGER count_translations_on_delete DELETE ON translations
+    BEGIN
+        UPDATE words
+            SET num_translations = num_translations - 1
+            WHERE _id = OLD.word_id1;
     END;
