@@ -2,7 +2,6 @@ Database:
   - Add to words:
     - scores
     - date added
-    - num translations
 
 EditLanguagesActivity:
   - When deleting a language, first check that there are no words
@@ -18,7 +17,7 @@ BrowseWordsActivity:
     Contacts).
 
 EditWordActivity:
-  - Make sure to not save the same translation twice.
+  - [no known bugs, no pending features]
 
 ViewWordActivity:
   - Implement me.

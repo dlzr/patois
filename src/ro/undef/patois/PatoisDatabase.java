@@ -311,7 +311,6 @@ public class PatoisDatabase {
 
     public void insertTranslation(Word word1, Word word2) {
         ContentValues values = new ContentValues();
-
         values.put("word_id1", word1.getId());
         values.put("word_id2", word2.getId());
         mDb.insert("translations", null, values);

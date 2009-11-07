@@ -116,7 +116,7 @@ public class EditWordActivity extends Activity {
 
         ArrayList<TranslationEntry> entries = new ArrayList<TranslationEntry>();
         for (Word word : mDb.getTranslations(mainWord))
-            entries.add(new TranslationEntry(word));
+            entries.add(new TranslationEntry(word, true));
         mTranslationEntries = entries;
 
         mLanguageListener = null;
@@ -236,11 +236,13 @@ public class EditWordActivity extends Activity {
         for (Word word : mDb.getTranslations(mainWord)) {
             boolean duplicate = false;
             for (TranslationEntry entry : mTranslationEntries)
-                if (entry.getWord().equals(word))
+                if (entry.getWord().equals(word)) {
                     duplicate = true;
+                    entry.setIsInDatabase(true);
+                }
 
             if (!duplicate) {
-                TranslationEntry entry = new TranslationEntry(word);
+                TranslationEntry entry = new TranslationEntry(word, true);
                 mTranslationEntries.add(entry);
                 entry.addViewToList(this, mTranslationsLayout, mInflater);
             }
@@ -331,7 +333,8 @@ language_search:
         adapter.setStringConversionColumn(PatoisDatabase.WORDS_NAME_COLUMN_ID);
         adapter.setFilterQueryProvider(new FilterQueryProvider() {
             public Cursor runQuery(CharSequence constraint) {
-                return mDb.getWordsCursor(word.getLanguage(), constraint.toString(),
+                return mDb.getWordsCursor(word.getLanguage(),
+                                          (constraint != null) ? constraint.toString() : "",
                                           mMainWordEntry.getWord());
             }
         });
@@ -482,18 +485,23 @@ language_search:
     private static class TranslationEntry extends WordEntry {
         private boolean mDeleted;
         private boolean mDeleteButtonHasFocus;
+        // True if there is an entry (actually, two rows) in the "translations"
+        // table for this translation entry.  In that case, the "translations"
+        // table doesn't need updating.
+        private boolean mIsInDatabase;
 
         transient private View mView;
         transient private View mDeleteButton;
 
-        public TranslationEntry(Word word) {
+        public TranslationEntry(Word word, boolean isInDatabase) {
             super(word);
             mDeleted = false;
             mDeleteButtonHasFocus = false;
+            mIsInDatabase = isInDatabase;
         }
 
         public TranslationEntry(Language language) {
-            this(new Word(language));
+            this(new Word(language), false);
         }
 
         public void addViewToList(EditWordActivity activity,
@@ -546,6 +554,10 @@ language_search:
             return mDeleted;
         }
 
+        public void setIsInDatabase(boolean isInDatabase) {
+            mIsInDatabase = isInDatabase;
+        }
+
         public boolean isEmpty() {
             // An "empty" TranslationEntry is one that doesn't contain any
             // information that needs to be saved to persistent storage.
@@ -560,11 +572,11 @@ language_search:
 
         public void saveToDatabase(PatoisDatabase db, Word mainWord) {
             if (mDeleted) {
-                if (mainWord.isInDatabase() && mWord.isInDatabase())
+                if (mainWord.isInDatabase() && mWord.isInDatabase() && mIsInDatabase)
                     db.deleteTranslation(mainWord, mWord);
             } else {
                 super.saveToDatabase(db);
-                if (mainWord.isInDatabase() && mWord.isInDatabase())
+                if (mainWord.isInDatabase() && mWord.isInDatabase() && !mIsInDatabase)
                     db.insertTranslation(mainWord, mWord);
             }
         }
