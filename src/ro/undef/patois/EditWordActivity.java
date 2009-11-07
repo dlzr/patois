@@ -425,6 +425,12 @@ language_search:
         public void setEditable(boolean editable) {
             mEditable = editable;
             checkEditable();
+            // We disable the auto-completion, such that the ID of the main
+            // word cannot be changed anymore.  This is to avoid "merging" the
+            // translations lists that would happen if the user would be able
+            // to select an existing word from the auto-complete suggestions,
+            // which would trigger a "reloadTranslations()" call.
+            mNameEditText.setAdapter((CursorAdapter)null);
             mNameEditText.requestFocus();
         }
 

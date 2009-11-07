@@ -20,7 +20,6 @@ BrowseWordsActivity:
 EditWordActivity:
   - Make sure to not save the same translation twice.
   - Do not allow a word to translate to itself.
-  - Disable auto-completion when renaming the main word.
 
 ViewWordActivity:
   - Implement me.
