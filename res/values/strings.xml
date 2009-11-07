@@ -24,6 +24,9 @@
     <string name="done">Done</string>
     <string name="cancel">Cancel</string>
 
+    <!-- Strings in the "browse words" activity. -->
+    <string name="no_translations">No translations</string>
+
     <!-- Strings in the "edit word" activity. -->
     <string name="translation">Translation</string>
     <string name="add_translation">Add a new translation</string>

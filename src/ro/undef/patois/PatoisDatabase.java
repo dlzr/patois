@@ -208,7 +208,7 @@ public class PatoisDatabase {
     public static final String BROWSE_WORDS_TRANSLATIONS_COLUMN = "translations";
 
     public Cursor getBrowseWordsCursor(Language language) {
-        // TODO: Fix this query to also include words without translations.
+        // TODO: Add different orderings to this query.
         Cursor cursor = mDb.rawQuery(
                 "SELECT " +
                 "    t.word_id1 AS _id, " +
@@ -227,8 +227,21 @@ public class PatoisDatabase {
                 "    t.word_id1 = w1._id AND " +
                 "    t.word_id2 = w2._id AND " +
                 "    w2.language_id = l._id " +
-                "  GROUP BY (t.word_id1)",
-                new String[] { language.getIdString() });
+                "  GROUP BY (t.word_id1) " +
+                "UNION " +
+                "SELECT " +
+                "    w._id AS _id, " +
+                "    '.u' || replace(w.name, '.', '..') || '.U' AS name, " +
+                "    '.c.0.C' AS translations " +
+                "  FROM " +
+                "    words AS w " +
+                "  WHERE " +
+                "    w.language_id = ? AND " +
+                "    w.num_translations == 0",
+                new String[] {
+                    language.getIdString(),
+                    language.getIdString(),
+                });
         mActivity.startManagingCursor(cursor);
 
         return cursor;

@@ -9,12 +9,10 @@ EditLanguagesActivity:
     confirmation.
 
 BrowseWordsActivity:
-  - Words with no translations should be displayed too.
-  - Words with no translations should be highlighted.
   - Add different sort orders.
-  - Add the option of removing words.
-  - Add the option to do incremental, filtering searches (à la
-    Contacts).
+  - Add incremental, filtering searches (à la Contacts).
+  - Add the option of removing words (long-press menu?).
+  - Add the option of adding a new word (menu).
 
 EditWordActivity:
   - [no known bugs, no pending features]
