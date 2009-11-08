@@ -50,6 +50,20 @@ public class PatoisMainActivity extends Activity {
                 startEditWordActivity();
             }
         });
+
+        button = (Button) findViewById(R.id.from_foreign);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startPracticeActivity();
+            }
+        });
+
+        button = (Button) findViewById(R.id.to_foreign);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startPracticeActivity();
+            }
+        });
     }
 
     @Override
@@ -156,6 +170,12 @@ public class PatoisMainActivity extends Activity {
         Intent intent = new Intent();
         intent.setClass(this, EditWordActivity.class);
         intent.setAction(Intent.ACTION_INSERT);
+        startActivity(intent);
+    }
+
+    private void startPracticeActivity() {
+        Intent intent = new Intent();
+        intent.setClass(this, PracticeActivity.class);
         startActivity(intent);
     }
 

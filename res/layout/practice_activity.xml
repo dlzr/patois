@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:fillViewport="true"
+    android:scrollbars="none"
+    >
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        >
+
+        <!--
+        The translations list is populated with views expanded from
+        edit_word_entry.xml.
+        -->
+        <LinearLayout android:id="@+id/translations"
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            />
+
+        <!--
+        Space filler for when the ScrollView is smaller than the screen.
+        This will push the Done/Revert buttons to the bottom of the screen.
+        -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            style="@android:style/ButtonBar"
+            >
+
+            <Button android:id="@+id/i_knew_it"
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/i_knew_it"
+                />
+
+            <Button android:id="@+id/i_didnt_know_it"
+                android:layout_width="0px"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/i_didnt_know_it"
+                />
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
