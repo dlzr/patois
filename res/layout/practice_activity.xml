@@ -12,26 +12,35 @@
         android:layout_height="fill_parent"
         >
 
-        <!--
-        The translations list is populated with views expanded from
-        edit_word_entry.xml.
-        -->
-        <LinearLayout android:id="@+id/translations"
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            />
-
-        <!--
-        Space filler for when the ScrollView is smaller than the screen.
-        This will push the Done/Revert buttons to the bottom of the screen.
-        -->
         <LinearLayout
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="0px"
             android:layout_weight="1"
-            />
+            >
+
+            <LinearLayout android:id="@+id/foreign_word"
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="0px"
+                android:layout_weight="1"
+                />
+
+            <ImageView
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:src="@drawable/equals_sign"
+                />
+
+            <LinearLayout android:id="@+id/native_words"
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="0px"
+                android:layout_weight="1"
+                />
+
+        </LinearLayout>
 
         <LinearLayout
             android:orientation="horizontal"
