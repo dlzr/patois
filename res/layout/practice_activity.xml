@@ -12,57 +12,86 @@
         android:layout_height="fill_parent"
         >
 
-        <LinearLayout
+        <LinearLayout android:id="@+id/word_panel"
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="0px"
             android:layout_weight="1"
+            android:gravity="center"
+            android:layout_marginTop="8dip"
+            android:layout_marginBottom="8dip"
             >
 
-            <LinearLayout android:id="@+id/foreign_word"
-                android:orientation="vertical"
-                android:layout_width="fill_parent"
-                android:layout_height="0px"
-                android:layout_weight="1"
-                />
-
-            <ImageView
+            <LinearLayout android:id="@+id/main_word"
+                android:orientation="horizontal"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:src="@drawable/equals_sign"
-                />
+                >
 
-            <LinearLayout android:id="@+id/native_words"
-                android:orientation="vertical"
-                android:layout_width="fill_parent"
-                android:layout_height="0px"
-                android:layout_weight="1"
-                />
+                <TextView android:id="@+id/name"
+                    android:layout_width="0px"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:gravity="right"
+                    android:textAppearance="@style/practice_main_word_name"
+                    android:text="polenta"
+                    />
 
+                <TextView android:id="@+id/language"
+                    android:layout_width="100sp"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10sp"
+                    android:gravity="left"
+                    android:textAppearance="@style/practice_main_word_language"
+                    android:text="(en)"
+                    />
+
+            </LinearLayout>
         </LinearLayout>
 
-        <LinearLayout
-            android:orientation="horizontal"
+        <FrameLayout android:id="@+id/button_bar"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            style="@android:style/ButtonBar"
             >
 
-            <Button android:id="@+id/i_knew_it"
-                android:layout_width="0px"
+            <LinearLayout android:id="@+id/question_side"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/i_knew_it"
-                />
+                style="@android:style/ButtonBar"
+                >
 
-            <Button android:id="@+id/i_didnt_know_it"
-                android:layout_width="0px"
+                <Button android:id="@+id/show_answer"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/show_answer"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/answer_side"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/i_didnt_know_it"
-                />
+                style="@android:style/ButtonBar"
+                android:visibility="gone"
+                >
 
-        </LinearLayout>
+                <Button android:id="@+id/i_knew_it"
+                    android:layout_width="0px"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/i_knew_it"
+                    />
+
+                <Button android:id="@+id/i_didnt_know_it"
+                    android:layout_width="0px"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/i_didnt_know_it"
+                    />
+
+            </LinearLayout>
+        </FrameLayout>
     </LinearLayout>
 </ScrollView>

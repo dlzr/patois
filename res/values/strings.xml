@@ -35,6 +35,7 @@
     <string name="delete_word">Delete word</string>
 
     <!-- Strings in the "practice" activity. -->
+    <string name="show_answer">Show answer</string>
     <string name="i_knew_it">I knew it</string>
     <string name="i_didnt_know_it">I didn\'t know it</string>
 

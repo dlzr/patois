@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Used by the "add another language" button. -->
+    <!-- Used in the EditLanguages and EditWord activities. -->
     <style name="add_button">
         <item name="android:background">@android:drawable/btn_default_small</item>
         <item name="android:src">@drawable/add_sign</item>
     </style>
 
-    <!-- Used by the "remove language" button. -->
     <style name="delete_button">
         <item name="android:background">@android:drawable/btn_default_small</item>
         <item name="android:src">@drawable/delete_sign</item>
@@ -28,6 +27,28 @@
 
     <style name="untranslated_word" parent="main_word">
         <item name="android:textColor">#ff0000</item>
+    </style>
+
+    <!-- Used in the PracticeActivity. -->
+    <style name="practice_word_language">
+        <item name="android:textColor">#666666</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">21sp</item>
+    </style>
+
+    <style name="practice_main_word_language" parent="practice_word_language">
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="practice_word_name">
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:textSize">28sp</item>
+    </style>
+
+    <style name="practice_main_word_name" parent="practice_word_name">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
 </resources>
