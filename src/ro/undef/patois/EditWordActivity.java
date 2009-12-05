@@ -39,7 +39,7 @@ public class EditWordActivity extends Activity {
     private View mCancelButton;
     private WordEntry mLanguageListener;
 
-    // These fields are saved accross restarts.
+    // These fields are saved across restarts.
     private WordEntry mMainWordEntry;
     private ArrayList<TranslationEntry> mTranslationEntries;
     private boolean mAddButtonHasFocus;

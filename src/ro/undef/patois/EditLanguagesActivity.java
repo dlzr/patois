@@ -24,7 +24,7 @@ public class EditLanguagesActivity extends Activity {
     private View mDoneButton;
     private View mCancelButton;
 
-    // These fields are saved accross restarts.
+    // These fields are saved across restarts.
     private ArrayList<LanguageEntry> mLanguageEntries;
     private boolean mAddButtonHasFocus;
     private boolean mDoneButtonHasFocus;
