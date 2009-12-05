@@ -202,8 +202,11 @@ public class EditWordActivity extends Activity {
         mNewWordButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 saveStateToDatabase();
-                resetState();
-                setupViews();
+                Intent intent = new Intent();
+                intent.setClass(EditWordActivity.this, EditWordActivity.class);
+                intent.setAction(Intent.ACTION_INSERT);
+                startActivity(intent);
+                finish();
             }
         });
         if (mNewWordButtonHasFocus)
