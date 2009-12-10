@@ -33,7 +33,6 @@
                     android:layout_centerInParent="true"
                     android:textAppearance="@style/practice_main_word_name"
                     android:gravity="center"
-                    android:text="polenta"
                     />
 
                 <TextView android:id="@+id/language"
@@ -44,7 +43,6 @@
                     android:paddingLeft="10sp"
                     android:textAppearance="@style/practice_main_word_language"
                     android:maxLines="1"
-                    android:text="(en)"
                     />
 
             </RelativeLayout>
