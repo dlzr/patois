@@ -1,7 +1,6 @@
-Database:
-  - Add to words:
-    - scores
-    - date added
+PatoisMainActivity:
+  - When returning from the "choose language" menu, make sure the
+    currently selected language still exists.
 
 EditLanguagesActivity:
   - When deleting a language, first check that there are no words
@@ -16,7 +15,9 @@ BrowseWordsActivity:
   - Show some intro message if there are no words.
 
 EditWordActivity:
-  - [no known bugs, no pending features]
+  - Make disabled text fields unfocusable.
+  - When clicking on disabled translation entries, switch to editting
+    the clicked word.
 
 ViewWordActivity:
   - Implement me.
@@ -26,6 +27,11 @@ PracticeActivity:
 
 StatisticsActivity:
   - Implement me.
+
+Database:
+  - Add to words:
+    - scores
+    - date added
 
 __________________________
 
