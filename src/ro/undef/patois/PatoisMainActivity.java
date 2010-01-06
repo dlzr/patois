@@ -54,14 +54,14 @@ public class PatoisMainActivity extends Activity {
         button = (Button) findViewById(R.id.from_foreign);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                startPracticeActivity();
+                startPracticeActivity(PracticeActivity.ACTION_TRANSLATE_FROM_FOREIGN);
             }
         });
 
         button = (Button) findViewById(R.id.to_foreign);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                startPracticeActivity();
+                startPracticeActivity(PracticeActivity.ACTION_TRANSLATE_TO_FOREIGN);
             }
         });
     }
@@ -173,9 +173,10 @@ public class PatoisMainActivity extends Activity {
         startActivity(intent);
     }
 
-    private void startPracticeActivity() {
+    private void startPracticeActivity(String action) {
         Intent intent = new Intent();
         intent.setClass(this, PracticeActivity.class);
+        intent.setAction(action);
         startActivity(intent);
     }
 

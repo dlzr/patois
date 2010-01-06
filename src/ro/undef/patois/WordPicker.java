@@ -2,8 +2,9 @@ package ro.undef.patois;
 
 public class WordPicker {
 
-    public Word pickWord(PatoisDatabase db) {
+    public static Word pickWord(PatoisDatabase db) {
         // TODO: Implement me.
-        return new Word(42, "mămăligă", new Language(1, "ro", "Romanian", 1));
+        // NOTE: Don't pick untranslated words.
+        return new Word(3, "m\u0103m\u0103lig\u0103", new Language(1, "ro", "Romanian", 1));
     }
 }
