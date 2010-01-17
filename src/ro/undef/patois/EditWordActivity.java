@@ -8,6 +8,9 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.text.InputFilter;
+import android.text.InputType;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -82,10 +85,6 @@ public class EditWordActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.rename_word: {
-                mMainWordEntry.setEditable(true);
-                return true;
-            }
             case R.id.delete_word: {
                 if (mMainWordEntry.getWord().isInDatabase())
                     mDb.deleteWord(mMainWordEntry.getWord());
@@ -370,7 +369,7 @@ language_search:
             mNameSelectionEnd = -1;
             mLanguageButtonHasFocus = false;
             mHasLanguageDialogOpen = false;
-            mEditable = !mWord.isInDatabase();
+            mEditable = true;
         }
 
         public WordEntry(Language language) {
@@ -392,54 +391,56 @@ language_search:
                 mLanguageButton.requestFocus();
 
             mNameEditText = (AutoCompleteTextView) view.findViewById(R.id.name);
-            mNameEditText.setAdapter(mActivity.getWordsAdapter(mWord));
-            mNameEditText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    changeWord(mActivity.getWord(id));
-                }
-            });
+            if (mEditable && !mWord.isInDatabase()) {
+                mNameEditText.setAdapter(mActivity.getWordsAdapter(mWord));
+                mNameEditText.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    public void onItemClick(AdapterView<?> parent, View view,
+                                            int position, long id) {
+                        changeWord(mActivity.getWord(id));
+                    }
+                });
+            }
             mNameEditText.setText(mWord.getName());
             if (mNameSelectionStart != -1 && mNameSelectionEnd != -1) {
                 mNameEditText.requestFocus();
                 mNameEditText.setSelection(mNameSelectionStart, mNameSelectionEnd);
             }
 
-            checkEditable();
+            if (!mEditable)
+                disableEditing();
         }
 
-        protected void checkEditable() {
+        protected void disableEditing() {
             Resources res = mActivity.getResources();
 
-            if (mEditable) {
-                mLanguageButton.setEnabled(true);
-                mLanguageButton.setTextColor(res.getColor(android.R.color.primary_text_light_nodisable));
-                mNameEditText.setEnabled(true);
-                mNameEditText.setTextColor(res.getColor(android.R.color.primary_text_light));
-            } else {
-                mLanguageButton.setEnabled(false);
-                mLanguageButton.setTextColor(res.getColor(android.R.color.primary_text_dark));
-                mNameEditText.setEnabled(false);
-                mNameEditText.setTextColor(res.getColor(android.R.color.primary_text_dark));
-            }
+            mEditable = false;
+
+            mLanguageButton.setEnabled(false);
+            mLanguageButton.setTextColor(res.getColor(android.R.color.primary_text_dark));
+
+            // Stop the soft-keyboard from showing up.
+            mNameEditText.setInputType(InputType.TYPE_NULL);
+            // Reject all modifications to the text.
+            mNameEditText.setFilters(new InputFilter[] { new InputFilter() {
+                public CharSequence filter(CharSequence src, int start, int end,
+                                           Spanned dst, int dstart, int dend) {
+                    return src.length() < 1 ? dst.subSequence(dstart, dend) : "";
+                }
+            } });
+            disableAutocompletion();
+        }
+
+        protected void disableAutocompletion() {
+            mNameEditText.setAdapter((CursorAdapter)null);
         }
 
         protected void changeWord(Word word) {
             mWord = word;
-            mEditable = !mWord.isInDatabase();
-            checkEditable();
+            // The main word should stay editable even when it's already in the
+            // database.  However, we don't want its ID to change, so we
+            // disable the autocompletion.
+            disableAutocompletion();
             mActivity.reloadTranslations(mWord);
-        }
-
-        public void setEditable(boolean editable) {
-            mEditable = editable;
-            checkEditable();
-            // We disable the auto-completion, such that the ID of the main
-            // word cannot be changed anymore.  This is to avoid "merging" the
-            // translations lists that would happen if the user would be able
-            // to select an existing word from the auto-complete suggestions,
-            // which would trigger a "reloadTranslations()" call.
-            mNameEditText.setAdapter((CursorAdapter)null);
-            mNameEditText.requestFocus();
         }
 
         public void syncFromView() {
@@ -498,6 +499,7 @@ language_search:
 
         public TranslationEntry(Word word, boolean isInDatabase) {
             super(word);
+            mEditable = !word.isInDatabase();
             mDeleted = false;
             mDeleteButtonHasFocus = false;
             mIsInDatabase = isInDatabase;
@@ -534,8 +536,7 @@ language_search:
 
         protected void changeWord(Word word) {
             mWord = word;
-            mEditable = !mWord.isInDatabase();
-            checkEditable();
+            disableEditing();
         }
 
         public void syncFromView() {
