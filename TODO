@@ -6,6 +6,9 @@ EditLanguagesActivity:
   - When deleting a language, first check that there are no words
     defined in that language.  If this is not true, ask the user for
     confirmation.
+  - Better interaction with the on-screen keyboard: make the window
+    resize when the on-screen keyboard is open (instead of staying the
+    same size, but hidden under the keyboard).
 
 BrowseWordsActivity:
   - Add different sort orders.
@@ -15,9 +18,11 @@ BrowseWordsActivity:
   - Show some intro message if there are no words.
 
 EditWordActivity:
-  - Make disabled text fields unfocusable.
-  - When clicking on disabled translation entries, switch to editting
+  - When clicking on existing translation entries, switch to editting
     the clicked word.
+  - Better interaction with the on-screen keyboard: make the window
+    resize when the on-screen keyboard is open (instead of staying the
+    same size, but hidden under the keyboard).
 
 ViewWordActivity:
   - Implement me.
