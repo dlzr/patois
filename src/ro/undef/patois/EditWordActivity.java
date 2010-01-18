@@ -424,7 +424,7 @@ language_search:
             mNameEditText.setFilters(new InputFilter[] { new InputFilter() {
                 public CharSequence filter(CharSequence src, int start, int end,
                                            Spanned dst, int dstart, int dend) {
-                    return src.length() < 1 ? dst.subSequence(dstart, dend) : "";
+                    return dst.subSequence(dstart, dend);
                 }
             } });
             disableAutocompletion();
