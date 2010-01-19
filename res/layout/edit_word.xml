@@ -42,6 +42,7 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:hint="@string/new_word"
+                android:imeOptions="flagNoExtractUi"
                 />
 
         </LinearLayout>

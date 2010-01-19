@@ -16,11 +16,17 @@
 
         </activity>
 
-        <activity android:name=".EditLanguagesActivity" />
+        <activity android:name=".EditLanguagesActivity"
+            android:windowSoftInputMode="adjustResize"
+            />
 
-        <activity android:name=".BrowseWordsActivity" />
+        <activity android:name=".BrowseWordsActivity"
+            android:windowSoftInputMode="adjustResize"
+            />
 
-        <activity android:name=".EditWordActivity" />
+        <activity android:name=".EditWordActivity"
+            android:windowSoftInputMode="adjustResize"
+            />
 
         <activity android:name=".PracticeActivity" />
 

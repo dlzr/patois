@@ -24,6 +24,7 @@
         android:layout_marginBottom="2dip"
         android:singleLine="true"
         android:hint="@string/translation"
+        android:imeOptions="flagNoExtractUi"
         />
 
     <ImageButton android:id="@+id/delete"

@@ -18,9 +18,7 @@ BrowseWordsActivity:
   - Show some intro message if there are no words.
 
 EditWordActivity:
-  - Better interaction with the on-screen keyboard: make the window
-    resize when the on-screen keyboard is open (instead of staying the
-    same size, but hidden under the keyboard).
+  - [no known bugs or missing features]
 
 ViewWordActivity:
   - Implement me.
