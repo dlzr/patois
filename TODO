@@ -18,8 +18,6 @@ BrowseWordsActivity:
   - Show some intro message if there are no words.
 
 EditWordActivity:
-  - When clicking on existing translation entries, switch to editting
-    the clicked word.
   - Better interaction with the on-screen keyboard: make the window
     resize when the on-screen keyboard is open (instead of staying the
     same size, but hidden under the keyboard).

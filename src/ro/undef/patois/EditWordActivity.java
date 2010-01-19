@@ -428,6 +428,24 @@ language_search:
                 }
             } });
             disableAutocompletion();
+
+            // If clicking on a non-editable word, switch to editing that word.
+            mNameEditText.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    mActivity.saveStateToDatabase();
+
+                    Bundle extras = new Bundle();
+                    extras.putLong("word_id", mWord.getId());
+
+                    Intent intent = new Intent();
+                    intent.setClass(mActivity, mActivity.getClass());
+                    intent.setAction(Intent.ACTION_EDIT);
+                    intent.putExtras(extras);
+
+                    mActivity.startActivity(intent);
+                    mActivity.finish();
+                }
+            });
         }
 
         protected void disableAutocompletion() {
