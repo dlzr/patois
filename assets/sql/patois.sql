@@ -22,21 +22,33 @@
 -- 'sqlite3' will be able to process this file as-is.
 --
 -- If you modify the database schema, make sure to increment the
--- DATABASE_VERSION fielf in ro.undef.patois.PatoisDatabase, and make sure you
+-- DATABASE_VERSION field in ro.undef.patois.PatoisDatabase, and make sure you
 -- handle upgrading from previous versions of the database schema.
 
 CREATE TABLE languages (
     _id INTEGER PRIMARY KEY AUTOINCREMENT,
+    -- Short name of the language (e.g., 'en', 'ro').
     code TEXT NOT NULL,
+    -- Full name of the language (e.g., 'English', 'Romanian').
     name TEXT NOT NULL,
+    -- The number of words in this language.
     num_words INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE words (
     _id INTEGER PRIMARY KEY AUTOINCREMENT,
+    -- The actual word.
     name TEXT NOT NULL,
+    -- The ID of the language this word is in.
     language_id INTEGER NOT NULL,
-    num_translations INTEGER NOT NULL DEFAULT 0
+    -- The number of translations for this word.
+    num_translations INTEGER NOT NULL DEFAULT 0,
+    -- The score of the word, used when picking words for practice.  The
+    -- probablility of a word being chosen is directly proportional with its
+    -- score.
+    score INTEGER NOT NULL,
+    -- The UNIX timestamp in UTC when the word was first added to the database.
+    timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
 );
 
 CREATE TABLE translations (

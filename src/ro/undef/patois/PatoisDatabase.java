@@ -269,7 +269,8 @@ public class PatoisDatabase {
     }
 
     public Word getWord(long id) {
-        Cursor cursor = mDb.query("words", new String[] { "name", "language_id" },
+        Cursor cursor = mDb.query("words",
+                                  new String[] { "name", "language_id", "score" },
                                   "_id = ?", new String[] { Long.toString(id) },
                                   null, null, null);
         try {
@@ -277,7 +278,8 @@ public class PatoisDatabase {
                 return null;
 
             cursor.moveToFirst();
-            return new Word(id, cursor.getString(0), getLanguage(cursor.getLong(1)));
+            return new Word(id, cursor.getString(0), getLanguage(cursor.getLong(1)),
+                            cursor.getInt(2));
         } finally {
             cursor.close();
         }
@@ -287,6 +289,7 @@ public class PatoisDatabase {
         ContentValues values = new ContentValues();
         values.put("name", word.getName());
         values.put("language_id", word.getLanguage().getId());
+        values.put("score", word.getScore());
 
         long id = mDb.insert("words", null, values);
         word.setId(id);
@@ -298,6 +301,7 @@ public class PatoisDatabase {
         ContentValues values = new ContentValues();
         values.put("name", word.getName());
         values.put("language_id", word.getLanguage().getId());
+        values.put("score", word.getScore());
 
         return mDb.update("words", values, "_id = ?",
                           new String[] { word.getIdString() }) == 1;

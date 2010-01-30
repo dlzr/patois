@@ -17,14 +17,21 @@ public class Word implements Serializable {
     public Language getLanguage() { return mLanguage; }
     public void setLanguage(Language language) { mLanguage = language; }
 
-    public Word(long id, String name, Language language) {
+    private int mScore;
+    public int getScore() { return mScore; }
+    public void setScore(int score) { mScore = score; }
+
+    public static final int DEFAULT_SCORE = 10;
+
+    public Word(long id, String name, Language language, int score) {
         mId = id;
         mName = name;
         mLanguage = language;
+        mScore = score;
     }
 
     public Word(Language language) {
-        this(-1, "", language);
+        this(-1, "", language, DEFAULT_SCORE);
     }
 
     @Override
