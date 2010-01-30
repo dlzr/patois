@@ -60,12 +60,14 @@ public class PatoisDatabase {
                     String line;
 
                     while ((line = in.readLine()) != null) {
+                        String trimmed = line.trim();
+
                         // Ignore comments.
-                        if (line.startsWith("--"))
+                        if (trimmed.startsWith("--"))
                             continue;
 
                         // Empty lines terminate statements.
-                        if (line.trim().length() == 0) {
+                        if (trimmed.length() == 0) {
                             if (statement.length() != 0)
                                 schema.add(statement.toString());
                             statement.setLength(0);
