@@ -32,7 +32,7 @@ import java.util.ArrayList;
 public class EditWordActivity extends Activity {
     private final static String TAG = "EditWordActivity";
 
-    private PatoisDatabase mDb;
+    private Database mDb;
 
     private LinearLayout mTranslationsLayout;
     private LayoutInflater mInflater;
@@ -54,7 +54,7 @@ public class EditWordActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mDb = new PatoisDatabase(this);
+        mDb = new Database(this);
 
         Intent intent = getIntent();
         if (savedInstanceState != null) {
@@ -310,7 +310,7 @@ language_search:
                         public void onClick(DialogInterface dialog, int which) {
                             cursor.moveToPosition(which);
                             Language language = mDb.getLanguage(
-                                    cursor.getLong(PatoisDatabase.LANGUAGES_ID_COLUMN));
+                                    cursor.getLong(Database.LANGUAGES_ID_COLUMN));
                             mLanguageListener.setLanguage(language);
                             mLanguageListener = null;
                         }
@@ -327,12 +327,12 @@ language_search:
                 mDb.getWordsCursor(word.getLanguage(), word.getName(),
                                    mMainWordEntry.getWord()),
                 new String[] {
-                    PatoisDatabase.WORDS_NAME_COLUMN,
+                    Database.WORDS_NAME_COLUMN,
                 },
                 new int[] {
                     android.R.id.text1,
                 });
-        adapter.setStringConversionColumn(PatoisDatabase.WORDS_NAME_COLUMN_ID);
+        adapter.setStringConversionColumn(Database.WORDS_NAME_COLUMN_ID);
         adapter.setFilterQueryProvider(new FilterQueryProvider() {
             public Cursor runQuery(CharSequence constraint) {
                 return mDb.getWordsCursor(word.getLanguage(),
@@ -475,7 +475,7 @@ language_search:
             mLanguageButtonHasFocus = mLanguageButton.hasFocus();
         }
 
-        public void saveToDatabase(PatoisDatabase db) {
+        public void saveToDatabase(Database db) {
             syncFromView();
 
             if (mWord.isEmpty())
@@ -592,7 +592,7 @@ language_search:
             return true;
         }
 
-        public void saveToDatabase(PatoisDatabase db, Word mainWord) {
+        public void saveToDatabase(Database db, Word mainWord) {
             if (mDeleted) {
                 if (mainWord.isInDatabase() && mWord.isInDatabase() && mIsInDatabase)
                     db.deleteTranslation(mainWord, mWord);

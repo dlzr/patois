@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.TreeMap;
 
 
-public class PatoisDatabase {
-    private final static String TAG = "PatoisDatabase";
+public class Database {
+    private final static String TAG = "Database";
 
     private static final String DATABASE_NAME = "patois.db";
     private static final int DATABASE_VERSION = 1;
@@ -90,7 +90,7 @@ public class PatoisDatabase {
         }
     }
 
-    PatoisDatabase(Activity activity) {
+    Database(Activity activity) {
         mActivity = activity;
         mDbHelper = new DatabaseHelper(mActivity);
         mDb = mDbHelper.getWritableDatabase();

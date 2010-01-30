@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class EditLanguagesActivity extends Activity {
     private final static String TAG = "EditLanguagesActivity";
 
-    private PatoisDatabase mDb;
+    private Database mDb;
 
     private LinearLayout mLanguagesLayout;
     private LayoutInflater mInflater;
@@ -34,7 +34,7 @@ public class EditLanguagesActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mDb = new PatoisDatabase(this);
+        mDb = new Database(this);
 
         if (savedInstanceState != null) {
             loadStateFromBundle(savedInstanceState);
@@ -248,7 +248,7 @@ public class EditLanguagesActivity extends Activity {
             mDeleted = true;
         }
 
-        public void saveToDatabase(PatoisDatabase db) {
+        public void saveToDatabase(Database db) {
             syncFromView();
 
             if (mLanguage.isNew() && !mDeleted) {

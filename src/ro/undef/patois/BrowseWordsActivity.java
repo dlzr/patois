@@ -16,21 +16,21 @@ import android.widget.TextView;
 public class BrowseWordsActivity extends ListActivity {
     private final static String TAG = "BrowseWordsActivity";
 
-    private PatoisDatabase mDb;
+    private Database mDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mDb = new PatoisDatabase(this);
+        mDb = new Database(this);
 
         setListAdapter(new SimpleCursorAdapter(
                 this,
                 R.layout.browse_words_list_item,
                 mDb.getBrowseWordsCursor(mDb.getActiveLanguage()),
                 new String[] {
-                    PatoisDatabase.BROWSE_WORDS_NAME_COLUMN,
-                    PatoisDatabase.BROWSE_WORDS_TRANSLATIONS_COLUMN,
+                    Database.BROWSE_WORDS_NAME_COLUMN,
+                    Database.BROWSE_WORDS_TRANSLATIONS_COLUMN,
                 },
                 new int[] {
                     R.id.name,
@@ -70,7 +70,7 @@ public class BrowseWordsActivity extends ListActivity {
     // significantly more complex to generate the list of translations
     // outside of SQLite, since we would have to issue sub-queries for
     // each word).  See the SELECT statement in
-    // PatoisDatabase.getBrowseWordsCursor() for how details.
+    // Database.getBrowseWordsCursor() for how details.
     //
     // However, we still want getBrowseWordsCursor() to signal the
     // presence of special items such as the language code tag or words

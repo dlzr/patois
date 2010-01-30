@@ -23,7 +23,7 @@ public class PracticeActivity extends Activity {
     private final static int DIRECTION_FROM_FOREIGN = 0;
     private final static int DIRECTION_TO_FOREIGN = 1;
 
-    private PatoisDatabase mDb;
+    private Database mDb;
     private LayoutInflater mInflater;
     private ViewGroup mWordPanel;
     private ViewGroup mQuestionButtons;
@@ -39,7 +39,7 @@ public class PracticeActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mDb = new PatoisDatabase(this);
+        mDb = new Database(this);
 
         if (savedInstanceState != null) {
             loadStateFromBundle(savedInstanceState);

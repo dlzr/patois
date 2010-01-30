@@ -19,13 +19,13 @@ import android.widget.TextView;
 public class PatoisMainActivity extends Activity {
     private final static String TAG = "PatoisMainActivity";
 
-    private PatoisDatabase mDb;
+    private Database mDb;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mDb = new PatoisDatabase(this);
+        mDb = new Database(this);
 
         setContentView(R.layout.main_activity);
         updateLabels();
@@ -134,7 +134,7 @@ public class PatoisMainActivity extends Activity {
                     .setCursor(cursor, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             cursor.moveToPosition(which);
-                            activateLanguageId(cursor.getLong(PatoisDatabase.LANGUAGES_ID_COLUMN));
+                            activateLanguageId(cursor.getLong(Database.LANGUAGES_ID_COLUMN));
                         }
                     }, "name")
                     .setNeutralButton(R.string.edit_languages,
