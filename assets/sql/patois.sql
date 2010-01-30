@@ -22,8 +22,8 @@
 -- 'sqlite3' will be able to process this file as-is.
 --
 -- If you modify the database schema, make sure to increment the
--- DATABASE_VERSION field in ro.undef.patois.PatoisDatabase, and make sure you
--- handle upgrading from previous versions of the database schema.
+-- DATABASE_VERSION field in ro.undef.patois.Database, and make sure you handle
+-- upgrading from previous versions of the database schema.
 
 CREATE TABLE languages (
     _id INTEGER PRIMARY KEY AUTOINCREMENT,
