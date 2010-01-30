@@ -1,4 +1,4 @@
-PatoisMainActivity:
+MainActivity:
   - When returning from the "choose language" menu, make sure the
     currently selected language still exists.
 

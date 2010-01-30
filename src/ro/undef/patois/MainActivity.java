@@ -16,8 +16,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 
-public class PatoisMainActivity extends Activity {
-    private final static String TAG = "PatoisMainActivity";
+public class MainActivity extends Activity {
+    private final static String TAG = "MainActivity";
 
     private Database mDb;
 
