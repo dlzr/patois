@@ -59,6 +59,17 @@ public class Word implements Serializable {
         return mName.length() == 0;
     }
 
+    // Light-weight class for storing just a word ID and a score.
+    public static class Score {
+        public long id;
+        public int score;
+
+        public Score(long id, int score) {
+            this.id = id;
+            this.score = score;
+        }
+    }
+
     // Required for the Serializable interface.
     static final long serialVersionUID = -4666237898176840116L;
 }

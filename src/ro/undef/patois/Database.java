@@ -268,6 +268,23 @@ public class Database {
         return cursor;
     }
 
+    public ArrayList<Word.Score> getWordScores(Language language) {
+        ArrayList<Word.Score> scores = new ArrayList<Word.Score>();
+
+        Cursor cursor = mDb.query("words", new String[] { "_id", "score" },
+                                  "(language_id = ?) AND (num_translations > 0)",
+                                  new String[] { language.getIdString() },
+                                  null, null, null);
+        try {
+            while (cursor.moveToNext())
+                scores.add(new Word.Score(cursor.getLong(0), cursor.getInt(1)));
+        } finally {
+            cursor.close();
+        }
+
+        return scores;
+    }
+
     public Word getWord(long id) {
         Cursor cursor = mDb.query("words",
                                   new String[] { "name", "language_id", "score" },

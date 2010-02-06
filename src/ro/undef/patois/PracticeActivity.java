@@ -24,6 +24,8 @@ public class PracticeActivity extends Activity {
     private final static int DIRECTION_TO_FOREIGN = 1;
 
     private Database mDb;
+    private Trainer mTrainer;
+
     private LayoutInflater mInflater;
     private ViewGroup mWordPanel;
     private ViewGroup mQuestionButtons;
@@ -40,6 +42,7 @@ public class PracticeActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         mDb = new Database(this);
+        mTrainer = new Trainer(mDb, mDb.getActiveLanguage());
 
         if (savedInstanceState != null) {
             loadStateFromBundle(savedInstanceState);
@@ -62,7 +65,7 @@ public class PracticeActivity extends Activity {
     private void resetState(int direction) {
         mDirection = direction;
         mState = STATE_QUESTION;
-        mWord = WordPicker.pickWord(mDb);
+        mWord = mTrainer.selectWord();      // TODO: handle the case when this returns null.
         mTranslations = mDb.getTranslations(mWord);
     }
 
@@ -155,7 +158,7 @@ public class PracticeActivity extends Activity {
     }
 
     private void saveStatsAndRestart(boolean knewAnswer) {
-        // TODO: Save stats to the database.
+        mTrainer.updateWordScore(mWord, mDirection, knewAnswer);
 
         Intent intent = new Intent();
         intent.setClass(PracticeActivity.this, PracticeActivity.class);
