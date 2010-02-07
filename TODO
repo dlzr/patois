@@ -1,14 +1,14 @@
 MainActivity:
   - When returning from the "choose language" menu, make sure the
     currently selected language still exists.
+  - Add "About" dialog.
+  - [2.0?] Remove this activity?  Replace it with
+    BrowseWordsActivity?
 
 EditLanguagesActivity:
   - When deleting a language, first check that there are no words
     defined in that language.  If this is not true, ask the user for
     confirmation.
-  - Better interaction with the on-screen keyboard: make the window
-    resize when the on-screen keyboard is open (instead of staying the
-    same size, but hidden under the keyboard).
 
 BrowseWordsActivity:
   - Add different sort orders.
@@ -24,15 +24,17 @@ ViewWordActivity:
   - Implement me.
 
 PracticeActivity:
-  - Implement me.
+  - Handle the case when Trainer couldn't find a word.
 
-StatisticsActivity:
-  - Implement me.
+Trainer:
+  - Update the scores of words.
 
 Database:
-  - Add to words:
-    - scores
-    - date added
+  - [2.0] Have different scores for "to foreign" and "from foreign"
+    practices?
+
+General:
+  - Add unit tests.
 
 __________________________
 
@@ -51,7 +53,7 @@ Serializable classes.  To generate it, use this command (run from the
 top-level directory of the project):
 
     $ serialver -classpath \
-        $ANDROID_SDK_DIR/platforms/android-1.5/android.jar:bin/classes/ \
+        $ANDROID_SDK_DIR/platforms/android-1.6/android.jar:bin/classes/ \
         ro.undef.patois.EditWordActivity.TranslationEntry
 
 __________________________
