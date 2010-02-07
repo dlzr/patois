@@ -25,6 +25,8 @@ ViewWordActivity:
 
 PracticeActivity:
   - Handle the case when Trainer couldn't find a word.
+  - [wish] When practicing "to Foreign", the foreign word should show up
+    under the native translations.
 
 Trainer:
   - Update the scores of words.
@@ -35,6 +37,7 @@ Database:
 
 General:
   - Add unit tests.
+  - Add icon.
 
 __________________________
 
