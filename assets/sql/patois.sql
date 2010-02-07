@@ -57,13 +57,13 @@ CREATE TABLE translations (
     UNIQUE(word_id1, word_id2)
 );
 
-CREATE TABLE trials (
+CREATE TABLE practice_log (
     -- The ID of the word being tested.
     word_id INTEGER NOT NULL,
-    -- Direction: 0 if the test was "from" word, 1 if it was "to" this word.
+    -- Direction: 0 if the test was "from" this word, 1 if it was "to" this word.
     direction INTEGER NOT NULL,
-    -- Result: 1 if the user "knew it", 0 if s/he didn't.
-    result INTEGER NOT NULL,
+    -- Successful: 1 if the user "knew it", 0 otherwise.
+    successful INTEGER NOT NULL,
     -- The UNIX timestamp in UTC of the trial.
     timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
 );
@@ -130,8 +130,8 @@ CREATE TRIGGER count_translations_on_delete DELETE ON translations
             WHERE _id = OLD.word_id1;
     END;
 
-CREATE TRIGGER delete_trials_when_deleting_word DELETE ON words
+CREATE TRIGGER delete_practice_log_when_deleting_word DELETE ON words
     BEGIN
-        DELETE FROM trials
+        DELETE FROM practice_log
             WHERE word_id = OLD._id;
     END;
