@@ -29,7 +29,8 @@ PracticeActivity:
     under the native translations.
 
 Trainer:
-  - Update the scores of words.
+  - [2.0] Should take time into account when selecting words: old words
+    should also be selected every once in a while, for "refreshing".
 
 Database:
   - [2.0] Have different scores for "to foreign" and "from foreign"

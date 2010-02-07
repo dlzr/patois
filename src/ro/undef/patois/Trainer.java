@@ -54,7 +54,17 @@ public class Trainer {
         return null;
     }
 
-    public void updateWordScore(Word word, int direction, boolean success) {
-        // TODO: implement me.
+    public void updateWordScore(Word word, int direction, boolean successful) {
+        int score = word.getScore();
+        if (successful) {
+            if (score > 1)
+                score--;
+        } else {
+            score = (int) (1.2 * score + 1);
+        }
+        word.setScore(score);
+
+        mDb.insertPracticeLogEntry(word, direction, successful);
+        mDb.updateWord(word);
     }
 }

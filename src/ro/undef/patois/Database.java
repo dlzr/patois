@@ -367,4 +367,12 @@ public class Database {
                        word1.getIdString(),
                    });
     }
+
+    public void insertPracticeLogEntry(Word word, int direction, boolean successful) {
+        ContentValues values = new ContentValues();
+        values.put("word_id", word.getId());
+        values.put("direction", direction);
+        values.put("successful", successful);
+        mDb.insert("practice_log", null, values);
+    }
 }
