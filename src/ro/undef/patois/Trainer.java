@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Trainer {
+    private final static String TAG = "Trainer";
 
     private Database mDb;
     private Random mRandom;
@@ -26,22 +27,28 @@ public class Trainer {
 
     // Returns a random word for practice.  The probablility of a word being
     // selected is directly proportional with its score.
-    public Word selectWord() {
+    public Word selectWord() throws EmptyException {
         int numWords = mScores.size();
 
         if (numWords == 0 || mTotalScore == 0)
-            return null;
+            throw new EmptyException();
 
         // This is an implementation of the rejection sampling algorithm for
         // generating random samples with a particular probablility
         // distribution.  For details, see:
         //     http://en.wikipedia.org/wiki/Rejection_sampling
 
-        // numAttempts the twice the expected number of attempts to get an
+        // numAttempts is twice the expected number of attempts to get an
         // accepted word.  We use this to make sure we always terminate, even
         // if the scores distribution is really "adverse" (i.e., the
         // "unconditional acceptance probability" is very low).
-        int numAttempts = (int)(2L * mMaxScore * numWords / mTotalScore);
+        int numAttempts = (int) (2L * mMaxScore * numWords / mTotalScore + 1);
+
+        // bestWs is the highest scoring word we've seen in the attempts to
+        // select a word.  It will only be used as a last resort, in case no
+        // word can be selected according to the probability distribution of
+        // the scores.
+        Word.Score bestWs = null;
 
         while (numAttempts --> 0) {
             Word.Score ws = mScores.get(mRandom.nextInt(numWords));
@@ -49,9 +56,12 @@ public class Trainer {
 
             if (randomScore < ws.score)
                 return mDb.getWord(ws.id);
+
+            if (bestWs == null || bestWs.score < ws.score)
+                bestWs = ws;
         }
 
-        return null;
+        return mDb.getWord(bestWs.id);
     }
 
     public void updateWordScore(Word word, int direction, boolean successful) {
@@ -66,5 +76,9 @@ public class Trainer {
 
         mDb.insertPracticeLogEntry(word, direction, successful);
         mDb.updateWord(word);
+    }
+
+    // Exception thrown when an attempt is made to select a word from an empty trainer.
+    public static class EmptyException extends Exception {
     }
 }

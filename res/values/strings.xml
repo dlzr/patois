@@ -37,5 +37,6 @@
     <string name="show_answer">Show answer</string>
     <string name="i_knew_it">I knew it</string>
     <string name="i_didnt_know_it">I didn\'t know it</string>
+    <string name="no_words_for_practice">There aren\'t any words to practice with.  Add some words and try again.</string>
 
 </resources>

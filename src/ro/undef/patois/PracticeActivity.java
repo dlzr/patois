@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 import java.util.ArrayList;
 
 public class PracticeActivity extends Activity {
@@ -41,19 +42,24 @@ public class PracticeActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mDb = new Database(this);
-        mTrainer = new Trainer(mDb, mDb.getActiveLanguage());
+        try {
+            mDb = new Database(this);
+            mTrainer = new Trainer(mDb, mDb.getActiveLanguage());
 
-        if (savedInstanceState != null) {
-            loadStateFromBundle(savedInstanceState);
-        } else {
-            String action = getIntent().getAction();
-            resetState(action.equals(ACTION_TRANSLATE_FROM_FOREIGN) ?
-                       DIRECTION_FROM_FOREIGN : DIRECTION_TO_FOREIGN);
+            if (savedInstanceState != null) {
+                loadStateFromBundle(savedInstanceState);
+            } else {
+                String action = getIntent().getAction();
+                resetState(action.equals(ACTION_TRANSLATE_FROM_FOREIGN) ?
+                           DIRECTION_FROM_FOREIGN : DIRECTION_TO_FOREIGN);
+            }
+
+            setContentView(R.layout.practice_activity);
+            setupViews();
+        } catch (Trainer.EmptyException ex) {
+            Toast.makeText(this, R.string.no_words_for_practice, Toast.LENGTH_LONG).show();
+            finish();
         }
-
-        setContentView(R.layout.practice_activity);
-        setupViews();
     }
 
     @Override
@@ -62,10 +68,10 @@ public class PracticeActivity extends Activity {
         mDb.close();
     }
 
-    private void resetState(int direction) {
+    private void resetState(int direction) throws Trainer.EmptyException {
         mDirection = direction;
         mState = STATE_QUESTION;
-        mWord = mTrainer.selectWord();      // TODO: handle the case when this returns null.
+        mWord = mTrainer.selectWord();
         mTranslations = mDb.getTranslations(mWord);
     }
 
