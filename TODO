@@ -24,7 +24,6 @@ ViewWordActivity:
   - Implement me.
 
 PracticeActivity:
-  - Handle the case when Trainer couldn't find a word.
   - [wish] When practicing "to Foreign", the foreign word should show up
     under the native translations.
 
