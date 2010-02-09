@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -89,6 +92,33 @@ public class PracticeActivity extends Activity {
         outState.putInt("state", mState);
         outState.putSerializable("word", mWord);
         outState.putSerializable("translations", mTranslations);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+	MenuInflater inflater = getMenuInflater();
+	inflater.inflate(R.menu.practice_activity_menu, menu);
+	return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.edit_word: {
+                Bundle extras = new Bundle();
+                extras.putLong("word_id", mWord.getId());
+
+                Intent intent = new Intent();
+                intent.setClass(this, EditWordActivity.class);
+                intent.setAction(Intent.ACTION_EDIT);
+                intent.putExtras(extras);
+
+                startActivity(intent);
+                finish();
+                return true;
+            }
+        }
+        return false;
     }
 
     private void setupViews() {
