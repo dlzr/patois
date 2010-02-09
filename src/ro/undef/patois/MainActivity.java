@@ -184,6 +184,7 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case R.id.select_language:
+                mDb.clearLanguagesCache();
                 updateLabels();
                 break;
         }

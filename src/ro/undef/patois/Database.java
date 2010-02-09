@@ -205,6 +205,10 @@ public class Database {
         editor.commit();
     }
 
+    public void clearLanguagesCache() {
+        mLanguagesCache.clear();
+    }
+
 
     public static final String BROWSE_WORDS_NAME_COLUMN = "name";
     public static final String BROWSE_WORDS_TRANSLATIONS_COLUMN = "translations";

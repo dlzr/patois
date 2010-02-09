@@ -1,6 +1,4 @@
 MainActivity:
-  - When returning from the "choose language" menu, make sure the
-    currently selected language still exists.
   - Add "About" dialog.
   - [2.0?] Remove this activity?  Replace it with
     BrowseWordsActivity?
