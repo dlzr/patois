@@ -3,12 +3,14 @@ package ro.undef.patois;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.TextAppearanceSpan;
 import android.util.Log;
 import android.view.View;
+import android.widget.FilterQueryProvider;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -24,10 +26,12 @@ public class BrowseWordsActivity extends ListActivity {
 
         mDb = new Database(this);
 
-        setListAdapter(new SimpleCursorAdapter(
+        // TODO: Add long-press menu for words for editing / deleting them.
+
+        SimpleCursorAdapter adapter = new SimpleCursorAdapter(
                 this,
                 R.layout.browse_words_list_item,
-                mDb.getBrowseWordsCursor(mDb.getActiveLanguage()),
+                mDb.getBrowseWordsCursor(mDb.getActiveLanguage(), ""),
                 new String[] {
                     Database.BROWSE_WORDS_NAME_COLUMN,
                     Database.BROWSE_WORDS_TRANSLATIONS_COLUMN,
@@ -36,12 +40,23 @@ public class BrowseWordsActivity extends ListActivity {
                     R.id.name,
                     R.id.translations,
                 }) {
-
-            @Override
-            public void setViewText(TextView v, String text) {
-                v.setText(applyWordMarkup(text));
+                    @Override
+                    public void setViewText(TextView v, String text) {
+                        v.setText(applyWordMarkup(text));
+                    }
+                };
+        adapter.setFilterQueryProvider(new FilterQueryProvider() {
+            public Cursor runQuery(CharSequence constraint) {
+                return mDb.getBrowseWordsCursor(
+                        mDb.getActiveLanguage(),
+                        (constraint != null) ? constraint.toString() : "");
             }
         });
+        setListAdapter(adapter);
+
+        ListView listView = getListView();
+        listView.setFastScrollEnabled(true);
+        listView.setTextFilterEnabled(true);
     }
 
     @Override

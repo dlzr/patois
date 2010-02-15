@@ -213,7 +213,9 @@ public class Database {
     public static final String BROWSE_WORDS_NAME_COLUMN = "name";
     public static final String BROWSE_WORDS_TRANSLATIONS_COLUMN = "translations";
 
-    public Cursor getBrowseWordsCursor(Language language) {
+    public Cursor getBrowseWordsCursor(Language language, String filter) {
+        String pattern = "%" + filter + "%";
+
         // TODO: Add different orderings to this query.
         Cursor cursor = mDb.rawQuery(
                 "SELECT " +
@@ -230,6 +232,7 @@ public class Database {
                 "    languages AS l " +
                 "  WHERE " +
                 "    w1.language_id = ? AND " +
+                "    ((w1.name LIKE ?) OR (w2.name LIKE ?)) AND " +
                 "    t.word_id1 = w1._id AND " +
                 "    t.word_id2 = w2._id AND " +
                 "    w2.language_id = l._id " +
@@ -243,10 +246,14 @@ public class Database {
                 "    words AS w " +
                 "  WHERE " +
                 "    w.language_id = ? AND " +
+                "    w.name LIKE ? AND " +
                 "    w.num_translations == 0",
                 new String[] {
                     language.getIdString(),
+                    pattern,
+                    pattern,
                     language.getIdString(),
+                    pattern,
                 });
         mActivity.startManagingCursor(cursor);
 
