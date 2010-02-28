@@ -9,8 +9,12 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.TextAppearanceSpan;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.FilterQueryProvider;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
@@ -28,6 +32,89 @@ public class BrowseWordsActivity extends ListActivity {
 
         // TODO: Add long-press menu for words for editing / deleting them.
 
+        setListAdapter(buildListAdapter());
+
+        ListView listView = getListView();
+        listView.setFastScrollEnabled(true);
+        listView.setTextFilterEnabled(true);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mDb.close();
+    }
+
+    @Override
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        Bundle extras = new Bundle();
+        extras.putLong("word_id", id);
+
+        Intent intent = new Intent();
+        intent.setClass(this, EditWordActivity.class);
+        intent.setAction(Intent.ACTION_EDIT);
+        intent.putExtras(extras);
+
+        startActivity(intent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+	MenuInflater inflater = getMenuInflater();
+	inflater.inflate(R.menu.browse_words_activity_menu, menu);
+	return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu (Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        // Show the active sort order as selected.
+        int id = R.id.sort_by_name;
+        switch (mDb.getSortOrder()) {
+            case Database.SORT_ORDER_BY_NAME:
+                id = R.id.sort_by_name;
+                break;
+            case Database.SORT_ORDER_BY_SCORE:
+                id = R.id.sort_by_score;
+                break;
+            case Database.SORT_ORDER_NEWEST_FIRST:
+                id = R.id.sort_newest_first;
+                break;
+            case Database.SORT_ORDER_OLDEST_FIRST:
+                id = R.id.sort_oldest_first;
+                break;
+        }
+        MenuItem item = menu.findItem(id);
+        item.setChecked(true);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.sort_by_name: {
+                setSortOrder(Database.SORT_ORDER_BY_NAME);
+                return true;
+            }
+            case R.id.sort_by_score: {
+                setSortOrder(Database.SORT_ORDER_BY_SCORE);
+                return true;
+            }
+            case R.id.sort_newest_first: {
+                setSortOrder(Database.SORT_ORDER_NEWEST_FIRST);
+                return true;
+            }
+            case R.id.sort_oldest_first: {
+                setSortOrder(Database.SORT_ORDER_OLDEST_FIRST);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private ListAdapter buildListAdapter() {
         SimpleCursorAdapter adapter = new SimpleCursorAdapter(
                 this,
                 R.layout.browse_words_list_item,
@@ -52,30 +139,13 @@ public class BrowseWordsActivity extends ListActivity {
                         (constraint != null) ? constraint.toString() : "");
             }
         });
-        setListAdapter(adapter);
 
-        ListView listView = getListView();
-        listView.setFastScrollEnabled(true);
-        listView.setTextFilterEnabled(true);
+        return adapter;
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mDb.close();
-    }
-
-    @Override
-    protected void onListItemClick(ListView l, View v, int position, long id) {
-        Bundle extras = new Bundle();
-        extras.putLong("word_id", id);
-
-        Intent intent = new Intent();
-        intent.setClass(this, EditWordActivity.class);
-        intent.setAction(Intent.ACTION_EDIT);
-        intent.putExtras(extras);
-
-        startActivity(intent);
+    private void setSortOrder(int order) {
+        mDb.setSortOrder(order);
+        setListAdapter(buildListAdapter());
     }
 
     // This function implements a simple mark-up language for putting

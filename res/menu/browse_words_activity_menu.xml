@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/sort_words"
+        android:title="@string/sort_words"
+        android:icon="@android:drawable/ic_menu_sort_by_size"
+        >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/sort_by_name"
+                    android:title="@string/sort_by_name"
+                    />
+                <item android:id="@+id/sort_by_score"
+                    android:title="@string/sort_by_score"
+                    />
+                <item android:id="@+id/sort_newest_first"
+                    android:title="@string/sort_newest_first"
+                    />
+                <item android:id="@+id/sort_oldest_first"
+                    android:title="@string/sort_oldest_first"
+                    />
+            </group>
+        </menu>
+    </item>
+</menu>

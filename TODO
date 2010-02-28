@@ -9,7 +9,6 @@ EditLanguagesActivity:
     confirmation.
 
 BrowseWordsActivity:
-  - Add different sort orders.
   - Add the option of removing words (long-press menu?).
   - Add the option of adding a new word (menu).
   - Show some intro message if there are no words.

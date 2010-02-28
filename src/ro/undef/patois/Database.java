@@ -189,7 +189,13 @@ public class Database {
                           new String[] { language.getIdString() }) == 1;
     }
 
+    public void clearLanguagesCache() {
+        mLanguagesCache.clear();
+    }
+
+
     private static final String ACTIVE_LANGUAGE_PREF = "active_language";
+    private static final String SORT_ORDER_PREF = "sort_order";
 
     public Language getActiveLanguage() {
         long id = mPrefs.getLong(ACTIVE_LANGUAGE_PREF, -1);
@@ -205,26 +211,55 @@ public class Database {
         editor.commit();
     }
 
-    public void clearLanguagesCache() {
-        mLanguagesCache.clear();
+    public static final int SORT_ORDER_BY_NAME = 0;
+    public static final int SORT_ORDER_BY_SCORE = 1;
+    public static final int SORT_ORDER_NEWEST_FIRST = 2;
+    public static final int SORT_ORDER_OLDEST_FIRST = 3;
+
+    public int getSortOrder() {
+        return mPrefs.getInt(SORT_ORDER_PREF, 0);
+    }
+
+    public void setSortOrder(int order) {
+        SharedPreferences.Editor editor = mPrefs.edit();
+        editor.putInt(SORT_ORDER_PREF, order);
+        editor.commit();
     }
 
 
-    public static final String BROWSE_WORDS_NAME_COLUMN = "name";
-    public static final String BROWSE_WORDS_TRANSLATIONS_COLUMN = "translations";
+    public static final String BROWSE_WORDS_NAME_COLUMN = "display_name";
+    public static final String BROWSE_WORDS_TRANSLATIONS_COLUMN = "display_translations";
 
     public Cursor getBrowseWordsCursor(Language language, String filter) {
         String pattern = "%" + filter + "%";
+        String sortCriteria = "_id";
 
-        // TODO: Add different orderings to this query.
+        switch (getSortOrder()) {
+            case SORT_ORDER_BY_NAME:
+                sortCriteria = "sort_name ASC";
+                break;
+            case SORT_ORDER_BY_SCORE:
+                sortCriteria = "score DESC, sort_name ASC";
+                break;
+            case SORT_ORDER_NEWEST_FIRST:
+                sortCriteria = "timestamp DESC";
+                break;
+            case SORT_ORDER_OLDEST_FIRST:
+                sortCriteria = "timestamp ASC";
+                break;
+        }
+
         Cursor cursor = mDb.rawQuery(
                 "SELECT " +
                 "    t.word_id1 AS _id, " +
                 // Simple escaping for BrowseWordsActivity.applyWordMarkup().
-                "    replace(w1.name, '.', '..') AS name, " +
+                "    replace(w1.name, '.', '..') AS display_name, " +
                 "    group_concat( " +
                 "      replace(w2.name, '.', '..') || ' .c(' || " +
-                "      replace(l.code, '.', '..')  || ').C', '  ') AS translations " +
+                "      replace(l.code, '.', '..')  || ').C', '  ') AS display_translations, " +
+                "    lower(w1.name) AS sort_name, " +
+                "    w1.timestamp AS timestamp, " +
+                "    w1.score AS score " +
                 "  FROM " +
                 "    translations AS t, " +
                 "    words AS w1, " +
@@ -240,14 +275,18 @@ public class Database {
                 "UNION " +
                 "SELECT " +
                 "    w._id AS _id, " +
-                "    '.u' || replace(w.name, '.', '..') || '.U' AS name, " +
-                "    '.c.0.C' AS translations " +
+                "    '.u' || replace(w.name, '.', '..') || '.U' AS display_name, " +
+                "    '.c.0.C' AS display_translations, " +
+                "    lower(w.name) AS sort_name, " +
+                "    w.timestamp AS timestamp, " +
+                "    2147483647 AS score " +
                 "  FROM " +
                 "    words AS w " +
                 "  WHERE " +
                 "    w.language_id = ? AND " +
                 "    w.name LIKE ? AND " +
-                "    w.num_translations == 0",
+                "    w.num_translations == 0 " +
+                "ORDER BY " + sortCriteria,
                 new String[] {
                     language.getIdString(),
                     pattern,

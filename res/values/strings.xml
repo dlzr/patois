@@ -26,6 +26,11 @@
 
     <!-- Strings in the "browse words" activity. -->
     <string name="no_translations">No translations</string>
+    <string name="sort_words">Sort words</string>
+    <string name="sort_by_name">by name</string>
+    <string name="sort_by_score">by score</string>
+    <string name="sort_newest_first">newest first</string>
+    <string name="sort_oldest_first">oldest first</string>
 
     <!-- Strings in the "edit word" activity. -->
     <string name="translation">Translation</string>
