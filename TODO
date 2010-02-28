@@ -1,7 +1,13 @@
+IntroActivity:
+  - Implement me.
+  - Give a short tutorial (one screen).
+  - Offer database import function.
+
 MainActivity:
   - Add "About" dialog.
   - [2.0?] Remove this activity?  Replace it with
     BrowseWordsActivity?
+  - [2.0+] Offer database export function.
 
 EditLanguagesActivity:
   - When deleting a language, first check that there are no words
@@ -12,12 +18,17 @@ BrowseWordsActivity:
   - Add the option of removing words (long-press menu?).
   - Add the option of adding a new word (menu).
   - Show some intro message if there are no words.
+  - [2.0] Show some indication about the words' scores (e.g. '★★★☆☆', or
+    a color-coded rectangle, etc.)
 
 EditWordActivity:
   - [no known bugs or missing features]
 
 ViewWordActivity:
   - Implement me.
+  - Show:
+    - word score
+    - date added
 
 PracticeActivity:
   - [wish] When practicing "to Foreign", the foreign word should show up
