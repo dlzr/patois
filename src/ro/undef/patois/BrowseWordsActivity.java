@@ -156,7 +156,7 @@ public class BrowseWordsActivity extends ListActivity {
                 }) {
                     @Override
                     public void setViewText(TextView v, String text) {
-                        if (v.getId() == R.id.translations)
+                        if (v.getId() == R.id.name || v.getId() == R.id.translations)
                             v.setText(applyWordMarkup(text));
                         else
                             super.setViewText(v, text);
