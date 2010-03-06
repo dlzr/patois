@@ -240,7 +240,7 @@ public class Database {
                 sortCriteria = "sort_name ASC";
                 break;
             case SORT_ORDER_BY_SCORE:
-                sortCriteria = "score DESC, sort_name ASC";
+                sortCriteria = "sort_score DESC, sort_name ASC";
                 break;
             case SORT_ORDER_NEWEST_FIRST:
                 sortCriteria = "timestamp DESC";
@@ -260,7 +260,8 @@ public class Database {
                 "      replace(l.code, '.', '..')  || ').C', '  ') AS display_translations, " +
                 "    lower(w1.name) AS sort_name, " +
                 "    w1.timestamp AS timestamp, " +
-                "    w1.score AS score " +
+                "    w1.score AS score, " +
+                "    w1.score AS sort_score " +
                 "  FROM " +
                 "    translations AS t, " +
                 "    words AS w1, " +
@@ -280,7 +281,8 @@ public class Database {
                 "    '.c.0.C' AS display_translations, " +
                 "    lower(w.name) AS sort_name, " +
                 "    w.timestamp AS timestamp, " +
-                "    2147483647 AS score " +
+                "    w.score AS score, " +
+                "    2147483647 AS sort_score " +
                 "  FROM " +
                 "    words AS w " +
                 "  WHERE " +
