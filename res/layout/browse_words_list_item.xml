@@ -5,13 +5,32 @@
     android:orientation="vertical"
     >
 
-    <TextView android:id="@+id/name"
-        android:textAppearance="@style/main_word"
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dip"
-        android:layout_marginRight="8dip"
-        />
+        android:orientation="horizontal"
+        >
+
+        <TextView android:id="@+id/name"
+            android:textAppearance="@style/main_word"
+            android:layout_width="0px"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginLeft="8dip"
+            android:layout_marginRight="8dip"
+            />
+
+        <TextView android:id="@+id/score"
+            android:textAppearance="@style/score"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:gravity="top"
+            android:layout_marginTop="8dip"
+            android:layout_marginRight="8dip"
+            android:text="42"
+            />
+
+    </LinearLayout>
 
     <TextView android:id="@+id/translations"
         android:textAppearance="@style/translations"

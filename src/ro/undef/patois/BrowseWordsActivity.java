@@ -121,15 +121,20 @@ public class BrowseWordsActivity extends ListActivity {
                 mDb.getBrowseWordsCursor(mDb.getActiveLanguage(), ""),
                 new String[] {
                     Database.BROWSE_WORDS_NAME_COLUMN,
+                    Database.BROWSE_WORDS_SCORE_COLUMN,
                     Database.BROWSE_WORDS_TRANSLATIONS_COLUMN,
                 },
                 new int[] {
                     R.id.name,
+                    R.id.score,
                     R.id.translations,
                 }) {
                     @Override
                     public void setViewText(TextView v, String text) {
-                        v.setText(applyWordMarkup(text));
+                        if (v.getId() == R.id.translations)
+                            v.setText(applyWordMarkup(text));
+                        else
+                            super.setViewText(v, text);
                     }
                 };
         adapter.setFilterQueryProvider(new FilterQueryProvider() {

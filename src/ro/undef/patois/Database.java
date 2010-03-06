@@ -228,6 +228,7 @@ public class Database {
 
 
     public static final String BROWSE_WORDS_NAME_COLUMN = "display_name";
+    public static final String BROWSE_WORDS_SCORE_COLUMN = "score";
     public static final String BROWSE_WORDS_TRANSLATIONS_COLUMN = "display_translations";
 
     public Cursor getBrowseWordsCursor(Language language, String filter) {
