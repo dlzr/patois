@@ -3,10 +3,9 @@
     <string name="app_name">Patois</string>
 
     <!-- Strings in the main activity. -->
-    <string name="main_title">Patois</string>
     <string name="vocabulary">Vocabulary:</string>
-    <string name="browse_words">Browse Words</string>
-    <string name="add_words">Add Words</string>
+    <string name="browse_words">Browse words</string>
+    <string name="add_words">Add words</string>
     <string name="practice">Practice translating:</string>
     <string name="foreign">Foreign Language</string>
     <string name="from_foreign">From %1$s</string>

@@ -20,4 +20,9 @@
             </group>
         </menu>
     </item>
+
+    <item android:id="@+id/add_words"
+        android:title="@string/add_words"
+        android:icon="@android:drawable/ic_menu_add"
+        />
 </menu>

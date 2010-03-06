@@ -16,7 +16,6 @@ EditLanguagesActivity:
 
 BrowseWordsActivity:
   - Add the option of removing words (long-press menu?).
-  - Add the option of adding a new word (menu).
   - Show some intro message if there are no words.
   - [maybe] Instead of showing the numerical score for words, maybe show
     some indication about the words' scores (e.g. '★★★☆☆', or a

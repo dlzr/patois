@@ -27,7 +27,6 @@
             android:gravity="top"
             android:layout_marginTop="8dip"
             android:layout_marginRight="8dip"
-            android:text="42"
             />
 
     </LinearLayout>

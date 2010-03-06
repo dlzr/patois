@@ -47,15 +47,7 @@ public class BrowseWordsActivity extends ListActivity {
 
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        Bundle extras = new Bundle();
-        extras.putLong("word_id", id);
-
-        Intent intent = new Intent();
-        intent.setClass(this, EditWordActivity.class);
-        intent.setAction(Intent.ACTION_EDIT);
-        intent.putExtras(extras);
-
-        startActivity(intent);
+        startEditWordActivity(id);
     }
 
     @Override
@@ -110,6 +102,10 @@ public class BrowseWordsActivity extends ListActivity {
                 setSortOrder(Database.SORT_ORDER_OLDEST_FIRST);
                 return true;
             }
+            case R.id.add_words: {
+                startEditWordActivity(-1);
+                return true;
+            }
         }
         return false;
     }
@@ -151,6 +147,22 @@ public class BrowseWordsActivity extends ListActivity {
     private void setSortOrder(int order) {
         mDb.setSortOrder(order);
         setListAdapter(buildListAdapter());
+    }
+
+    private void startEditWordActivity(long id) {
+        Intent intent = new Intent();
+        intent.setClass(this, EditWordActivity.class);
+
+        if (id != -1) {
+            intent.setAction(Intent.ACTION_EDIT);
+            Bundle extras = new Bundle();
+            extras.putLong("word_id", id);
+            intent.putExtras(extras);
+        } else {
+            intent.setAction(Intent.ACTION_INSERT);
+        }
+
+        startActivity(intent);
     }
 
     // This function implements a simple mark-up language for putting
