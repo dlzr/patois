@@ -380,6 +380,11 @@ public class Database {
                           new String[] { word.getIdString() }) == 1;
     }
 
+    public boolean deleteWordById(long id) {
+        return mDb.delete("words", "_id = ?",
+                          new String[] { Long.toString(id) }) == 1;
+    }
+
     public ArrayList<Word> getTranslations(Word word) {
         ArrayList<Word> translations = new ArrayList<Word>();
 
