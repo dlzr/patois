@@ -10,9 +10,8 @@
     <string name="foreign">Foreign Language</string>
     <string name="from_foreign">From %1$s</string>
     <string name="to_foreign">To %1$s</string>
-
-    <!-- Strings in the "select language" dialog. -->
     <string name="select_language">Select language</string>
+    <string name="export_database">Export database</string>
     <string name="edit_languages">Edit languages</string>
 
     <!-- Strings in the "edit languages" activity. -->
