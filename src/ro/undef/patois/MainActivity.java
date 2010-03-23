@@ -8,16 +8,23 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import java.io.File;
 
 
 public class MainActivity extends Activity {
     private final static String TAG = "MainActivity";
+
+    private static final int SELECT_LANGUAGE_DIALOG = 1;
+    private static final int EXPORT_DATABASE_DIALOG = 2;
+    private static final int EXPORT_DATABASE_PROGRESS = 3;
 
     private Database mDb;
 
@@ -33,7 +40,7 @@ public class MainActivity extends Activity {
         View view = findViewById(R.id.main_title);
         view.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                showDialog(R.id.select_language);
+                showDialog(SELECT_LANGUAGE_DIALOG);
             }
         });
 
@@ -117,7 +124,11 @@ public class MainActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.select_language: {
-                showDialog(R.id.select_language);
+                showDialog(SELECT_LANGUAGE_DIALOG);
+                return true;
+            }
+            case R.id.export_database: {
+                showDialog(EXPORT_DATABASE_DIALOG);
                 return true;
             }
         }
@@ -127,7 +138,7 @@ public class MainActivity extends Activity {
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
-            case R.id.select_language:
+            case SELECT_LANGUAGE_DIALOG: {
                 final Cursor cursor = mDb.getLanguagesCursor();
                 return new AlertDialog.Builder(this)
                     .setTitle(R.string.select_language)
@@ -145,6 +156,27 @@ public class MainActivity extends Activity {
                     })
                     .setNegativeButton(R.string.cancel, null)
                     .create();
+            }
+            case EXPORT_DATABASE_DIALOG: {
+                View view = getLayoutInflater().inflate(R.layout.export_database_dialog, null);
+                final EditText fileNameEditText = (EditText) view.findViewById(R.id.file_name);
+                fileNameEditText.setText(new File(Environment.getExternalStorageDirectory(),
+                                                  Database.DATABASE_NAME).getAbsolutePath());
+
+                return new AlertDialog.Builder(this)
+                    .setTitle(R.string.export_database_to)
+                    .setView(view)
+                    .setNeutralButton(R.string.export,
+                                      new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // TODO: Get the file name and start the export thread.
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, null)
+                    .create();
+            }
+            case EXPORT_DATABASE_PROGRESS: {
+            }
         }
         return null;
     }

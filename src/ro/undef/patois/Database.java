@@ -17,7 +17,7 @@ import java.util.TreeMap;
 public class Database {
     private final static String TAG = "Database";
 
-    private static final String DATABASE_NAME = "patois.db";
+    public static final String DATABASE_NAME = "patois.db";
     private static final int DATABASE_VERSION = 1;
     private static final String PREFERENCES_NAME = "patois.prefs";
 
@@ -432,5 +432,22 @@ public class Database {
         values.put("direction", direction);
         values.put("successful", successful);
         mDb.insert("practice_log", null, values);
+    }
+
+
+    public void acquireLock() {
+        // As per http://www.sqlite.org/backup.html, in order to back up an
+        // SQLite database, one has to:
+        //   1. Establish a shared lock on the database file.
+        //   2. Copy the database file using an external tool.
+        //   3. Relinquish the shared lock on the database file.
+        //
+        // This is step 1. from above, since beginTransaction() acquires an
+        // EXCLUSIVE lock, which is stronger than SHARED.
+        mDb.beginTransaction();
+    }
+
+    public void releaseLock() {
+        mDb.endTransaction();
     }
 }
