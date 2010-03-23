@@ -32,6 +32,8 @@ import java.util.ArrayList;
 public class EditWordActivity extends Activity {
     private final static String TAG = "EditWordActivity";
 
+    private final static int SELECT_LANGUAGE_DIALOG = 1;
+
     private Database mDb;
 
     private LinearLayout mTranslationsLayout;
@@ -296,13 +298,13 @@ language_search:
 
     private void showSelectLanguageDialog(WordEntry listener) {
         mLanguageListener = listener;
-        showDialog(R.id.select_language);
+        showDialog(SELECT_LANGUAGE_DIALOG);
     }
 
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
-            case R.id.select_language:
+            case SELECT_LANGUAGE_DIALOG:
                 final Cursor cursor = mDb.getLanguagesCursor();
                 return new AlertDialog.Builder(this)
                     .setTitle(R.string.select_language)
