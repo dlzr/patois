@@ -7,8 +7,11 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
 import android.util.Log;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.TreeMap;
@@ -434,6 +437,15 @@ public class Database {
         mDb.insert("practice_log", null, values);
     }
 
+
+    public String getDefaultExportFileName() {
+        File file = new File(Environment.getExternalStorageDirectory(), Database.DATABASE_NAME);
+        try {
+            return file.getCanonicalPath();
+        } catch (IOException e) {
+            return file.getAbsolutePath();
+        }
+    }
 
     public void acquireLock() {
         // As per http://www.sqlite.org/backup.html, in order to back up an

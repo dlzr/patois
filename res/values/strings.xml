@@ -13,9 +13,12 @@
     <string name="select_language">Select language</string>
     <string name="edit_languages">Edit languages</string>
     <string name="export_database">Export database</string>
-    <string name="export_database_to">Export database to...</string>
-    <string name="enter_file_name">Enter the name of the destination file.  If it already exists, it will be overwritten.</string>
+    <string name="enter_file_name">Enter destination file name:</string>
     <string name="export">Export</string>
+    <string name="confirm_overwrite">Confirm overwrite</string>
+    <string name="file_exists">The file %1$s already exists.  Are you sure you want to replace it?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 
     <!-- Strings in the "edit languages" activity. -->
     <string name="enter_languages">Native and foreign languages:</string>
