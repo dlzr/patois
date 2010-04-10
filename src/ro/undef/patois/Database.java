@@ -92,7 +92,7 @@ public class Database {
 
     Database(Activity activity) {
         mActivity = activity;
-        mDbHelper = new DatabaseHelper(mActivity);
+        mDbHelper = new DatabaseHelper(mActivity.getApplicationContext());
         mDb = mDbHelper.getWritableDatabase();
         mPrefs = mActivity.getSharedPreferences(PREFERENCES_NAME, 0);
         mLanguagesCache = new TreeMap<Long, Language>();
