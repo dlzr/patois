@@ -42,7 +42,6 @@ public class EditLanguagesActivity extends Activity {
             loadStateFromDatabase();
         }
 
-        setContentView(R.layout.edit_languages);
         setupViews();
     }
 
@@ -90,6 +89,8 @@ public class EditLanguagesActivity extends Activity {
     }
 
     private void setupViews() {
+        setContentView(R.layout.edit_languages);
+
         LayoutInflater inflater = mInflater = getLayoutInflater();
         LinearLayout layout = mLanguagesLayout = (LinearLayout) findViewById(R.id.languages);
         layout.removeAllViews();

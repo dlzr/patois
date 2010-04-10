@@ -36,83 +36,13 @@ public class MainActivity extends Activity {
         // TODO: refactor onCreate; persist mExportTask across config changes.
         mExportTask = null;
 
-        setContentView(R.layout.main_activity);
-        updateLabels();
-
-        View view = findViewById(R.id.main_title);
-        view.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                showDialog(SELECT_LANGUAGE_DIALOG);
-            }
-        });
-
-        Button button = (Button) findViewById(R.id.browse_words);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                startBrowseWordsActivity();
-            }
-        });
-
-        button = (Button) findViewById(R.id.add_words);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                startEditWordActivity();
-            }
-        });
-
-        button = (Button) findViewById(R.id.from_foreign);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                startPracticeActivity(PracticeActivity.ACTION_TRANSLATE_FROM_FOREIGN);
-            }
-        });
-
-        button = (Button) findViewById(R.id.to_foreign);
-        button.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                startPracticeActivity(PracticeActivity.ACTION_TRANSLATE_TO_FOREIGN);
-            }
-        });
+        setupViews();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mDb.close();
-    }
-
-    private void updateLabels() {
-        Resources res = getResources();
-        boolean enabled = true;
-
-        Language language = mDb.getActiveLanguage();
-        if (language == null) {
-            language = new Language(-1, "XX", res.getString(R.string.foreign), 0);
-            enabled = false;
-        }
-
-        TextView mainTitle = (TextView) findViewById(R.id.main_title);
-        if (enabled) {
-            mainTitle.setText(language.getName());
-        } else {
-            mainTitle.setText(R.string.select_language);
-        }
-
-        Button button = (Button) findViewById(R.id.browse_words);
-        button.setEnabled(enabled);
-
-        button = (Button) findViewById(R.id.add_words);
-        button.setEnabled(enabled);
-
-        button = (Button) findViewById(R.id.from_foreign);
-        button.setText(String.format(res.getString(R.string.from_foreign),
-                                     language.getName()));
-        button.setEnabled(enabled);
-
-        button = (Button) findViewById(R.id.to_foreign);
-        button.setText(String.format(res.getString(R.string.to_foreign),
-                                     language.getName()));
-        button.setEnabled(enabled);
     }
 
     @Override
@@ -207,6 +137,90 @@ public class MainActivity extends Activity {
         return null;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case R.id.select_language:
+                mDb.clearLanguagesCache();
+                updateLabels();
+                break;
+        }
+    }
+
+    private void setupViews() {
+        setContentView(R.layout.main_activity);
+        updateLabels();
+
+        View view = findViewById(R.id.main_title);
+        view.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                showDialog(SELECT_LANGUAGE_DIALOG);
+            }
+        });
+
+        Button button = (Button) findViewById(R.id.browse_words);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startBrowseWordsActivity();
+            }
+        });
+
+        button = (Button) findViewById(R.id.add_words);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startEditWordActivity();
+            }
+        });
+
+        button = (Button) findViewById(R.id.from_foreign);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startPracticeActivity(PracticeActivity.ACTION_TRANSLATE_FROM_FOREIGN);
+            }
+        });
+
+        button = (Button) findViewById(R.id.to_foreign);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startPracticeActivity(PracticeActivity.ACTION_TRANSLATE_TO_FOREIGN);
+            }
+        });
+    }
+
+    private void updateLabels() {
+        Resources res = getResources();
+        boolean enabled = true;
+
+        Language language = mDb.getActiveLanguage();
+        if (language == null) {
+            language = new Language(-1, "XX", res.getString(R.string.foreign), 0);
+            enabled = false;
+        }
+
+        TextView mainTitle = (TextView) findViewById(R.id.main_title);
+        if (enabled) {
+            mainTitle.setText(language.getName());
+        } else {
+            mainTitle.setText(R.string.select_language);
+        }
+
+        Button button = (Button) findViewById(R.id.browse_words);
+        button.setEnabled(enabled);
+
+        button = (Button) findViewById(R.id.add_words);
+        button.setEnabled(enabled);
+
+        button = (Button) findViewById(R.id.from_foreign);
+        button.setText(String.format(res.getString(R.string.from_foreign),
+                                     language.getName()));
+        button.setEnabled(enabled);
+
+        button = (Button) findViewById(R.id.to_foreign);
+        button.setText(String.format(res.getString(R.string.to_foreign),
+                                     language.getName()));
+        button.setEnabled(enabled);
+    }
+
     private void activateLanguageId(long id) {
         mDb.setActiveLanguageId(id);
         updateLabels();
@@ -236,15 +250,5 @@ public class MainActivity extends Activity {
         intent.setClass(this, PracticeActivity.class);
         intent.setAction(action);
         startActivity(intent);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case R.id.select_language:
-                mDb.clearLanguagesCache();
-                updateLabels();
-                break;
-        }
     }
 }

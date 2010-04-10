@@ -57,7 +57,6 @@ public class PracticeActivity extends Activity {
                            DIRECTION_FROM_FOREIGN : DIRECTION_TO_FOREIGN);
             }
 
-            setContentView(R.layout.practice_activity);
             setupViews();
         } catch (Trainer.EmptyException ex) {
             Toast.makeText(this, R.string.no_words_for_practice, Toast.LENGTH_LONG).show();
@@ -122,6 +121,8 @@ public class PracticeActivity extends Activity {
     }
 
     private void setupViews() {
+        setContentView(R.layout.practice_activity);
+
         mInflater = getLayoutInflater();
         mWordPanel = (ViewGroup) findViewById(R.id.word_panel);
 

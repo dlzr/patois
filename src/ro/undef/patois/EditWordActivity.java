@@ -67,7 +67,6 @@ public class EditWordActivity extends Activity {
             resetState();
         }
 
-        setContentView(R.layout.edit_word);
         setupViews();
     }
 
@@ -167,6 +166,8 @@ public class EditWordActivity extends Activity {
     }
 
     private void setupViews() {
+        setContentView(R.layout.edit_word);
+
         mMainWordEntry.setupView(this, findViewById(R.id.main_word));
         if (mMainWordEntry.hasLanguageDialogOpen())
             mLanguageListener = mMainWordEntry;
