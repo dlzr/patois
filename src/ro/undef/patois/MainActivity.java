@@ -15,7 +15,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import java.io.File;
 
 
 public class MainActivity extends Activity {
@@ -27,15 +26,15 @@ public class MainActivity extends Activity {
     private static final int EXPORT_DATABASE_PROGRESS = 4;
 
     private Database mDb;
-    private File mExportFile;
+    private ExportTask mExportTask;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mDb = new Database(this);
-        // TODO: refactor onCreate; persist mExportFile across config changes.
-        mExportFile = null;
+        // TODO: refactor onCreate; persist mExportTask across config changes.
+        mExportTask = null;
 
         setContentView(R.layout.main_activity);
         updateLabels();
@@ -163,7 +162,7 @@ public class MainActivity extends Activity {
             case EXPORT_DATABASE_DIALOG: {
                 View view = getLayoutInflater().inflate(R.layout.export_database_dialog, null);
                 final EditText fileNameEditText = (EditText) view.findViewById(R.id.file_name);
-                fileNameEditText.setText(mDb.getDefaultExportFileName());
+                fileNameEditText.setText(ExportTask.getDefaultFileName());
 
                 return new AlertDialog.Builder(this)
                     .setTitle(R.string.export_database)
@@ -171,11 +170,11 @@ public class MainActivity extends Activity {
                     .setNeutralButton(R.string.export,
                                       new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            mExportFile = new File(fileNameEditText.getText().toString());
-                            if (mExportFile.exists()) {
+                            mExportTask = new ExportTask(fileNameEditText.getText().toString());
+                            if (mExportTask.fileExists()) {
                                 showDialog(CONFIRM_OVERWRITE_DIALOG);
                             } else {
-                                // TODO: startExport().
+                                // TODO: mExportTask.execute();
                             }
                         }
                     })
@@ -186,16 +185,17 @@ public class MainActivity extends Activity {
                 return new AlertDialog.Builder(this)
                     .setTitle(R.string.confirm_overwrite)
                     .setMessage(String.format(getResources().getString(R.string.file_exists),
-                                              mExportFile.getAbsolutePath()))
+                                              mExportTask.getFileName()))
                     .setPositiveButton(R.string.yes,
                                        new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            // TODO: startExport().
+                            // TODO: mExportTask.execute();
                         }
                     })
                     .setNegativeButton(R.string.no,
                                        new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
+                            mExportTask = null;
                             showDialog(EXPORT_DATABASE_DIALOG);
                         }
                     })
