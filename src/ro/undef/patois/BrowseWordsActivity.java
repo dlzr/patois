@@ -25,16 +25,45 @@ public class BrowseWordsActivity extends ListActivity {
     private final static String TAG = "BrowseWordsActivity";
 
     private Database mDb;
+    private Cursor mCursor;
+    private SimpleCursorAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mDb = new Database(this);
-
-        // TODO: Add long-press menu for words for editing / deleting them.
-
-        setListAdapter(buildListAdapter());
+        mCursor = mDb.getBrowseWordsCursor(mDb.getActiveLanguage(), "");
+        mAdapter = new SimpleCursorAdapter(
+                this,
+                R.layout.browse_words_list_item,
+                mCursor,
+                new String[] {
+                    Database.BROWSE_WORDS_NAME_COLUMN,
+                    Database.BROWSE_WORDS_SCORE_COLUMN,
+                    Database.BROWSE_WORDS_TRANSLATIONS_COLUMN,
+                },
+                new int[] {
+                    R.id.name,
+                    R.id.score,
+                    R.id.translations,
+                }) {
+                    @Override
+                    public void setViewText(TextView v, String text) {
+                        if (v.getId() == R.id.name || v.getId() == R.id.translations)
+                            v.setText(applyWordMarkup(text));
+                        else
+                            super.setViewText(v, text);
+                    }
+                };
+        mAdapter.setFilterQueryProvider(new FilterQueryProvider() {
+            public Cursor runQuery(CharSequence constraint) {
+                return mDb.getBrowseWordsCursor(
+                        mDb.getActiveLanguage(),
+                        (constraint != null) ? constraint.toString() : "");
+            }
+        });
+        setListAdapter(mAdapter);
 
         ListView listView = getListView();
         listView.setFastScrollEnabled(true);
@@ -72,7 +101,7 @@ public class BrowseWordsActivity extends ListActivity {
             }
             case R.id.delete_word: {
                 mDb.deleteWordById(info.id);
-                setListAdapter(buildListAdapter());
+                mCursor.requery();
                 return true;
             }
         }
@@ -139,43 +168,10 @@ public class BrowseWordsActivity extends ListActivity {
         return false;
     }
 
-    private ListAdapter buildListAdapter() {
-        SimpleCursorAdapter adapter = new SimpleCursorAdapter(
-                this,
-                R.layout.browse_words_list_item,
-                mDb.getBrowseWordsCursor(mDb.getActiveLanguage(), ""),
-                new String[] {
-                    Database.BROWSE_WORDS_NAME_COLUMN,
-                    Database.BROWSE_WORDS_SCORE_COLUMN,
-                    Database.BROWSE_WORDS_TRANSLATIONS_COLUMN,
-                },
-                new int[] {
-                    R.id.name,
-                    R.id.score,
-                    R.id.translations,
-                }) {
-                    @Override
-                    public void setViewText(TextView v, String text) {
-                        if (v.getId() == R.id.name || v.getId() == R.id.translations)
-                            v.setText(applyWordMarkup(text));
-                        else
-                            super.setViewText(v, text);
-                    }
-                };
-        adapter.setFilterQueryProvider(new FilterQueryProvider() {
-            public Cursor runQuery(CharSequence constraint) {
-                return mDb.getBrowseWordsCursor(
-                        mDb.getActiveLanguage(),
-                        (constraint != null) ? constraint.toString() : "");
-            }
-        });
-
-        return adapter;
-    }
-
     private void setSortOrder(int order) {
         mDb.setSortOrder(order);
-        setListAdapter(buildListAdapter());
+        mCursor = mDb.getBrowseWordsCursor(mDb.getActiveLanguage(), "");
+        mAdapter.changeCursor(mCursor);
     }
 
     private void startEditWordActivity(long id) {
