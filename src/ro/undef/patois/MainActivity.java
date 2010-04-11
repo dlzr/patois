@@ -25,16 +25,48 @@ public class MainActivity extends Activity {
     private static final int CONFIRM_OVERWRITE_DIALOG = 3;
     private static final int EXPORT_DATABASE_PROGRESS = 4;
 
-    private Database mDb;
-    private ExportTask mExportTask;
+    private static class NonConfigurationInstance {
+        private boolean mSuspended;
+        public Database db;
+        public ExportTask exportTask;
+
+        public NonConfigurationInstance(Activity activity) {
+            mSuspended = false;
+            db = new Database(activity);
+            exportTask = null;
+        }
+
+        public void suspend() {
+            mSuspended = true;
+            // TODO: exportTask.setActivity(null);
+        }
+
+        public void resume(Activity activity) {
+            db.changeActivity(activity);
+            // TODO: exportTask.setActivity(activity);
+            mSuspended = false;
+        }
+
+        public void onDestroy() {
+            if (!mSuspended) {
+                db.close();
+                // TODO: exportTask.cancel();
+            }
+        }
+    }
+
+    private NonConfigurationInstance mInstance;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mDb = new Database(this);
-        // TODO: refactor onCreate; persist mExportTask across config changes.
-        mExportTask = null;
+        mInstance = (NonConfigurationInstance) getLastNonConfigurationInstance();
+        if (mInstance != null) {
+            mInstance.resume(this);
+        } else {
+            mInstance = new NonConfigurationInstance(this);
+        }
 
         setupViews();
     }
@@ -42,7 +74,13 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mDb.close();
+        mInstance.onDestroy();
+    }
+
+    @Override
+    public Object onRetainNonConfigurationInstance() {
+        mInstance.suspend();
+        return mInstance;
     }
 
     @Override
@@ -71,7 +109,7 @@ public class MainActivity extends Activity {
     protected Dialog onCreateDialog(int id) {
         switch (id) {
             case SELECT_LANGUAGE_DIALOG: {
-                final Cursor cursor = mDb.getLanguagesCursor();
+                final Cursor cursor = mInstance.db.getLanguagesCursor();
                 return new AlertDialog.Builder(this)
                     .setTitle(R.string.select_language)
                     .setCursor(cursor, new DialogInterface.OnClickListener() {
@@ -100,11 +138,12 @@ public class MainActivity extends Activity {
                     .setNeutralButton(R.string.export,
                                       new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            mExportTask = new ExportTask(fileNameEditText.getText().toString());
-                            if (mExportTask.fileExists()) {
+                            mInstance.exportTask =
+                                    new ExportTask(fileNameEditText.getText().toString());
+                            if (mInstance.exportTask.fileExists()) {
                                 showDialog(CONFIRM_OVERWRITE_DIALOG);
                             } else {
-                                // TODO: mExportTask.execute();
+                                // TODO: mInstance.exportTask.execute();
                             }
                         }
                     })
@@ -115,17 +154,17 @@ public class MainActivity extends Activity {
                 return new AlertDialog.Builder(this)
                     .setTitle(R.string.confirm_overwrite)
                     .setMessage(String.format(getResources().getString(R.string.file_exists),
-                                              mExportTask.getFileName()))
+                                              mInstance.exportTask.getFileName()))
                     .setPositiveButton(R.string.yes,
                                        new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            // TODO: mExportTask.execute();
+                            // TODO: mInstance.exportTask.execute();
                         }
                     })
                     .setNegativeButton(R.string.no,
                                        new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            mExportTask = null;
+                            mInstance.exportTask = null;
                             showDialog(EXPORT_DATABASE_DIALOG);
                         }
                     })
@@ -141,7 +180,7 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case R.id.select_language:
-                mDb.clearLanguagesCache();
+                mInstance.db.clearLanguagesCache();
                 updateLabels();
                 break;
         }
@@ -191,7 +230,7 @@ public class MainActivity extends Activity {
         Resources res = getResources();
         boolean enabled = true;
 
-        Language language = mDb.getActiveLanguage();
+        Language language = mInstance.db.getActiveLanguage();
         if (language == null) {
             language = new Language(-1, "XX", res.getString(R.string.foreign), 0);
             enabled = false;
@@ -222,7 +261,7 @@ public class MainActivity extends Activity {
     }
 
     private void activateLanguageId(long id) {
-        mDb.setActiveLanguageId(id);
+        mInstance.db.setActiveLanguageId(id);
         updateLabels();
     }
 

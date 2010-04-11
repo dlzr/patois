@@ -21,7 +21,7 @@ public class Database {
     private static final int DATABASE_VERSION = 1;
     private static final String PREFERENCES_NAME = "patois.prefs";
 
-    private final Activity mActivity;
+    private Activity mActivity;
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
     private SharedPreferences mPrefs;
@@ -103,6 +103,10 @@ public class Database {
         mLanguagesCache.clear();
     }
 
+    public void changeActivity(Activity activity) {
+        mActivity = activity;
+        mPrefs = mActivity.getSharedPreferences(PREFERENCES_NAME, 0);
+    }
 
     public static final int LANGUAGES_ID_COLUMN = 0;
     public static final int LANGUAGES_CODE_COLUMN = 1;
