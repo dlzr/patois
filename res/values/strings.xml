@@ -17,6 +17,7 @@
     <string name="export">Export</string>
     <string name="confirm_overwrite">Confirm overwrite</string>
     <string name="file_exists">The file %1$s already exists.  Are you sure you want to replace it?</string>
+    <string name="exporting_database">Exporting database to %1$s.</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
 

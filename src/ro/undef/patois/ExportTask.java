@@ -3,6 +3,7 @@ package ro.undef.patois;
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 
@@ -22,10 +23,14 @@ public class ExportTask extends AsyncTask<Void, Void, Void> {
         }
     }
 
+    private MainActivity mActivity;  // Should only be accessed from the UI thread.
     private File mFile;
+    private boolean mFinished;
 
-    public ExportTask(String fileName) {
+    public ExportTask(MainActivity activity, String fileName) {
+        mActivity = activity;
         mFile = new File(fileName);
+        mFinished = false;
     }
 
     public boolean fileExists() {
@@ -36,9 +41,35 @@ public class ExportTask extends AsyncTask<Void, Void, Void> {
         return normalizeFileName(mFile);
     }
 
+    public void setActivity(MainActivity activity) {
+        mActivity = activity;
+        if (mActivity != null && mFinished) {
+            // We're being resumed after a configuration change, and the
+            // background thread finished while we were disconnected from the
+            // activity.  As such, the current activity still has the progress
+            // dialog open, and we need to dismiss it.
+            mActivity.onFinishExport();
+        }
+    }
+
+    @Override
+    protected void onPreExecute() {
+        mActivity.onStartExport();
+    }
+
     @Override
     protected Void doInBackground(Void... unused) {
-        // TODO: Implement me.
+        // TODO: Replace with the real implementation.
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException x) {}
         return null;
+    }
+
+    @Override
+    protected void onPostExecute(Void unused) {
+        mFinished = true;
+        if (mActivity != null)
+            mActivity.onFinishExport();
     }
 }

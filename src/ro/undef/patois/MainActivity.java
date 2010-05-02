@@ -3,11 +3,13 @@ package ro.undef.patois;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,9 +30,13 @@ public class MainActivity extends Activity {
     private static class NonConfigurationInstance {
         private boolean mSuspended;
         public Database db;
+        // Note that exportTask is null most of the times.  The only time it
+        // points to a valid object is between the user selecting "Export
+        // database" from the menu, and the export operation finishing.  As
+        // such, whenever accessing exportTask, make sure it's not null.
         public ExportTask exportTask;
 
-        public NonConfigurationInstance(Activity activity) {
+        public NonConfigurationInstance(MainActivity activity) {
             mSuspended = false;
             db = new Database(activity);
             exportTask = null;
@@ -38,20 +44,30 @@ public class MainActivity extends Activity {
 
         public void suspend() {
             mSuspended = true;
-            // TODO: exportTask.setActivity(null);
+            setExportTaskActivity(null);
         }
 
-        public void resume(Activity activity) {
+        public void resume(MainActivity activity) {
             db.changeActivity(activity);
-            // TODO: exportTask.setActivity(activity);
+            setExportTaskActivity(activity);
             mSuspended = false;
         }
 
         public void onDestroy() {
             if (!mSuspended) {
                 db.close();
-                // TODO: exportTask.cancel();
+                cancelExportTask();
             }
+        }
+
+        private void setExportTaskActivity(MainActivity activity) {
+            if (exportTask != null)
+                exportTask.setActivity(activity);
+        }
+
+        private void cancelExportTask() {
+            if (exportTask != null)
+                exportTask.cancel(false);
         }
     }
 
@@ -135,15 +151,15 @@ public class MainActivity extends Activity {
                 return new AlertDialog.Builder(this)
                     .setTitle(R.string.export_database)
                     .setView(view)
-                    .setNeutralButton(R.string.export,
-                                      new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.export,
+                                       new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            mInstance.exportTask =
-                                    new ExportTask(fileNameEditText.getText().toString());
+                            mInstance.exportTask = new ExportTask(
+                                    MainActivity.this, fileNameEditText.getText().toString());
                             if (mInstance.exportTask.fileExists()) {
                                 showDialog(CONFIRM_OVERWRITE_DIALOG);
                             } else {
-                                // TODO: mInstance.exportTask.execute();
+                                mInstance.exportTask.execute();
                             }
                         }
                     })
@@ -158,12 +174,21 @@ public class MainActivity extends Activity {
                     .setPositiveButton(R.string.yes,
                                        new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            // TODO: mInstance.exportTask.execute();
+                            // We don't want the activity to cache this dialog
+                            // because, if it did, it would call
+                            // onCreateDialog() when resuming from
+                            // configuration changes, and mInstance.exportTask
+                            // could be null at that point.
+                            removeDialog(CONFIRM_OVERWRITE_DIALOG);
+                            mInstance.exportTask.execute();
                         }
                     })
                     .setNegativeButton(R.string.no,
                                        new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
+                            // We don't want the activity to cache this dialog.
+                            // See above for details.
+                            removeDialog(CONFIRM_OVERWRITE_DIALOG);
                             mInstance.exportTask = null;
                             showDialog(EXPORT_DATABASE_DIALOG);
                         }
@@ -171,6 +196,11 @@ public class MainActivity extends Activity {
                     .create();
             }
             case EXPORT_DATABASE_PROGRESS: {
+                ProgressDialog dialog = new ProgressDialog(this);
+                dialog.setMessage(
+                        String.format(getResources().getString(R.string.exporting_database),
+                                      mInstance.exportTask.getFileName()));
+                return dialog;
             }
         }
         return null;
@@ -184,6 +214,19 @@ public class MainActivity extends Activity {
                 updateLabels();
                 break;
         }
+    }
+
+    public void onStartExport() {
+        showDialog(EXPORT_DATABASE_PROGRESS);
+    }
+
+    public void onFinishExport() {
+        // We use removeDialog() instead of dismissDialog() here to stop the
+        // activity from caching the EXPORT_DATABASE_PROGRESS dialog.  See
+        // comment in onCreateDialog(CONFIRM_OVERWRITE_DIALOG) why we don't
+        // want that.
+        removeDialog(EXPORT_DATABASE_PROGRESS);
+        mInstance.exportTask = null;
     }
 
     private void setupViews() {
