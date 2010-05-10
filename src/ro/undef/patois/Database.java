@@ -103,11 +103,6 @@ public class Database {
         mLanguagesCache.clear();
     }
 
-    public void changeActivity(Activity activity) {
-        mActivity = activity;
-        mPrefs = mActivity.getSharedPreferences(PREFERENCES_NAME, 0);
-    }
-
     public static final int LANGUAGES_ID_COLUMN = 0;
     public static final int LANGUAGES_CODE_COLUMN = 1;
     public static final int LANGUAGES_NAME_COLUMN = 2;
@@ -439,19 +434,29 @@ public class Database {
     }
 
 
-    public void acquireLock() {
-        // As per http://www.sqlite.org/backup.html, in order to back up an
-        // SQLite database, one has to:
-        //   1. Establish a shared lock on the database file.
-        //   2. Copy the database file using an external tool.
-        //   3. Relinquish the shared lock on the database file.
-        //
-        // This is step 1. from above, since beginTransaction() acquires an
-        // EXCLUSIVE lock, which is stronger than SHARED.
-        mDb.beginTransaction();
-    }
+    public static class Lock {
+        private final static String TAG = "Database.Lock";
 
-    public void releaseLock() {
-        mDb.endTransaction();
+        private SQLiteDatabase mDb;
+
+        public Lock(Context context) {
+            String dbPath = context.getDatabasePath(DATABASE_NAME).getPath();
+            mDb = SQLiteDatabase.openDatabase(dbPath, null, SQLiteDatabase.OPEN_READWRITE);
+
+            // As per http://www.sqlite.org/backup.html, in order to back up an
+            // SQLite database, one has to:
+            //   1. Establish a shared lock on the database file.
+            //   2. Copy the database file using an external tool.
+            //   3. Relinquish the shared lock on the database file.
+            //
+            // This is step 1. from above, since beginTransaction() acquires an
+            // EXCLUSIVE lock, which is stronger than SHARED.
+            mDb.beginTransaction();
+        }
+
+        public void release() {
+            mDb.endTransaction();
+            mDb.close();
+        }
     }
 }

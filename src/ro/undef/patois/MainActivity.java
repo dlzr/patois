@@ -27,62 +27,23 @@ public class MainActivity extends Activity {
     private static final int CONFIRM_OVERWRITE_DIALOG = 3;
     private static final int EXPORT_DATABASE_PROGRESS = 4;
 
-    private static class NonConfigurationInstance {
-        private boolean mSuspended;
-        public Database db;
-        // Note that exportTask is null most of the times.  The only time it
-        // points to a valid object is between the user selecting "Export
-        // database" from the menu, and the export operation finishing.  As
-        // such, whenever accessing exportTask, make sure it's not null.
-        public ExportTask exportTask;
-
-        public NonConfigurationInstance(MainActivity activity) {
-            mSuspended = false;
-            db = new Database(activity);
-            exportTask = null;
-        }
-
-        public void suspend() {
-            mSuspended = true;
-            setExportTaskActivity(null);
-        }
-
-        public void resume(MainActivity activity) {
-            db.changeActivity(activity);
-            setExportTaskActivity(activity);
-            mSuspended = false;
-        }
-
-        public void onDestroy() {
-            if (!mSuspended) {
-                db.close();
-                cancelExportTask();
-            }
-        }
-
-        private void setExportTaskActivity(MainActivity activity) {
-            if (exportTask != null)
-                exportTask.setActivity(activity);
-        }
-
-        private void cancelExportTask() {
-            if (exportTask != null)
-                exportTask.cancel(false);
-        }
-    }
-
-    private NonConfigurationInstance mInstance;
+    private Database mDb;
+    // Note that mExportTask is null most of the times.  The only time it
+    // points to a valid object is between the user clicking the "Export"
+    // button in the "Export database" dialog, and the export operation
+    // finishing.
+    // As such, whenever accessing mExportTask, make sure it's not null.
+    private ExportTask mExportTask;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mInstance = (NonConfigurationInstance) getLastNonConfigurationInstance();
-        if (mInstance != null) {
-            mInstance.resume(this);
-        } else {
-            mInstance = new NonConfigurationInstance(this);
-        }
+        mDb = new Database(this);
+
+        mExportTask = (ExportTask) getLastNonConfigurationInstance();
+        if (mExportTask != null)
+            mExportTask.resume(this);
 
         setupViews();
     }
@@ -90,13 +51,16 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mInstance.onDestroy();
+        mDb.close();
+        if (mExportTask != null)
+            mExportTask.onDestroy();
     }
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        mInstance.suspend();
-        return mInstance;
+        if (mExportTask != null)
+            mExportTask.suspend();
+        return mExportTask;
     }
 
     @Override
@@ -125,7 +89,7 @@ public class MainActivity extends Activity {
     protected Dialog onCreateDialog(int id) {
         switch (id) {
             case SELECT_LANGUAGE_DIALOG: {
-                final Cursor cursor = mInstance.db.getLanguagesCursor();
+                final Cursor cursor = mDb.getLanguagesCursor();
                 return new AlertDialog.Builder(this)
                     .setTitle(R.string.select_language)
                     .setCursor(cursor, new DialogInterface.OnClickListener() {
@@ -154,12 +118,12 @@ public class MainActivity extends Activity {
                     .setPositiveButton(R.string.export,
                                        new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            mInstance.exportTask = new ExportTask(
-                                    MainActivity.this, fileNameEditText.getText().toString());
-                            if (mInstance.exportTask.fileExists()) {
+                            mExportTask = new ExportTask(MainActivity.this,
+                                                         fileNameEditText.getText().toString());
+                            if (mExportTask.fileExists()) {
                                 showDialog(CONFIRM_OVERWRITE_DIALOG);
                             } else {
-                                mInstance.exportTask.execute();
+                                mExportTask.execute();
                             }
                         }
                     })
@@ -170,17 +134,19 @@ public class MainActivity extends Activity {
                 return new AlertDialog.Builder(this)
                     .setTitle(R.string.confirm_overwrite)
                     .setMessage(String.format(getResources().getString(R.string.file_exists),
-                                              mInstance.exportTask.getFileName()))
+                                              mExportTask.getFileName()))
                     .setPositiveButton(R.string.yes,
                                        new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             // We don't want the activity to cache this dialog
-                            // because, if it did, it would call
-                            // onCreateDialog() when resuming from
-                            // configuration changes, and mInstance.exportTask
-                            // could be null at that point.
+                            // so we call removeDialog() explicitly.  If this
+                            // dialog were to be cached, the activity would
+                            // call onCreateDialog() when resuming from
+                            // configuration changes, and mExportTask could be
+                            // null at that point, leading to a
+                            // NullPointerException in the setup code above.
                             removeDialog(CONFIRM_OVERWRITE_DIALOG);
-                            mInstance.exportTask.execute();
+                            mExportTask.execute();
                         }
                     })
                     .setNegativeButton(R.string.no,
@@ -189,7 +155,7 @@ public class MainActivity extends Activity {
                             // We don't want the activity to cache this dialog.
                             // See above for details.
                             removeDialog(CONFIRM_OVERWRITE_DIALOG);
-                            mInstance.exportTask = null;
+                            mExportTask = null;
                             showDialog(EXPORT_DATABASE_DIALOG);
                         }
                     })
@@ -199,7 +165,7 @@ public class MainActivity extends Activity {
                 ProgressDialog dialog = new ProgressDialog(this);
                 dialog.setMessage(
                         String.format(getResources().getString(R.string.exporting_database),
-                                      mInstance.exportTask.getFileName()));
+                                      mExportTask.getFileName()));
                 return dialog;
             }
         }
@@ -210,7 +176,7 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case R.id.select_language:
-                mInstance.db.clearLanguagesCache();
+                mDb.clearLanguagesCache();
                 updateLabels();
                 break;
         }
@@ -226,7 +192,7 @@ public class MainActivity extends Activity {
         // comment in onCreateDialog(CONFIRM_OVERWRITE_DIALOG) why we don't
         // want that.
         removeDialog(EXPORT_DATABASE_PROGRESS);
-        mInstance.exportTask = null;
+        mExportTask = null;
     }
 
     private void setupViews() {
@@ -273,7 +239,7 @@ public class MainActivity extends Activity {
         Resources res = getResources();
         boolean enabled = true;
 
-        Language language = mInstance.db.getActiveLanguage();
+        Language language = mDb.getActiveLanguage();
         if (language == null) {
             language = new Language(-1, "XX", res.getString(R.string.foreign), 0);
             enabled = false;
@@ -304,7 +270,7 @@ public class MainActivity extends Activity {
     }
 
     private void activateLanguageId(long id) {
-        mInstance.db.setActiveLanguageId(id);
+        mDb.setActiveLanguageId(id);
         updateLabels();
     }
 
