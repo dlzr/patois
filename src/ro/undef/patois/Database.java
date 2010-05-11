@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.TreeMap;
@@ -433,15 +434,15 @@ public class Database {
         mDb.insert("practice_log", null, values);
     }
 
+    public static File getDatabaseFile(Context context) {
+        return context.getDatabasePath(DATABASE_NAME);
+    }
 
     public static class Lock {
-        private final static String TAG = "Database.Lock";
-
         private SQLiteDatabase mDb;
 
-        public Lock(Context context) {
-            String dbPath = context.getDatabasePath(DATABASE_NAME).getPath();
-            mDb = SQLiteDatabase.openDatabase(dbPath, null, SQLiteDatabase.OPEN_READWRITE);
+        public Lock(String dbFileName) {
+            mDb = SQLiteDatabase.openDatabase(dbFileName, null, SQLiteDatabase.OPEN_READWRITE);
 
             // As per http://www.sqlite.org/backup.html, in order to back up an
             // SQLite database, one has to:

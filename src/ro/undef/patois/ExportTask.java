@@ -5,7 +5,8 @@ import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 import java.io.File;
-import java.io.IOException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 
 public class ExportTask extends AsyncTask<Void, Void, Void> {
     private final static String TAG = "ExportTask";
@@ -18,13 +19,14 @@ public class ExportTask extends AsyncTask<Void, Void, Void> {
     private static String normalizeFileName(File file) {
         try {
             return file.getCanonicalPath();
-        } catch (IOException e) {
+        } catch (java.io.IOException e) {
             return file.getAbsolutePath();
         }
     }
 
     private MainActivity mActivity;  // Should only be accessed from the UI thread.
-    private File mFile;
+    private File mInputFile;
+    private File mOutputFile;
     private boolean mSuspended;
     private boolean mFinished;
     private Database.Lock mDbLock;
@@ -33,18 +35,19 @@ public class ExportTask extends AsyncTask<Void, Void, Void> {
 
     public ExportTask(MainActivity activity, String fileName) {
         mActivity = activity;
-        mFile = new File(fileName);
+        mInputFile = Database.getDatabaseFile(activity);
+        mOutputFile = new File(fileName);
         mSuspended = false;
         mFinished = false;
         mDbLock = null;
     }
 
     public boolean fileExists() {
-        return mFile.exists();
+        return mOutputFile.exists();
     }
 
     public String getFileName() {
-        return normalizeFileName(mFile);
+        return normalizeFileName(mOutputFile);
     }
 
     public void suspend() {
@@ -71,7 +74,7 @@ public class ExportTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPreExecute() {
-        mDbLock = new Database.Lock(mActivity);
+        mDbLock = new Database.Lock(mInputFile.getPath());
         mActivity.onStartExport();
     }
 
@@ -88,7 +91,30 @@ public class ExportTask extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected Void doInBackground(Void... unused) {
-        // TODO: Do something with FileInputStream and FileOutputStream.
+        try {
+            FileInputStream in = new FileInputStream(mInputFile);
+            try {
+                FileOutputStream out = new FileOutputStream(mOutputFile);
+                try {
+                    byte buffer[] = new byte[32768];
+                    int count = 0;
+
+                    while ((count = in.read(buffer)) >= 0) {
+                        if (count > 0)
+                            out.write(buffer, 0, count);
+                    }
+                } finally {
+                    out.close();
+                }
+            } finally {
+                in.close();
+            }
+        } catch (java.io.IOException e) {
+            // TODO: Return failure to UI thread.
+            throw new RuntimeException("Could not export database.", e);
+        }
+
+        // TODO: Return success to UI thread.
         return null;
     }
 }
