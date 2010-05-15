@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class MainActivity extends Activity {
@@ -186,13 +187,16 @@ public class MainActivity extends Activity {
         showDialog(EXPORT_DATABASE_PROGRESS);
     }
 
-    public void onFinishExport() {
+    public void onFinishExport(boolean successful) {
         // We use removeDialog() instead of dismissDialog() here to stop the
         // activity from caching the EXPORT_DATABASE_PROGRESS dialog.  See
         // comment in onCreateDialog(CONFIRM_OVERWRITE_DIALOG) why we don't
         // want that.
         removeDialog(EXPORT_DATABASE_PROGRESS);
         mExportTask = null;
+
+        int messageId = successful ? R.string.export_successful : R.string.export_failed;
+        Toast.makeText(this, messageId, Toast.LENGTH_SHORT).show();
     }
 
     private void setupViews() {

@@ -8,7 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-public class ExportTask extends AsyncTask<Void, Void, Void> {
+public class ExportTask extends AsyncTask<Void, Void, Boolean> {
     private final static String TAG = "ExportTask";
 
     public static String getDefaultFileName() {
@@ -29,6 +29,7 @@ public class ExportTask extends AsyncTask<Void, Void, Void> {
     private File mOutputFile;
     private boolean mSuspended;
     private boolean mFinished;
+    private boolean mSuccessful;
     private Database.Lock mDbLock;
 
     // The following methods should only be called from the UI thread.
@@ -39,6 +40,7 @@ public class ExportTask extends AsyncTask<Void, Void, Void> {
         mOutputFile = new File(fileName);
         mSuspended = false;
         mFinished = false;
+        mSuccessful = false;
         mDbLock = null;
     }
 
@@ -63,7 +65,7 @@ public class ExportTask extends AsyncTask<Void, Void, Void> {
             // background thread finished while we were disconnected from the
             // activity.  As such, the current activity still has the progress
             // dialog open, and we need to dismiss it.
-            mActivity.onFinishExport();
+            mActivity.onFinishExport(mSuccessful);
         }
     }
 
@@ -79,18 +81,19 @@ public class ExportTask extends AsyncTask<Void, Void, Void> {
     }
 
     @Override
-    protected void onPostExecute(Void unused) {
+    protected void onPostExecute(Boolean successful) {
         mDbLock.release();
         mDbLock = null;
         mFinished = true;
+        mSuccessful = successful;
         if (mActivity != null)
-            mActivity.onFinishExport();
+            mActivity.onFinishExport(mSuccessful);
     }
 
     // What follows is/can be called from the background thread.
 
     @Override
-    protected Void doInBackground(Void... unused) {
+    protected Boolean doInBackground(Void... unused) {
         try {
             FileInputStream in = new FileInputStream(mInputFile);
             try {
@@ -110,11 +113,9 @@ public class ExportTask extends AsyncTask<Void, Void, Void> {
                 in.close();
             }
         } catch (java.io.IOException e) {
-            // TODO: Return failure to UI thread.
-            throw new RuntimeException("Could not export database.", e);
+            return false;
         }
 
-        // TODO: Return success to UI thread.
-        return null;
+        return true;
     }
 }
