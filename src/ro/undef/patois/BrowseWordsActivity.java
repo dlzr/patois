@@ -40,12 +40,10 @@ public class BrowseWordsActivity extends ListActivity {
                 mCursor,
                 new String[] {
                     Database.BROWSE_WORDS_NAME_COLUMN,
-                    Database.BROWSE_WORDS_SCORE_COLUMN,
                     Database.BROWSE_WORDS_TRANSLATIONS_COLUMN,
                 },
                 new int[] {
                     R.id.name,
-                    R.id.score,
                     R.id.translations,
                 }) {
                     @Override

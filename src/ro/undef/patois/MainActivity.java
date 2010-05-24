@@ -227,14 +227,14 @@ public class MainActivity extends Activity {
         button = (Button) findViewById(R.id.from_foreign);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                startPracticeActivity(PracticeActivity.ACTION_TRANSLATE_FROM_FOREIGN);
+                startPracticeActivity(Trainer.Direction.FROM_FOREIGN);
             }
         });
 
         button = (Button) findViewById(R.id.to_foreign);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                startPracticeActivity(PracticeActivity.ACTION_TRANSLATE_TO_FOREIGN);
+                startPracticeActivity(Trainer.Direction.TO_FOREIGN);
             }
         });
     }
@@ -297,10 +297,10 @@ public class MainActivity extends Activity {
         startActivity(intent);
     }
 
-    private void startPracticeActivity(String action) {
+    private void startPracticeActivity(Trainer.Direction direction) {
         Intent intent = new Intent();
         intent.setClass(this, PracticeActivity.class);
-        intent.setAction(action);
+        intent.setAction(direction.getAction());
         startActivity(intent);
     }
 }

@@ -17,21 +17,14 @@ public class Word implements Serializable {
     public Language getLanguage() { return mLanguage; }
     public void setLanguage(Language language) { mLanguage = language; }
 
-    private int mScore;
-    public int getScore() { return mScore; }
-    public void setScore(int score) { mScore = score; }
-
-    public static final int DEFAULT_SCORE = 10;
-
-    public Word(long id, String name, Language language, int score) {
+    public Word(long id, String name, Language language) {
         mId = id;
         mName = name;
         mLanguage = language;
-        mScore = score;
     }
 
     public Word(Language language) {
-        this(-1, "", language, DEFAULT_SCORE);
+        this(-1, "", language);
     }
 
     @Override
@@ -57,17 +50,6 @@ public class Word implements Serializable {
 
     public boolean isEmpty() {
         return mName.length() == 0;
-    }
-
-    // Light-weight class for storing just a word ID and a score.
-    public static class Score {
-        public long id;
-        public int score;
-
-        public Score(long id, int score) {
-            this.id = id;
-            this.score = score;
-        }
     }
 
     // Required for the Serializable interface.

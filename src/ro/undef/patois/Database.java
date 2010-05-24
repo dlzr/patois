@@ -141,7 +141,7 @@ public class Database {
             return language;
 
         Cursor cursor = mDb.query("languages", new String[] { "code", "name", "num_words" },
-                                  "_id = ?", new String[] { Long.toString(id) },
+                                  "_id == ?", new String[] { Long.toString(id) },
                                   null, null, null);
         try {
             if (cursor.getCount() != 1)
@@ -178,14 +178,14 @@ public class Database {
         values.put("code", language.getCode());
         values.put("name", language.getName());
 
-        return mDb.update("languages", values, "_id = ?",
+        return mDb.update("languages", values, "_id == ?",
                           new String[] { language.getIdString() }) == 1;
     }
 
     public boolean deleteLanguage(Language language) {
         mLanguagesCache.remove(language.getId());
 
-        return mDb.delete("languages", "_id = ?",
+        return mDb.delete("languages", "_id == ?",
                           new String[] { language.getIdString() }) == 1;
     }
 
@@ -228,7 +228,6 @@ public class Database {
 
 
     public static final String BROWSE_WORDS_NAME_COLUMN = "display_name";
-    public static final String BROWSE_WORDS_SCORE_COLUMN = "score";
     public static final String BROWSE_WORDS_TRANSLATIONS_COLUMN = "display_translations";
 
     public Cursor getBrowseWordsCursor(Language language, String filter) {
@@ -240,7 +239,7 @@ public class Database {
                 sortCriteria = "sort_name ASC";
                 break;
             case SORT_ORDER_BY_SCORE:
-                sortCriteria = "sort_score DESC, sort_name ASC";
+                sortCriteria = "level ASC, next_practice ASC";
                 break;
             case SORT_ORDER_NEWEST_FIRST:
                 sortCriteria = "timestamp DESC";
@@ -260,19 +259,22 @@ public class Database {
                 "      replace(l.code, '.', '..')  || ').C', '  ') AS display_translations, " +
                 "    lower(w1.name) AS sort_name, " +
                 "    w1.timestamp AS timestamp, " +
-                "    w1.score AS score, " +
-                "    w1.score AS sort_score " +
+                "    p.level AS level, " +
+                "    p.next_practice AS next_practice " +
                 "  FROM " +
                 "    translations AS t, " +
                 "    words AS w1, " +
                 "    words AS w2, " +
-                "    languages AS l " +
+                "    languages AS l, " +
+                "    practice_info AS p " +
                 "  WHERE " +
-                "    w1.language_id = ? AND " +
+                "    w1.language_id == ? AND " +
                 "    ((w1.name LIKE ?) OR (w2.name LIKE ?)) AND " +
-                "    t.word_id1 = w1._id AND " +
-                "    t.word_id2 = w2._id AND " +
-                "    w2.language_id = l._id " +
+                "    t.word_id1 == w1._id AND " +
+                "    t.word_id2 == w2._id AND " +
+                "    w2.language_id == l._id AND " +
+                "    p.word_id == w1._id AND " +
+                "    p.direction == 1 " +   // TODO: Do something smarter about sort-by-score and directions.
                 "  GROUP BY (t.word_id1) " +
                 "UNION " +
                 "SELECT " +
@@ -281,12 +283,12 @@ public class Database {
                 "    '.c.0.C' AS display_translations, " +
                 "    lower(w.name) AS sort_name, " +
                 "    w.timestamp AS timestamp, " +
-                "    w.score AS score, " +
-                "    2147483647 AS sort_score " +
+                "    0 AS level, " +
+                "    0 AS next_practice " +
                 "  FROM " +
                 "    words AS w " +
                 "  WHERE " +
-                "    w.language_id = ? AND " +
+                "    w.language_id == ? AND " +
                 "    w.name LIKE ? AND " +
                 "    w.num_translations == 0 " +
                 "ORDER BY " + sortCriteria,
@@ -309,7 +311,7 @@ public class Database {
         // We want to avoid suggesting the main word as a translation of
         // itself, so we have to explicitly filter it out here.
         Cursor cursor = mDb.query("words", new String[] { "_id", "name" },
-                                  "(language_id = ?) AND (name LIKE ?) AND (_id != ?)",
+                                  "(language_id == ?) AND (name LIKE ?) AND (_id != ?)",
                                   new String[] {
                                       language.getIdString(),
                                       "%" + filter + "%",
@@ -321,69 +323,107 @@ public class Database {
         return cursor;
     }
 
-    public ArrayList<Word.Score> getWordScores(Language language) {
-        ArrayList<Word.Score> scores = new ArrayList<Word.Score>();
+    public ArrayList<Trainer.Weight> getWordWeights(Language language,
+                                                    Trainer.Direction direction) {
+        ArrayList<Trainer.Weight> weights = new ArrayList<Trainer.Weight>();
 
-        Cursor cursor = mDb.query("words", new String[] { "_id", "score" },
-                                  "(language_id = ?) AND (num_translations > 0)",
-                                  new String[] { language.getIdString() },
-                                  null, null, null);
+        Cursor cursor = mDb.rawQuery(
+                "SELECT " +
+                "    p.word_id, " +
+                "    strftime('%s', 'now') - p.next_practice AS weight " +
+                "  FROM " +
+                "    practice_info as p, " +
+                "    words as w " +
+                "  WHERE " +
+                "    p.word_id == w._id AND " +
+                "    w.language_id == ? AND " +
+                "    p.direction == ? AND " +
+                "    weight > 0 AND " +
+                "    w.num_translations > 0 ",
+                new String[] {
+                    language.getIdString(),
+                    direction.getValueString(),
+                });
+
         try {
             while (cursor.moveToNext())
-                scores.add(new Word.Score(cursor.getLong(0), cursor.getInt(1)));
+                weights.add(new Trainer.Weight(cursor.getLong(0), cursor.getInt(1)));
         } finally {
             cursor.close();
         }
 
-        return scores;
+        return weights;
     }
 
     public Word getWord(long id) {
         Cursor cursor = mDb.query("words",
-                                  new String[] { "name", "language_id", "score" },
-                                  "_id = ?", new String[] { Long.toString(id) },
+                                  new String[] { "name", "language_id", },
+                                  "_id == ?", new String[] { Long.toString(id) },
                                   null, null, null);
         try {
             if (cursor.getCount() != 1)
                 return null;
 
             cursor.moveToFirst();
-            return new Word(id, cursor.getString(0), getLanguage(cursor.getLong(1)),
-                            cursor.getInt(2));
+            return new Word(id, cursor.getString(0), getLanguage(cursor.getLong(1)));
         } finally {
             cursor.close();
         }
     }
 
     public boolean insertWord(Word word) {
-        ContentValues values = new ContentValues();
-        values.put("name", word.getName());
-        values.put("language_id", word.getLanguage().getId());
-        values.put("score", word.getScore());
+        long timestamp = System.currentTimeMillis() / 1000;
 
-        long id = mDb.insert("words", null, values);
-        word.setId(id);
+        mDb.beginTransaction();
+        try {
+            ContentValues values = new ContentValues();
+            values.put("name", word.getName());
+            values.put("language_id", word.getLanguage().getId());
+            values.put("timestamp", timestamp);
 
-        return id != -1;
+            long ret = mDb.insert("words", null, values);
+            if (ret == -1)
+                return false;
+            word.setId(ret);
+
+            int level = 0;
+            long next_practice = Trainer.scheduleNextPractice(timestamp, level);
+
+            for (Trainer.Direction direction : Trainer.Direction.values()) {
+                values.clear();
+                values.put("word_id", word.getId());
+                values.put("direction", direction.getValue());
+                values.put("level", level);
+                values.put("next_practice", next_practice);
+                ret = mDb.insert("practice_info", null, values);
+                if (ret == -1)
+                    return false;
+            }
+
+            mDb.setTransactionSuccessful();
+        } finally {
+            mDb.endTransaction();
+        }
+
+        return true;
     }
 
     public boolean updateWord(Word word) {
         ContentValues values = new ContentValues();
         values.put("name", word.getName());
         values.put("language_id", word.getLanguage().getId());
-        values.put("score", word.getScore());
 
-        return mDb.update("words", values, "_id = ?",
+        return mDb.update("words", values, "_id == ?",
                           new String[] { word.getIdString() }) == 1;
     }
 
     public boolean deleteWord(Word word) {
-        return mDb.delete("words", "_id = ?",
+        return mDb.delete("words", "_id == ?",
                           new String[] { word.getIdString() }) == 1;
     }
 
     public boolean deleteWordById(long id) {
-        return mDb.delete("words", "_id = ?",
+        return mDb.delete("words", "_id == ?",
                           new String[] { Long.toString(id) }) == 1;
     }
 
@@ -391,7 +431,7 @@ public class Database {
         ArrayList<Word> translations = new ArrayList<Word>();
 
         Cursor cursor = mDb.query("translations", new String[] { "word_id2" },
-                                  "word_id1 = ?", new String[] { word.getIdString() },
+                                  "word_id1 == ?", new String[] { word.getIdString() },
                                   null, null, null);
         try {
             while (cursor.moveToNext())
@@ -417,7 +457,7 @@ public class Database {
 
     public void deleteTranslation(Word word1, Word word2) {
         mDb.delete("translations",
-                   "(word_id1 = ? AND word_id2 = ?) OR (word_id1 = ? AND word_id2 = ?)",
+                   "(word_id1 == ? AND word_id2 == ?) OR (word_id1 == ? AND word_id2 == ?)",
                    new String[] {
                        word1.getIdString(),
                        word2.getIdString(),
@@ -426,12 +466,44 @@ public class Database {
                    });
     }
 
-    public void insertPracticeLogEntry(Word word, int direction, boolean successful) {
+    public void insertPracticeLogEntry(int trainerVersion, Word word,
+                                       Trainer.Direction direction, boolean successful) {
         ContentValues values = new ContentValues();
+        values.put("trainer", trainerVersion);
         values.put("word_id", word.getId());
-        values.put("direction", direction);
+        values.put("direction", direction.getValue());
         values.put("successful", successful);
+
         mDb.insert("practice_log", null, values);
+    }
+
+    public Trainer.PracticeInfo getPracticeInfo(Word word, Trainer.Direction direction) {
+        Cursor cursor = mDb.query("practice_info",
+                                  new String[] { "level", "next_practice", },
+                                  "word_id == ? AND direction == ?",
+                                  new String[] { word.getIdString(), direction.getValueString() },
+                                  null, null, null);
+        try {
+            if (cursor.getCount() != 1)
+                return null;
+
+            cursor.moveToFirst();
+            return new Trainer.PracticeInfo(direction, cursor.getInt(0), cursor.getLong(1));
+        } finally {
+            cursor.close();
+        }
+    }
+
+    public boolean updatePracticeInfo(Word word, Trainer.PracticeInfo info) {
+        ContentValues values = new ContentValues();
+        values.put("level", info.level);
+        values.put("next_practice", info.next_practice);
+
+        return mDb.update("practice_info", values, "word_id == ? AND direction == ?",
+                          new String[] {
+                              word.getIdString(),
+                              info.direction.getValueString(),
+                          }) == 1;
     }
 
     public static File getDatabaseFile(Context context) {

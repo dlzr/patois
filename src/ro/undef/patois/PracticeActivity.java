@@ -16,16 +16,8 @@ import java.util.ArrayList;
 public class PracticeActivity extends Activity {
     private final static String TAG = "PracticeActivity";
 
-    public final static String ACTION_TRANSLATE_FROM_FOREIGN =
-        "ro.undef.patois.intent.action.TRANSLATE_FROM_FOREIGN";
-    public final static String ACTION_TRANSLATE_TO_FOREIGN =
-        "ro.undef.patois.intent.action.TRANSLATE_TO_FOREIGN";
-
     private final static int STATE_QUESTION = 0;
     private final static int STATE_ANSWER = 1;
-
-    private final static int DIRECTION_FROM_FOREIGN = 0;
-    private final static int DIRECTION_TO_FOREIGN = 1;
 
     private Database mDb;
     private Trainer mTrainer;
@@ -36,7 +28,7 @@ public class PracticeActivity extends Activity {
     private ViewGroup mAnswerButtons;
 
     // These fields are saved across restarts.
-    private int mDirection;
+    private Trainer.Direction mDirection;
     private int mState;
     private Word mWord;
     private ArrayList<Word> mTranslations;
@@ -47,14 +39,13 @@ public class PracticeActivity extends Activity {
 
         try {
             mDb = new Database(this);
-            mTrainer = new Trainer(mDb, mDb.getActiveLanguage());
+            mTrainer = new Trainer(mDb);
 
             if (savedInstanceState != null) {
                 loadStateFromBundle(savedInstanceState);
             } else {
                 String action = getIntent().getAction();
-                resetState(action.equals(ACTION_TRANSLATE_FROM_FOREIGN) ?
-                           DIRECTION_FROM_FOREIGN : DIRECTION_TO_FOREIGN);
+                resetState(Trainer.Direction.fromAction(action));
             }
 
             setupViews();
@@ -70,16 +61,16 @@ public class PracticeActivity extends Activity {
         mDb.close();
     }
 
-    private void resetState(int direction) throws Trainer.EmptyException {
+    private void resetState(Trainer.Direction direction) throws Trainer.EmptyException {
         mDirection = direction;
         mState = STATE_QUESTION;
-        mWord = mTrainer.selectWord();
+        mWord = mTrainer.selectWord(mDb.getActiveLanguage(), mDirection);
         mTranslations = mDb.getTranslations(mWord);
     }
 
     @SuppressWarnings("unchecked")
     private void loadStateFromBundle(Bundle savedInstanceState) {
-        mDirection = savedInstanceState.getInt("direction");
+        mDirection = Trainer.Direction.fromValue(savedInstanceState.getInt("direction"));
         mState = savedInstanceState.getInt("state");
         mWord = (Word) savedInstanceState.getSerializable("word");
         mTranslations = (ArrayList<Word>) savedInstanceState.getSerializable("translations");
@@ -87,7 +78,7 @@ public class PracticeActivity extends Activity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        outState.putInt("direction", mDirection);
+        outState.putInt("direction", mDirection.getValue());
         outState.putInt("state", mState);
         outState.putSerializable("word", mWord);
         outState.putSerializable("translations", mTranslations);
@@ -126,10 +117,10 @@ public class PracticeActivity extends Activity {
         mInflater = getLayoutInflater();
         mWordPanel = (ViewGroup) findViewById(R.id.word_panel);
 
-        if (mState == STATE_ANSWER || mDirection == DIRECTION_FROM_FOREIGN)
+        if (mState == STATE_ANSWER || mDirection == Trainer.Direction.FROM_FOREIGN)
             mWordPanel.addView(buildWordView(mWord, true), 0);
 
-        if (mState == STATE_ANSWER || mDirection == DIRECTION_TO_FOREIGN) {
+        if (mState == STATE_ANSWER || mDirection == Trainer.Direction.TO_FOREIGN) {
             for (Word word : mTranslations)
                 mWordPanel.addView(buildWordView(word, false));
         }
@@ -183,10 +174,10 @@ public class PracticeActivity extends Activity {
         mState = STATE_ANSWER;
 
         // TODO: Should use animations when showing the answers.
-        if (mDirection == DIRECTION_FROM_FOREIGN) {
+        if (mDirection == Trainer.Direction.FROM_FOREIGN) {
             for (Word word : mTranslations)
                 mWordPanel.addView(buildWordView(word, false));
-        } else if (mDirection == DIRECTION_TO_FOREIGN) {
+        } else if (mDirection == Trainer.Direction.TO_FOREIGN) {
             mWordPanel.addView(buildWordView(mWord, true), 0);
         }
 
@@ -195,13 +186,11 @@ public class PracticeActivity extends Activity {
     }
 
     private void saveStatsAndRestart(boolean knewAnswer) {
-        mTrainer.updateWordScore(mWord, mDirection, knewAnswer);
+        mTrainer.updatePracticeInfo(mWord, mDirection, knewAnswer);
 
         Intent intent = new Intent();
         intent.setClass(PracticeActivity.this, PracticeActivity.class);
-        intent.setAction((mDirection == DIRECTION_FROM_FOREIGN) ?
-                         ACTION_TRANSLATE_FROM_FOREIGN :
-                         ACTION_TRANSLATE_TO_FOREIGN);
+        intent.setAction(mDirection.getAction());
         startActivity(intent);
         finish();
     }

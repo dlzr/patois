@@ -43,10 +43,6 @@ CREATE TABLE words (
     language_id INTEGER NOT NULL,
     -- The number of translations for this word.
     num_translations INTEGER NOT NULL DEFAULT 0,
-    -- The score of the word, used when picking words for practice.  The
-    -- probablility of a word being chosen is directly proportional with its
-    -- score.
-    score INTEGER NOT NULL,
     -- The UNIX timestamp in UTC when the word was first added to the database.
     timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
 );
@@ -57,7 +53,21 @@ CREATE TABLE translations (
     UNIQUE(word_id1, word_id2)
 );
 
+CREATE TABLE practice_info (
+    word_id INTEGER NOT NULL,
+    -- The direction for which this scoring information applies:
+    -- 0 - "from"; 1 - "to".
+    direction INTEGER NOT NULL,
+    -- How well the word is known (the higher, the better).  This dictates how
+    -- to increment the next_practice timestamp.
+    level INTEGER NOT NULL,
+    -- When is the earliest time to show this word for practice.
+    next_practice INTEGER NOT NULL
+);
+
 CREATE TABLE practice_log (
+    -- The version of the trainer algorithm that saved this trial.
+    trainer INTEGER NOT NULL,
     -- The ID of the word being tested.
     word_id INTEGER NOT NULL,
     -- Direction: 0 if the test was "from" this word, 1 if it was "to" this word.
@@ -130,8 +140,10 @@ CREATE TRIGGER count_translations_on_delete DELETE ON translations
             WHERE _id = OLD.word_id1;
     END;
 
-CREATE TRIGGER delete_practice_log_when_deleting_word DELETE ON words
+CREATE TRIGGER delete_practice_info_when_deleting_word DELETE ON words
     BEGIN
         DELETE FROM practice_log
+            WHERE word_id = OLD._id;
+        DELETE FROM practice_info
             WHERE word_id = OLD._id;
     END;

@@ -15,9 +15,9 @@ EditLanguagesActivity:
 
 BrowseWordsActivity:
   - Show some intro message if there are no words.
-  - [maybe] Instead of showing the numerical score for words, maybe show
-    some indication about the words' scores (e.g. '★★★☆☆', or a
-    color-coded rectangle, etc.)
+  - [maybe] show some indication about the words' scores (e.g.
+    '★★☆☆/★★★☆', or a color-coded rectangle, etc.)
+  - BUG: sort by score only takes into account PRACTICE_TO_FOREIGN
 
 EditWordActivity:
   - [no known bugs or missing features]
@@ -29,6 +29,7 @@ ViewWordActivity:
     - date added
 
 PracticeActivity:
+  - Add animations when showing the answer.
   - [wish] When practicing "to Foreign", the foreign word should show up
     under the native translations.
 
