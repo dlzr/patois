@@ -41,19 +41,15 @@ public class BrowseWordsActivity extends ListActivity {
                 new String[] {
                     Database.BROWSE_WORDS_NAME_COLUMN,
                     Database.BROWSE_WORDS_TRANSLATIONS_COLUMN,
+                    // Never used: WordViewBinder accesses the cursor directly.
+                    Database.BROWSE_WORDS_LEVEL_TO_COLUMN,
                 },
                 new int[] {
                     R.id.name,
                     R.id.translations,
-                }) {
-                    @Override
-                    public void setViewText(TextView v, String text) {
-                        if (v.getId() == R.id.name || v.getId() == R.id.translations)
-                            v.setText(applyWordMarkup(text));
-                        else
-                            super.setViewText(v, text);
-                    }
-                };
+                    R.id.score,
+                });
+        mAdapter.setViewBinder(new WordViewBinder());
         mAdapter.setFilterQueryProvider(new FilterQueryProvider() {
             public Cursor runQuery(CharSequence constraint) {
                 return mDb.getBrowseWordsCursor(
@@ -188,71 +184,129 @@ public class BrowseWordsActivity extends ListActivity {
         startActivity(intent);
     }
 
-    // This function implements a simple mark-up language for putting
-    // rich-text into the BrowseWordsActivity list.  We implement this
-    // by hand because we want to use SQLite for generating the content
-    // of the two text boxes in the list item (it would be
-    // significantly more complex to generate the list of translations
-    // outside of SQLite, since we would have to issue sub-queries for
-    // each word).  See the SELECT statement in
-    // Database.getBrowseWordsCursor() for how details.
-    //
-    // However, we still want getBrowseWordsCursor() to signal the
-    // presence of special items such as the language code tag or words
-    // without translations.  As such, this simple markup language was
-    // born.
-    //
-    // All characters in the input text are copied as-is to the output
-    // buffer, with the exception of the escape sequences documented
-    // next.  An escape sequence is a two-character sequence, of which
-    // the first is '.' (dot).  The following escape sequences are
-    // defined:
-    //
-    //      '..'    - will output a single dot
-    //      '.c'    - start LANGUAGE CODE formatting
-    //      '.C'    - stop LANGUAGE CODE formatting
-    //      '.u'    - start UNTRANSLATED WORD formatting
-    //      '.U'    - stop UNTRANSLATED WORD formatting
-    //      '.0'    - insert NO TRANSLATIONS text
-    //
-    // All other escape sequences will be ignored.
-    //
-    private Spannable applyWordMarkup(String text) {
-        SpannableStringBuilder ssb = new SpannableStringBuilder();
-        int languageCodeStart = 0;
-        int untranslatedStart = 0;
+    // Class to use with SimpleCursorAdapter for displaying the word entries.
+    // Note that this inner class is NOT static, since it uses resources from
+    // the outer activity.
+    private class WordViewBinder implements SimpleCursorAdapter.ViewBinder {
+        private long mTimeNow;
 
-        int textLength = text.length();
-        for (int i = 0; i < textLength; i++) {
-            char c = text.charAt(i);
-            if (c == '.') {
-                if (++i < textLength) {
-                    c = text.charAt(i);
-                    if (c == '.') {
-                        ssb.append(c);
-                    } else if (c == 'c') {
-                        languageCodeStart = ssb.length();
-                    } else if (c == 'C') {
-                        ssb.setSpan(new TextAppearanceSpan(BrowseWordsActivity.this,
-                                                           R.style.language_code_tag),
-                                    languageCodeStart, ssb.length(), 0);
-                        languageCodeStart = ssb.length();
-                    } else if (c == 'u') {
-                        untranslatedStart = ssb.length();
-                    } else if (c == 'U') {
-                        ssb.setSpan(new TextAppearanceSpan(BrowseWordsActivity.this,
-                                                           R.style.untranslated_word),
-                                    untranslatedStart, ssb.length(), 0);
-                        untranslatedStart = ssb.length();
-                    } else if (c == '0') {
-                        Resources res = getResources();
-                        ssb.append(res.getString(R.string.no_translations));
-                    }
-                }
-            } else
-                ssb.append(c);
+        public WordViewBinder() {
+            mTimeNow = System.currentTimeMillis() / 1000;
         }
 
-        return ssb;
+        public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+            switch (view.getId()) {
+                case R.id.name:
+                case R.id.translations: {
+                    TextView v = (TextView) view;
+                    String text = cursor.getString(columnIndex);
+                    v.setText(applyWordMarkup(text));
+                    return true;
+                }
+                case R.id.score: {
+                    TextView v = (TextView) view;
+                    v.setText(renderScore(
+                            cursor.getInt(Database.BROWSE_WORDS_LEVEL_TO_COLUMN_ID),
+                            cursor.getInt(Database.BROWSE_WORDS_NEXT_PRACTICE_TO_COLUMN_ID)));
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private Spannable renderScore(int level, long nextPractice) {
+            SpannableStringBuilder ssb = new SpannableStringBuilder();
+
+            final int MAX_STARS = 4;
+            int numStars = Trainer.getNumStars(level, MAX_STARS);
+
+            if (numStars > 0) {
+                for (int i = 0; i < numStars; i++)
+                    ssb.append('\u2605');   // A full star.
+            } else {
+                ssb.append('\u25cb');   // An empty circle.
+            }
+
+            final long ONE_WEEK = 7 * 24 * 60 * 60;
+
+            int style = R.style.score_bad;
+            if (nextPractice >= mTimeNow)
+                style = R.style.score_good;
+            else if (nextPractice >= mTimeNow - ONE_WEEK)
+                style = R.style.score_average;
+
+            ssb.setSpan(new TextAppearanceSpan(BrowseWordsActivity.this, style),
+                        0, ssb.length(), 0);
+
+            return ssb;
+        }
+
+        // This function implements a simple mark-up language for putting
+        // rich-text into the BrowseWordsActivity list.  We implement this
+        // by hand because we want to use SQLite for generating the content
+        // of the two text boxes in the list item (it would be
+        // significantly more complex to generate the list of translations
+        // outside of SQLite, since we would have to issue sub-queries for
+        // each word).  See the SELECT statement in
+        // Database.getBrowseWordsCursor() for how details.
+        //
+        // However, we still want getBrowseWordsCursor() to signal the
+        // presence of special items such as the language code tag or words
+        // without translations.  As such, this simple markup language was
+        // born.
+        //
+        // All characters in the input text are copied as-is to the output
+        // buffer, with the exception of the escape sequences documented
+        // next.  An escape sequence is a two-character sequence, of which
+        // the first is '.' (dot).  The following escape sequences are
+        // defined:
+        //
+        //      '..'    - will output a single dot
+        //      '.c'    - start LANGUAGE CODE formatting
+        //      '.C'    - stop LANGUAGE CODE formatting
+        //      '.u'    - start UNTRANSLATED WORD formatting
+        //      '.U'    - stop UNTRANSLATED WORD formatting
+        //      '.0'    - insert NO TRANSLATIONS text
+        //
+        // All other escape sequences will be ignored.
+        //
+        private Spannable applyWordMarkup(String text) {
+            SpannableStringBuilder ssb = new SpannableStringBuilder();
+            int languageCodeStart = 0;
+            int untranslatedStart = 0;
+
+            int textLength = text.length();
+            for (int i = 0; i < textLength; i++) {
+                char c = text.charAt(i);
+                if (c == '.') {
+                    if (++i < textLength) {
+                        c = text.charAt(i);
+                        if (c == '.') {
+                            ssb.append(c);
+                        } else if (c == 'c') {
+                            languageCodeStart = ssb.length();
+                        } else if (c == 'C') {
+                            ssb.setSpan(new TextAppearanceSpan(BrowseWordsActivity.this,
+                                                               R.style.language_code_tag),
+                                        languageCodeStart, ssb.length(), 0);
+                            languageCodeStart = ssb.length();
+                        } else if (c == 'u') {
+                            untranslatedStart = ssb.length();
+                        } else if (c == 'U') {
+                            ssb.setSpan(new TextAppearanceSpan(BrowseWordsActivity.this,
+                                                               R.style.untranslated_word),
+                                        untranslatedStart, ssb.length(), 0);
+                            untranslatedStart = ssb.length();
+                        } else if (c == '0') {
+                            Resources res = getResources();
+                            ssb.append(res.getString(R.string.no_translations));
+                        }
+                    }
+                } else
+                    ssb.append(c);
+            }
+
+            return ssb;
+        }
     }
 }

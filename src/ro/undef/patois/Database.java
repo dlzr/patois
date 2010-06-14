@@ -229,6 +229,9 @@ public class Database {
 
     public static final String BROWSE_WORDS_NAME_COLUMN = "display_name";
     public static final String BROWSE_WORDS_TRANSLATIONS_COLUMN = "display_translations";
+    public static final String BROWSE_WORDS_LEVEL_TO_COLUMN = "level";
+    public static final int BROWSE_WORDS_LEVEL_TO_COLUMN_ID = 5;
+    public static final int BROWSE_WORDS_NEXT_PRACTICE_TO_COLUMN_ID = 6;
 
     public Cursor getBrowseWordsCursor(Language language, String filter) {
         String pattern = "%" + filter + "%";

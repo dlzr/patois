@@ -16,8 +16,21 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="score">
-        <item name="android:textColor">#666666</item>
+    <style name="score_good">
+        <item name="android:textColor">#006600</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="score_average">
+        <item name="android:textColor">#cc9900</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="score_bad">
+        <item name="android:textColor">#cc0000</item>
+        <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 

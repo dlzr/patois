@@ -85,22 +85,28 @@ public class Trainer {
 
     // The minimum time in seconds between two practices of the same word.
     private static final long[] PRACTICE_INTERVALS = {
-        32656,     // level 0 -- 9 hours
-        86400,     // level 1 -- 24 hours
-        228592,    // level 2 -- 2.6 days
-        604800,    // level 3 -- 7 days
-        1600150,   // level 4 -- 18 days
-        4233600,   // level 5 -- 49 days
-        11201052,  // level 6 -- 129 days
-        29635200,  // level 7 -- 343 days
+        172800,    // level 0 -- 2 days
+        604800,    // level 1 -- 7 days
+        2592000,   // level 2 -- 30 days
+        15552000,  // level 3 -- 180 days
+        31104000,  // level 4 -- 360 days
     };
+    private static final int MAX_LEVEL = PRACTICE_INTERVALS.length - 1;
 
-    private static long getInterval(int level) {
+    private static int clamp(int level) {
         if (level < 0)
             level = 0;
-        if (level >= PRACTICE_INTERVALS.length)
-            level = PRACTICE_INTERVALS.length - 1;
-        return PRACTICE_INTERVALS[level];
+        if (level > MAX_LEVEL)
+            level = MAX_LEVEL;
+        return level;
+    }
+
+    private static long getInterval(int level) {
+        return PRACTICE_INTERVALS[clamp(level)];
+    }
+
+    public static int getNumStars(int level, int maxStars) {
+        return (clamp(level) + 1) * maxStars / (MAX_LEVEL + 1);
     }
 
     public static enum Direction {
