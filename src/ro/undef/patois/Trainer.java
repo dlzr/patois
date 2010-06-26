@@ -1,7 +1,6 @@
 package ro.undef.patois;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 public class Trainer {
     private final static String TAG = "Trainer";
@@ -22,8 +21,8 @@ public class Trainer {
     public Word selectWord(Language language, Direction direction) throws EmptyException {
         ArrayList<Weight> weights = mDb.getWordWeights(language, direction);
         int numWeights = weights.size();
-        int maxWeight = -1;
-        int totalWeight = 0;
+        long maxWeight = -1;
+        long totalWeight = 0;
         for (Weight w : weights) {
             totalWeight += w.weight;
             if (w.weight > maxWeight)
@@ -52,7 +51,7 @@ public class Trainer {
 
         while (numAttempts --> 0) {
             Weight picked = weights.get(mRandom.nextInt(numWeights));
-            int randomWeight = mRandom.nextInt(maxWeight);
+            long randomWeight = mRandom.nextLong(maxWeight);
 
             if (randomWeight < picked.weight)
                 return mDb.getWord(picked.wordId);
@@ -145,9 +144,9 @@ public class Trainer {
     // Lightweight class for storing just a word ID and a weight.
     public static class Weight {
         public long wordId;
-        public int weight;
+        public long weight;
 
-        public Weight(long wordId, int weight) {
+        public Weight(long wordId, long weight) {
             this.wordId = wordId;
             this.weight = weight;
         }

@@ -350,7 +350,7 @@ public class Database {
 
         try {
             while (cursor.moveToNext())
-                weights.add(new Trainer.Weight(cursor.getLong(0), cursor.getInt(1)));
+                weights.add(new Trainer.Weight(cursor.getLong(0), cursor.getLong(1)));
         } finally {
             cursor.close();
         }
