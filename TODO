@@ -15,12 +15,10 @@ EditLanguagesActivity:
 
 BrowseWordsActivity:
   - Show some intro message if there are no words.
-  - [maybe] show some indication about the words' scores (e.g.
-    '★★☆☆/★★★☆', or a color-coded rectangle, etc.)
   - BUG: sort by score only takes into account PRACTICE_TO_FOREIGN
 
 EditWordActivity:
-  - [no known bugs or missing features]
+  - BUG: when autocompleting, typing "al" doesn't match "all" or "alle".
 
 ViewWordActivity:
   - Implement me.
@@ -29,13 +27,17 @@ ViewWordActivity:
     - date added
 
 PracticeActivity:
+  - BUG: When editing the word from PracticeActivity, return to the same
+    word in the same PracticeActivity, instead of returning to the
+    MainActivity.
+  - Rephrase message when there are no words for practice.
+  - Show word score in PracticeActivity.
   - Add animations when showing the answer.
   - [wish] When practicing "to Foreign", the foreign word should show up
     under the native translations.
 
 Trainer:
-  - [2.0] Should take time into account when selecting words: old words
-    should also be selected every once in a while, for "refreshing".
+  - Don't ask recently failed words.
 
 Database:
   - [2.0] Have different scores for "to foreign" and "from foreign"
