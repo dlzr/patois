@@ -15,10 +15,10 @@ EditLanguagesActivity:
 
 BrowseWordsActivity:
   - Show some intro message if there are no words.
-  - BUG: sort by score only takes into account PRACTICE_TO_FOREIGN
 
 EditWordActivity:
   - BUG: when autocompleting, typing "al" doesn't match "all" or "alle".
+  - Focus the 'name' field when adding a new translation.
 
 ViewWordActivity:
   - Implement me.
@@ -38,10 +38,10 @@ PracticeActivity:
 
 Trainer:
   - Don't ask recently failed words.
+  - Randomize the next_practice time by at most a day.
 
 Database:
-  - [2.0] Have different scores for "to foreign" and "from foreign"
-    practices?
+  - [OK]
 
 General:
   - Add unit tests.
