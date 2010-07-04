@@ -472,7 +472,7 @@ public class Database {
                                       "level" + direction.getSuffix(),
                                       "next_practice" + direction.getSuffix(),
                                   },
-                                  "word_id == ?",
+                                  "_id == ?",
                                   new String[] { word.getIdString() },
                                   null, null, null);
         try {
