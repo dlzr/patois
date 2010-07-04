@@ -44,25 +44,25 @@ CREATE TABLE words (
     -- The number of translations for this word.
     num_translations INTEGER NOT NULL DEFAULT 0,
     -- The UNIX timestamp in UTC when the word was first added to the database.
-    timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
+    timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
+    -- How well the word is known (the higher, the better) when translating
+    -- from this word to its synonyms.  This dictates how to increment the
+    -- next_practice timestamp.
+    level_from INTEGER NOT NULL,
+    -- When is the earliest time to show this word for practice, when
+    -- translating from this word to its synonyms.
+    next_practice_from INTEGER NOT NULL,
+    -- Same as level_from, but when translating from synonyms to this word.
+    level_to INTEGER NOT NULL,
+    -- Same as next_practice_from, but when translating from synonyms to this
+    -- word.
+    next_practice_to INTEGER NOT NULL
 );
 
 CREATE TABLE translations (
     word_id1 INTEGER NOT NULL,
     word_id2 INTEGER NOT NULL,
     UNIQUE(word_id1, word_id2)
-);
-
-CREATE TABLE practice_info (
-    word_id INTEGER NOT NULL,
-    -- The direction for which this scoring information applies:
-    -- 0 - "from"; 1 - "to".
-    direction INTEGER NOT NULL,
-    -- How well the word is known (the higher, the better).  This dictates how
-    -- to increment the next_practice timestamp.
-    level INTEGER NOT NULL,
-    -- When is the earliest time to show this word for practice.
-    next_practice INTEGER NOT NULL
 );
 
 CREATE TABLE practice_log (
@@ -143,7 +143,5 @@ CREATE TRIGGER count_translations_on_delete DELETE ON translations
 CREATE TRIGGER delete_practice_info_when_deleting_word DELETE ON words
     BEGIN
         DELETE FROM practice_log
-            WHERE word_id = OLD._id;
-        DELETE FROM practice_info
             WHERE word_id = OLD._id;
     END;

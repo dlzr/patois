@@ -42,7 +42,7 @@ public class BrowseWordsActivity extends ListActivity {
                     Database.BROWSE_WORDS_NAME_COLUMN,
                     Database.BROWSE_WORDS_TRANSLATIONS_COLUMN,
                     // Never used: WordViewBinder accesses the cursor directly.
-                    Database.BROWSE_WORDS_LEVEL_TO_COLUMN,
+                    Database.BROWSE_WORDS_DUMMY_SCORE_COLUMN,
                 },
                 new int[] {
                     R.id.name,
@@ -206,6 +206,8 @@ public class BrowseWordsActivity extends ListActivity {
                 case R.id.score: {
                     TextView v = (TextView) view;
                     v.setText(renderScore(
+                            cursor.getInt(Database.BROWSE_WORDS_LEVEL_FROM_COLUMN_ID),
+                            cursor.getInt(Database.BROWSE_WORDS_NEXT_PRACTICE_FROM_COLUMN_ID),
                             cursor.getInt(Database.BROWSE_WORDS_LEVEL_TO_COLUMN_ID),
                             cursor.getInt(Database.BROWSE_WORDS_NEXT_PRACTICE_TO_COLUMN_ID)));
                     return true;
@@ -214,17 +216,28 @@ public class BrowseWordsActivity extends ListActivity {
             return false;
         }
 
-        private Spannable renderScore(int level, long nextPractice) {
+        private Spannable renderScore(int levelFrom, long nextPracticeFrom,
+                                      int levelTo, long nextPracticeTo) {
             SpannableStringBuilder ssb = new SpannableStringBuilder();
 
+            renderStarsTo(ssb, levelFrom, nextPracticeFrom);
+            ssb.append('\n');
+            renderStarsTo(ssb, levelTo, nextPracticeTo);
+
+            return ssb;
+        }
+
+        private Spannable renderStarsTo(SpannableStringBuilder ssb,
+                                        int level, long nextPractice) {
             final int MAX_STARS = 4;
             int numStars = Trainer.getNumStars(level, MAX_STARS);
+            int start = ssb.length();
 
             if (numStars > 0) {
                 for (int i = 0; i < numStars; i++)
                     ssb.append('\u2605');   // A full star.
             } else {
-                ssb.append('\u25cb');   // An empty circle.
+                ssb.append('\u25cf');   // A full circle.
             }
 
             final long ONE_WEEK = 7 * 24 * 60 * 60;
@@ -236,7 +249,7 @@ public class BrowseWordsActivity extends ListActivity {
                 style = R.style.score_average;
 
             ssb.setSpan(new TextAppearanceSpan(BrowseWordsActivity.this, style),
-                        0, ssb.length(), 0);
+                        start, ssb.length(), 0);
 
             return ssb;
         }

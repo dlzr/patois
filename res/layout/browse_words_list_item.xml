@@ -2,41 +2,40 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     >
 
     <LinearLayout
-        android:layout_width="fill_parent"
+        android:layout_width="0px"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
+        android:layout_weight="1"
+        android:orientation="vertical"
         >
 
         <TextView android:id="@+id/name"
             android:textAppearance="@style/main_word"
-            android:layout_width="0px"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginLeft="8dip"
             android:layout_marginRight="8dip"
             />
 
-        <TextView android:id="@+id/score"
-            android:layout_width="wrap_content"
-            android:layout_height="fill_parent"
-            android:gravity="top|right"
-            android:layout_marginTop="8dip"
+        <TextView android:id="@+id/translations"
+            android:textAppearance="@style/translations"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dip"
             android:layout_marginRight="8dip"
+            android:layout_marginBottom="8dip"
             />
 
     </LinearLayout>
 
-    <TextView android:id="@+id/translations"
-        android:textAppearance="@style/translations"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dip"
+    <TextView android:id="@+id/score"
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:gravity="top|right"
         android:layout_marginRight="8dip"
-        android:layout_marginBottom="8dip"
         />
 
 </LinearLayout>

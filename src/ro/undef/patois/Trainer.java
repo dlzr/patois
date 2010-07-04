@@ -109,19 +109,21 @@ public class Trainer {
     }
 
     public static enum Direction {
-        FROM_FOREIGN(0, "ro.undef.patois.intent.action.TRANSLATE_FROM_FOREIGN"),
-        TO_FOREIGN(1, "ro.undef.patois.intent.action.TRANSLATE_TO_FOREIGN");
+        FROM_FOREIGN(0, "_from", "ro.undef.patois.intent.action.TRANSLATE_FROM_FOREIGN"),
+        TO_FOREIGN(1, "_to", "ro.undef.patois.intent.action.TRANSLATE_TO_FOREIGN");
 
         private final int mValue;
+        private final String mSuffix;
         private final String mAction;
 
-        Direction(int value, String action) {
+        Direction(int value, String suffix, String action) {
             mValue = value;
+            mSuffix = suffix;
             mAction = action;
         }
 
         public int getValue() { return mValue; }
-        public String getValueString() { return Integer.toString(mValue); }
+        public String getSuffix() { return mSuffix; }
         public String getAction() { return mAction; }
 
         public static Direction fromValue(int value) {
