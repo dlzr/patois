@@ -341,13 +341,15 @@ public class Database {
                 "SELECT " +
                 "    _id, " +
                 "    strftime('%s', 'now') - next_practice" + direction.getSuffix() +
-                "       AS weight " +
+                "        AS weight " +
                 "  FROM " +
                 "    words " +
                 "  WHERE " +
                 "    language_id == ? AND " +
                 "    weight > 0 AND " +
-                "    num_translations > 0 ",
+                "    num_translations > 0 AND " +
+                "    last_practice" + direction.getSuffix() +
+                "        < strftime('%s', 'now') - 3600 ",
                 new String[] {
                     language.getIdString(),
                 });
@@ -489,6 +491,7 @@ public class Database {
     public boolean updatePracticeInfo(Word word, Trainer.PracticeInfo info) {
         ContentValues values = new ContentValues();
         values.put("level" + info.direction.getSuffix(), info.level);
+        values.put("last_practice" + info.direction.getSuffix(), System.currentTimeMillis() / 1000);
         values.put("next_practice" + info.direction.getSuffix(), info.next_practice);
 
         return mDb.update("words", values, "_id == ?",

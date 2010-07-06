@@ -46,16 +46,20 @@ CREATE TABLE words (
     -- The UNIX timestamp in UTC when the word was first added to the database.
     timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now')),
     -- How well the word is known (the higher, the better) when translating
-    -- from this word to its synonyms.  This dictates how to increment the
-    -- next_practice timestamp.
+    -- from this word to its synonyms (the "from" direction).  This dictates
+    -- how to increment the next_practice timestamp.
     level_from INTEGER NOT NULL,
-    -- When is the earliest time to show this word for practice, when
-    -- translating from this word to its synonyms.
+    -- When was the last time this word was up for practice in the "from"
+    -- direction.
+    last_practice_from INTEGER NOT NULL DEFAULT 0,
+    -- When is the earliest time to show this word for practice, in the "from"
+    -- direction.
     next_practice_from INTEGER NOT NULL,
     -- Same as level_from, but when translating from synonyms to this word.
     level_to INTEGER NOT NULL,
-    -- Same as next_practice_from, but when translating from synonyms to this
-    -- word.
+    -- Same as last_practice_from, but in the "to" direction.
+    last_practice_to INTEGER NOT NULL DEFAULT 0,
+    -- Same as next_practice_from, but in the "to" direction.
     next_practice_to INTEGER NOT NULL
 );
 
