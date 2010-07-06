@@ -15,6 +15,8 @@ EditLanguagesActivity:
 
 BrowseWordsActivity:
   - Show some intro message if there are no words.
+  - Find a different 'full circle' unicode char, one that's the same
+    width as the star.
 
 EditWordActivity:
   - BUG: when autocompleting, typing "al" doesn't match "all" or "alle".
@@ -40,8 +42,8 @@ PracticeActivity:
     under the native translations.
 
 Trainer:
-  - Don't ask recently failed words.
   - Randomize the next_practice time by at most a day.
+  - Fix the delay in the first training, it's currently too long.
 
 Database:
   - [OK]
