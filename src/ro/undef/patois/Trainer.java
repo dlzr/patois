@@ -84,11 +84,11 @@ public class Trainer {
 
     // The minimum time in seconds between two practices of the same word.
     private static final long[] PRACTICE_INTERVALS = {
-        172800,    // level 0 -- 2 days
-        604800,    // level 1 -- 7 days
-        2592000,   // level 2 -- 30 days
-        15552000,  // level 3 -- 180 days
-        31104000,  // level 4 -- 360 days
+          6 * 60 * 60,        // level 0 -- 6 hours
+          2 * 24 * 60 * 60,   // level 1 -- 2 days
+          7 * 24 * 60 * 60,   // level 2 -- 7 days
+         30 * 24 * 60 * 60,   // level 3 -- 30 days
+        180 * 24 * 60 * 60,   // level 4 -- 180 days
     };
     private static final int MAX_LEVEL = PRACTICE_INTERVALS.length - 1;
 

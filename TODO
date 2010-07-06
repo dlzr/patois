@@ -43,7 +43,6 @@ PracticeActivity:
 
 Trainer:
   - Randomize the next_practice time by at most a day.
-  - Fix the delay in the first training, it's currently too long.
 
 Database:
   - [OK]
