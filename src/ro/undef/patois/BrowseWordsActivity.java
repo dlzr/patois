@@ -237,7 +237,7 @@ public class BrowseWordsActivity extends ListActivity {
                 for (int i = 0; i < numStars; i++)
                     ssb.append('\u2605');   // A full star.
             } else {
-                ssb.append('\u25cf');   // A full circle.
+                ssb.append('\u2666');   // A full diamond.
             }
 
             final long ONE_WEEK = 7 * 24 * 60 * 60;

@@ -15,8 +15,6 @@ EditLanguagesActivity:
 
 BrowseWordsActivity:
   - Show some intro message if there are no words.
-  - Find a different 'full circle' unicode char, one that's the same
-    width as the star.
 
 EditWordActivity:
   - BUG: when autocompleting, typing "al" doesn't match "all" or "alle".
