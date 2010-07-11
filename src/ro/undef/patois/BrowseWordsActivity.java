@@ -188,10 +188,13 @@ public class BrowseWordsActivity extends ListActivity {
     // Note that this inner class is NOT static, since it uses resources from
     // the outer activity.
     private class WordViewBinder implements SimpleCursorAdapter.ViewBinder {
-        private long mTimeNow;
+        private ScoreRenderer mScoreRenderer;
 
         public WordViewBinder() {
-            mTimeNow = System.currentTimeMillis() / 1000;
+            mScoreRenderer = new ScoreRenderer(BrowseWordsActivity.this,
+                                               R.style.browse_score_good,
+                                               R.style.browse_score_average,
+                                               R.style.browse_score_bad);
         }
 
         public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
@@ -205,7 +208,7 @@ public class BrowseWordsActivity extends ListActivity {
                 }
                 case R.id.score: {
                     TextView v = (TextView) view;
-                    v.setText(renderScore(
+                    v.setText(mScoreRenderer.renderScores(
                             cursor.getInt(Database.BROWSE_WORDS_LEVEL_FROM_COLUMN_ID),
                             cursor.getInt(Database.BROWSE_WORDS_NEXT_PRACTICE_FROM_COLUMN_ID),
                             cursor.getInt(Database.BROWSE_WORDS_LEVEL_TO_COLUMN_ID),
@@ -214,44 +217,6 @@ public class BrowseWordsActivity extends ListActivity {
                 }
             }
             return false;
-        }
-
-        private Spannable renderScore(int levelFrom, long nextPracticeFrom,
-                                      int levelTo, long nextPracticeTo) {
-            SpannableStringBuilder ssb = new SpannableStringBuilder();
-
-            renderStarsTo(ssb, levelFrom, nextPracticeFrom);
-            ssb.append('\n');
-            renderStarsTo(ssb, levelTo, nextPracticeTo);
-
-            return ssb;
-        }
-
-        private Spannable renderStarsTo(SpannableStringBuilder ssb,
-                                        int level, long nextPractice) {
-            final int MAX_STARS = 4;
-            int numStars = Trainer.getNumStars(level, MAX_STARS);
-            int start = ssb.length();
-
-            if (numStars > 0) {
-                for (int i = 0; i < numStars; i++)
-                    ssb.append('\u2605');   // A full star.
-            } else {
-                ssb.append('\u2666');   // A full diamond.
-            }
-
-            final long ONE_WEEK = 7 * 24 * 60 * 60;
-
-            int style = R.style.score_bad;
-            if (nextPractice >= mTimeNow)
-                style = R.style.score_good;
-            else if (nextPractice >= mTimeNow - ONE_WEEK)
-                style = R.style.score_average;
-
-            ssb.setSpan(new TextAppearanceSpan(BrowseWordsActivity.this, style),
-                        start, ssb.length(), 0);
-
-            return ssb;
         }
 
         // This function implements a simple mark-up language for putting
