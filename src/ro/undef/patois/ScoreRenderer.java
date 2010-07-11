@@ -20,9 +20,9 @@ public class ScoreRenderer {
         mTimeNow = System.currentTimeMillis() / 1000;
     }
 
-    public Spannable renderScore(int level, long nextPractice) {
+    public Spannable renderScore(Trainer.PracticeInfo info) {
         SpannableStringBuilder ssb = new SpannableStringBuilder();
-        renderStarsTo(ssb, level, nextPractice);
+        renderStarsTo(ssb, info.level, info.nextPractice);
         return ssb;
     }
 

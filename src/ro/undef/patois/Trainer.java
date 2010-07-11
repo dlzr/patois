@@ -67,8 +67,8 @@ public class Trainer {
         PracticeInfo info = mDb.getPracticeInfo(word, direction);
 
         if (successful) {
-            info.next_practice = scheduleNextPractice(System.currentTimeMillis() / 1000,
-                                                      info.level);
+            info.nextPractice = scheduleNextPractice(System.currentTimeMillis() / 1000,
+                                                     info.level);
             info.level++;
         } else {
             info.level = 0;
@@ -157,12 +157,12 @@ public class Trainer {
     public static class PracticeInfo {
         public Direction direction;
         public int level;
-        public long next_practice;
+        public long nextPractice;
 
-        public PracticeInfo(Direction direction, int level, long next_practice) {
+        public PracticeInfo(Direction direction, int level, long nextPractice) {
             this.direction = direction;
             this.level = level;
-            this.next_practice = next_practice;
+            this.nextPractice = nextPractice;
         }
     }
 

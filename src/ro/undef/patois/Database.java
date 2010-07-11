@@ -383,16 +383,16 @@ public class Database {
     public boolean insertWord(Word word) {
         final int level = 0;
         final long timestamp = System.currentTimeMillis() / 1000;
-        final long next_practice = Trainer.scheduleNextPractice(timestamp, level);
+        final long nextPractice = Trainer.scheduleNextPractice(timestamp, level);
 
         ContentValues values = new ContentValues();
         values.put("name", word.getName());
         values.put("language_id", word.getLanguage().getId());
         values.put("timestamp", timestamp);
         values.put("level_from", level);
-        values.put("next_practice_from", next_practice);
+        values.put("next_practice_from", nextPractice);
         values.put("level_to", level);
-        values.put("next_practice_to", next_practice);
+        values.put("next_practice_to", nextPractice);
 
         long id = mDb.insert("words", null, values);
         word.setId(id);
@@ -492,7 +492,7 @@ public class Database {
         ContentValues values = new ContentValues();
         values.put("level" + info.direction.getSuffix(), info.level);
         values.put("last_practice" + info.direction.getSuffix(), System.currentTimeMillis() / 1000);
-        values.put("next_practice" + info.direction.getSuffix(), info.next_practice);
+        values.put("next_practice" + info.direction.getSuffix(), info.nextPractice);
 
         return mDb.update("words", values, "_id == ?",
                           new String[] { word.getIdString() }) == 1;

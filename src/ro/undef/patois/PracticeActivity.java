@@ -115,6 +115,14 @@ public class PracticeActivity extends Activity {
         setContentView(R.layout.practice_activity);
 
         mInflater = getLayoutInflater();
+
+        ScoreRenderer scoreRenderer = new ScoreRenderer(this,
+                                                        R.style.practice_score_good,
+                                                        R.style.practice_score_average,
+                                                        R.style.practice_score_bad);
+        TextView scoreView = (TextView) findViewById(R.id.score);
+        scoreView.setText(scoreRenderer.renderScore(mDb.getPracticeInfo(mWord, mDirection)));
+
         mWordPanel = (ViewGroup) findViewById(R.id.word_panel);
 
         if (mState == STATE_ANSWER || mDirection == Trainer.Direction.FROM_FOREIGN)

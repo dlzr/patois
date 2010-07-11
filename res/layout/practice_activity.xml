@@ -12,6 +12,15 @@
         android:layout_height="fill_parent"
         >
 
+        <TextView android:id="@+id/score"
+            android:textAppearance="@style/practice_score"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dip"
+            android:layout_marginRight="8dip"
+            android:gravity="right"
+            />
+
         <!-- The word_panel layout contains the word entries. -->
         <LinearLayout android:id="@+id/word_panel"
             android:orientation="vertical"

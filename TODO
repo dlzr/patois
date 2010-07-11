@@ -34,7 +34,6 @@ PracticeActivity:
     This takes a lot of time (~400ms) currently, and introduces a
     visible lag in the UI.
   - Rephrase message when there are no words for practice.
-  - Show word score in PracticeActivity.
   - Add animations when showing the answer.
   - [wish] When practicing "to Foreign", the foreign word should show up
     under the native translations.
