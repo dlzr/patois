@@ -318,6 +318,12 @@ language_search:
                             mLanguageListener = null;
                         }
                     }, "name")
+                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        public void onCancel(DialogInterface dialog) {
+                            mLanguageListener.cancelSetLanguage();
+                            mLanguageListener = null;
+                        }
+                    })
                     .create();
         }
         return null;
@@ -495,6 +501,10 @@ language_search:
         public void setLanguage(Language language) {
             mWord.setLanguage(language);
             mLanguageButton.setText(mWord.getLanguage().getCode());
+            mHasLanguageDialogOpen = false;
+        }
+
+        public void cancelSetLanguage() {
             mHasLanguageDialogOpen = false;
         }
 
