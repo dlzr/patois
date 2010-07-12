@@ -5,6 +5,7 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.TextAppearanceSpan;
 
+
 public class ScoreRenderer {
     private Context mContext;
     private int mStyleGood;
