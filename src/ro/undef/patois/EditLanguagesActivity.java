@@ -1,6 +1,9 @@
 package ro.undef.patois;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +19,8 @@ import java.util.ArrayList;
 public class EditLanguagesActivity extends Activity {
     private final static String TAG = "EditLanguagesActivity";
 
+    private static final int CONFIRM_DELETE_DIALOG = 1;
+
     private Database mDb;
 
     private LinearLayout mLanguagesLayout;
@@ -23,6 +28,7 @@ public class EditLanguagesActivity extends Activity {
     private View mAddButton;
     private View mDoneButton;
     private View mCancelButton;
+    private LanguageEntry mEntryToDelete;
 
     // These fields are saved across restarts.
     private ArrayList<LanguageEntry> mLanguageEntries;
@@ -57,6 +63,8 @@ public class EditLanguagesActivity extends Activity {
             entries.add(new LanguageEntry(language));
         mLanguageEntries = entries;
 
+        mEntryToDelete = null;
+
         mAddButtonHasFocus = false;
         mDoneButtonHasFocus = false;
         mCancelButtonHasFocus = false;
@@ -72,6 +80,9 @@ public class EditLanguagesActivity extends Activity {
     private void loadStateFromBundle(Bundle savedInstanceState) {
         mLanguageEntries = (ArrayList<LanguageEntry>)
             savedInstanceState.getSerializable("languages");
+
+        mEntryToDelete = null;
+
         mAddButtonHasFocus = savedInstanceState.getBoolean("add_language");
         mDoneButtonHasFocus = savedInstanceState.getBoolean("done");
         mCancelButtonHasFocus = savedInstanceState.getBoolean("cancel");
@@ -94,8 +105,11 @@ public class EditLanguagesActivity extends Activity {
         LayoutInflater inflater = mInflater = getLayoutInflater();
         LinearLayout layout = mLanguagesLayout = (LinearLayout) findViewById(R.id.languages);
         layout.removeAllViews();
-        for (LanguageEntry entry : mLanguageEntries)
-            entry.addViewToList(layout, inflater);
+        for (LanguageEntry entry : mLanguageEntries) {
+            entry.addViewToList(this, layout, inflater);
+            if (entry.hasConfirmDeleteDialogOpen())
+                mEntryToDelete = entry;
+        }
 
         mAddButton = findViewById(R.id.add_language);
         mAddButton.setOnClickListener(new View.OnClickListener() {
@@ -129,7 +143,7 @@ public class EditLanguagesActivity extends Activity {
     private void addNewLanguage() {
         LanguageEntry entry = new LanguageEntry();
         mLanguageEntries.add(entry);
-        entry.addViewToList(mLanguagesLayout, mInflater);
+        entry.addViewToList(this, mLanguagesLayout, mInflater);
     }
 
     @Override
@@ -144,6 +158,59 @@ public class EditLanguagesActivity extends Activity {
         return super.onKeyDown(keyCode, event);
     }
 
+    private void showConfirmDeleteDialog(LanguageEntry entryToDelete) {
+        mEntryToDelete = entryToDelete;
+        showDialog(CONFIRM_DELETE_DIALOG);
+    }
+
+    private void cancelConfirmDeleteDialog() {
+        // We don't want the activity to cache this dialog.
+        // See above for details.
+        removeDialog(CONFIRM_DELETE_DIALOG);
+        mEntryToDelete.cancelDelete();
+        mEntryToDelete = null;
+    }
+
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+            case CONFIRM_DELETE_DIALOG: {
+                return new AlertDialog.Builder(this)
+                    .setTitle(R.string.confirm_delete)
+                    .setMessage(String.format(getResources().getString(R.string.language_not_empty),
+                                              mEntryToDelete.getLanguage().getNumWords(),
+                                              mEntryToDelete.getLanguage().getName()))
+                    .setPositiveButton(R.string.yes,
+                                       new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            // We don't want the activity to cache this dialog
+                            // so we call removeDialog() explicitly.  If this
+                            // dialog were to be cached, the activity would
+                            // call onCreateDialog() when resuming from
+                            // configuration changes, and mEntryToDelete could
+                            // be null at that point, leading to a
+                            // NullPointerException in the setup code above.
+                            removeDialog(CONFIRM_DELETE_DIALOG);
+                            mEntryToDelete.markAsDeleted();
+                            mEntryToDelete = null;
+                        }
+                    })
+                    .setNegativeButton(R.string.no,
+                                       new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            cancelConfirmDeleteDialog();
+                        }
+                    })
+                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        public void onCancel(DialogInterface dialog) {
+                            cancelConfirmDeleteDialog();
+                        }
+                    })
+                    .create();
+            }
+        }
+        return null;
+    }
 
     private static class LanguageEntry implements Serializable {
         private Language mLanguage;
@@ -154,7 +221,9 @@ public class EditLanguagesActivity extends Activity {
         private int mNameSelectionStart;
         private int mNameSelectionEnd;
         private boolean mDeleteButtonHasFocus;
+        private boolean mHasConfirmDeleteDialogOpen;
 
+        transient private EditLanguagesActivity mActivity;
         transient private View mView;
         transient private EditText mCodeEditText;
         transient private EditText mNameEditText;
@@ -169,22 +238,33 @@ public class EditLanguagesActivity extends Activity {
             mNameSelectionEnd = -1;
             mNameSelectionEnd = -1;
             mDeleteButtonHasFocus = false;
+            mHasConfirmDeleteDialogOpen = false;
         }
 
         public LanguageEntry() {
             this(new Language());
         }
 
-        public void addViewToList(LinearLayout parent, LayoutInflater inflater) {
+        public Language getLanguage() {
+            return mLanguage;
+        }
+
+        public boolean hasConfirmDeleteDialogOpen() {
+            return mHasConfirmDeleteDialogOpen;
+        }
+
+        public void addViewToList(final EditLanguagesActivity activity,
+                                  LinearLayout parent, LayoutInflater inflater) {
             if (mDeleted)
                 return;
 
             View view = inflater.inflate(R.layout.edit_language_entry, parent, false);
-            setupView(view);
+            setupView(activity, view);
             parent.addView(view);
         }
 
-        public void setupView(View view) {
+        private void setupView(final EditLanguagesActivity activity, View view) {
+            mActivity = activity;
             mView = view;
 
             mCodeEditText = (EditText) view.findViewById(R.id.code);
@@ -204,7 +284,12 @@ public class EditLanguagesActivity extends Activity {
             mDeleteButton = view.findViewById(R.id.delete);
             mDeleteButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    markAsDeleted();
+                    if (mLanguage.getNumWords() > 0) {
+                        mHasConfirmDeleteDialogOpen = true;
+                        mActivity.showConfirmDeleteDialog(LanguageEntry.this);
+                    } else {
+                        markAsDeleted();
+                    }
                 }
             });
             if (mDeleteButtonHasFocus)
@@ -241,12 +326,15 @@ public class EditLanguagesActivity extends Activity {
             mDeleteButtonHasFocus = mDeleteButton.hasFocus();
         }
 
-        private void markAsDeleted() {
-            // TODO: Count the number of words in this language, and if not
-            // zero, ask the user to confirm the deletion.
+        public void markAsDeleted() {
             LinearLayout parent = (LinearLayout) mView.getParent();
             parent.removeView(mView);
             mDeleted = true;
+            mHasConfirmDeleteDialogOpen = false;
+        }
+
+        public void cancelDelete() {
+            mHasConfirmDeleteDialogOpen = false;
         }
 
         public void saveToDatabase(Database db) {

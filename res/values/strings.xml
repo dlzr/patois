@@ -30,6 +30,8 @@
     <string name="language_name">Language name</string>
     <string name="done">Done</string>
     <string name="cancel">Cancel</string>
+    <string name="confirm_delete">Confirm delete</string>
+    <string name="language_not_empty">There are %1$s words defined in %2$s.  Are you sure you want to remove it?</string>
 
     <!-- Strings in the "browse words" activity. -->
     <string name="no_translations">No translations</string>
