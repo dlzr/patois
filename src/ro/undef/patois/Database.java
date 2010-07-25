@@ -514,13 +514,13 @@ public class Database {
             //   2. Copy the database file using an external tool.
             //   3. Relinquish the shared lock on the database file.
             //
-            // This is step 1. from above, since beginTransaction() acquires an
-            // EXCLUSIVE lock, which is stronger than SHARED.
-            mDb.beginTransaction();
+            // This is step 1. from above: obtain a RESERVED lock, which is
+            // stronger than SHARED.
+            mDb.execSQL("BEGIN IMMEDIATE TRANSACTION;");
         }
 
         public void release() {
-            mDb.endTransaction();
+            mDb.execSQL("END TRANSACTION;");
             mDb.close();
         }
     }
