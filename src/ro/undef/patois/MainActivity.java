@@ -86,6 +86,14 @@ public class MainActivity extends Activity {
         return false;
     }
 
+    private void cancelConfirmOverwriteDialog() {
+        // We don't want the activity to cache this dialog.
+        // See above for details.
+        removeDialog(CONFIRM_OVERWRITE_DIALOG);
+        mExportTask = null;
+        showDialog(EXPORT_DATABASE_DIALOG);
+    }
+
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
@@ -153,17 +161,20 @@ public class MainActivity extends Activity {
                     .setNegativeButton(R.string.no,
                                        new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            // We don't want the activity to cache this dialog.
-                            // See above for details.
-                            removeDialog(CONFIRM_OVERWRITE_DIALOG);
-                            mExportTask = null;
-                            showDialog(EXPORT_DATABASE_DIALOG);
+                            cancelConfirmOverwriteDialog();
+                        }
+                    })
+                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        public void onCancel(DialogInterface dialog) {
+                            cancelConfirmOverwriteDialog();
                         }
                     })
                     .create();
             }
             case EXPORT_DATABASE_PROGRESS: {
                 ProgressDialog dialog = new ProgressDialog(this);
+                // TODO: Maybe we should support canceling the export operation.
+                dialog.setCancelable(false);
                 dialog.setMessage(
                         String.format(getResources().getString(R.string.exporting_database),
                                       mExportTask.getFileName()));
