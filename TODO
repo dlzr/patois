@@ -4,11 +4,13 @@ IntroActivity:
   - Offer database import function.
 
 MainActivity:
+  - BUG: Add OnCancelListeners to all dialogs!!!
   - Add "About" dialog.
   - [2.0?] Remove this activity?  Replace it with
     BrowseWordsActivity?
 
 EditLanguagesActivity:
+  - BUG: Don't add empty languages.
   - When deleting a language, first check that there are no words
     defined in that language.  If this is not true, ask the user for
     confirmation.
@@ -30,6 +32,8 @@ PracticeActivity:
   - BUG: When editing the word from PracticeActivity, return to the same
     word in the same PracticeActivity, instead of returning to the
     MainActivity.
+  - Fix layout to not display the language tag outside the screen for
+    long words.
   - Rewrite PracticeActivity to not restart itself for each new word.
     This takes a lot of time (~400ms) currently, and introduces a
     visible lag in the UI.
