@@ -4,10 +4,10 @@ IntroActivity:
   - Offer database import function.
 
 MainActivity:
-  - BUG: Add OnCancelListeners to all dialogs!!!
   - Add "About" dialog.
-  - [2.0?] Remove this activity?  Replace it with
-    BrowseWordsActivity?
+  - Redesign the layout to include more information:
+    - the number of words in the active language
+    - the average score of the words.
 
 EditLanguagesActivity:
   - BUG: Don't add empty languages.
