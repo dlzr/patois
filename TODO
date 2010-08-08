@@ -14,6 +14,7 @@ EditLanguagesActivity:
 
 BrowseWordsActivity:
   - Show some intro message if there are no words.
+  - Add settings for toggling score visibility (to/from/both/none).
 
 EditWordActivity:
   - BUG: when autocompleting, typing "al" doesn't match "all" or "alle".
@@ -28,6 +29,8 @@ PracticeActivity:
   - BUG: When editing the word from PracticeActivity, return to the same
     word in the same PracticeActivity, instead of returning to the
     MainActivity.
+      - Make sure to handle deletions from the EditWordActivity when
+        returning.
   - Rewrite PracticeActivity to not restart itself for each new word.
     This takes a lot of time (~400ms) currently, and introduces a
     visible lag in the UI.
@@ -44,6 +47,8 @@ Database:
 
 General:
   - Add unit tests.
+  - Add settings for the practice intervals.
+  - [wish] Add flag for "uncertain" words.
 
 __________________________
 
