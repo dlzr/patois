@@ -340,12 +340,17 @@ public class EditLanguagesActivity extends Activity {
         public void saveToDatabase(Database db) {
             syncFromView();
 
-            if (mLanguage.isNew() && !mDeleted) {
-                db.insertLanguage(mLanguage);
-            } else if (mModified && !mDeleted) {
-                db.updateLanguage(mLanguage);
-            } else if (mDeleted) {
-                db.deleteLanguage(mLanguage);
+            if (!mDeleted) {
+                if (mLanguage.isInDatabase()) {
+                    if (mModified)
+                        db.updateLanguage(mLanguage);
+                } else {
+                    if (!mLanguage.isEmpty())
+                        db.insertLanguage(mLanguage);
+                }
+            } else {
+                if (mLanguage.isInDatabase())
+                    db.deleteLanguage(mLanguage);
             }
         }
 

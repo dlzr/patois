@@ -48,8 +48,12 @@ public class Language implements Serializable {
         return result ;
     }
 
-    public boolean isNew() {
-        return mId == -1;
+    public boolean isInDatabase() {
+        return mId != -1;
+    }
+
+    public boolean isEmpty() {
+        return (mCode.length() == 0) && (mName.length() == 0);
     }
 
     // Required for the Serializable interface.

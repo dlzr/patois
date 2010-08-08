@@ -10,7 +10,7 @@ MainActivity:
     - the average score of the words.
 
 EditLanguagesActivity:
-  - BUG: Don't add empty languages.
+  - [OK]
 
 BrowseWordsActivity:
   - Show some intro message if there are no words.
