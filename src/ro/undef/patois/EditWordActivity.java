@@ -228,6 +228,7 @@ public class EditWordActivity extends Activity {
         TranslationEntry entry = new TranslationEntry(pickTranslationLanguage());
         mTranslationEntries.add(entry);
         entry.addViewToList(this, mTranslationsLayout, mInflater);
+        entry.requestFocus();
     }
 
     private void reloadTranslations(Word mainWord) {
@@ -468,6 +469,10 @@ language_search:
             // disable the autocompletion.
             disableAutocompletion();
             mActivity.reloadTranslations(mWord);
+        }
+
+        public void requestFocus() {
+            mNameEditText.requestFocus();
         }
 
         public void syncFromView() {

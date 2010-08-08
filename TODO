@@ -17,7 +17,6 @@ BrowseWordsActivity:
 
 EditWordActivity:
   - BUG: when autocompleting, typing "al" doesn't match "all" or "alle".
-  - Focus the 'name' field when adding a new translation.
 
 ViewWordActivity:
   - Implement me.
