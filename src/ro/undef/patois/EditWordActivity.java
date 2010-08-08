@@ -67,7 +67,7 @@ public class EditWordActivity extends Activity {
             resetState();
         }
 
-        setupViews();
+        setupViews(intent.getAction());
     }
 
     @Override
@@ -165,7 +165,7 @@ public class EditWordActivity extends Activity {
         outState.putBoolean("cancel", mCancelButton.hasFocus());
     }
 
-    private void setupViews() {
+    private void setupViews(String action) {
         setContentView(R.layout.edit_word);
 
         mMainWordEntry.setupView(this, findViewById(R.id.main_word));
@@ -201,18 +201,22 @@ public class EditWordActivity extends Activity {
             mDoneButton.requestFocus();
 
         mNewWordButton = findViewById(R.id.new_word);
-        mNewWordButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                saveStateToDatabase();
-                Intent intent = new Intent();
-                intent.setClass(EditWordActivity.this, EditWordActivity.class);
-                intent.setAction(Intent.ACTION_INSERT);
-                startActivity(intent);
-                finish();
-            }
-        });
-        if (mNewWordButtonHasFocus)
-            mNewWordButton.requestFocus();
+        if (action.equals(Intent.ACTION_INSERT)) {
+            mNewWordButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    saveStateToDatabase();
+                    Intent intent = new Intent();
+                    intent.setClass(EditWordActivity.this, EditWordActivity.class);
+                    intent.setAction(Intent.ACTION_INSERT);
+                    startActivity(intent);
+                    finish();
+                }
+            });
+            if (mNewWordButtonHasFocus)
+                mNewWordButton.requestFocus();
+        } else {
+            mNewWordButton.setVisibility(View.GONE);
+        }
 
         mCancelButton = findViewById(R.id.cancel);
         mCancelButton.setOnClickListener(new View.OnClickListener() {
