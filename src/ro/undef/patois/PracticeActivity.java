@@ -69,9 +69,14 @@ public class PracticeActivity extends Activity {
         loadWord(mTrainer.selectWord(mDb.getActiveLanguage(), mDirection));
     }
 
-    private void loadWord(long wordId) {
+    private boolean loadWord(long wordId) {
         mWord = mDb.getWord(wordId);
+        if (mWord == null)
+            return false;
+
         mTranslations = mDb.getTranslations(mWord);
+
+        return true;
     }
 
     @SuppressWarnings("unchecked")
@@ -119,10 +124,15 @@ public class PracticeActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case R.id.edit_word:
-                loadWord(mWord.getId());
-                updateViews();
+            case R.id.edit_word: {
+                // The word might have been deleted during the edit operation,
+                // so it's possible for loadWord() to return false.
+                if (loadWord(mWord.getId()))
+                    updateViews();
+                else
+                    finish();
                 break;
+            }
         }
     }
 
