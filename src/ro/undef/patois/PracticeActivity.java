@@ -218,10 +218,13 @@ public class PracticeActivity extends Activity {
     private void saveStatsAndRestart(boolean knewAnswer) {
         mTrainer.updatePracticeInfo(mWord, mDirection, knewAnswer);
 
-        Intent intent = new Intent();
-        intent.setClass(PracticeActivity.this, PracticeActivity.class);
-        intent.setAction(mDirection.getAction());
-        startActivity(intent);
-        finish();
+        // TODO: Should use animations when restarting.
+        try {
+            resetState(mDirection);
+            updateViews();
+        } catch (Trainer.EmptyException ex) {
+            Toast.makeText(this, R.string.no_words_for_practice, Toast.LENGTH_LONG).show();
+            finish();
+        }
     }
 }
