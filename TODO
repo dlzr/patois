@@ -41,6 +41,8 @@ PracticeActivity:
 
 Trainer:
   - Randomize the next_practice time by at most a day.
+  - Switch the selectWord() implementation from rejection sampling to
+    binary search.
 
 Database:
   - [OK]
