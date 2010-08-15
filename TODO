@@ -26,16 +26,9 @@ ViewWordActivity:
     - date added
 
 PracticeActivity:
-  - BUG: When editing the word from PracticeActivity, return to the same
-    word in the same PracticeActivity, instead of returning to the
-    MainActivity.
-      - Make sure to handle deletions from the EditWordActivity when
-        returning.
-  - Rewrite PracticeActivity to not restart itself for each new word.
-    This takes a lot of time (~400ms) currently, and introduces a
-    visible lag in the UI.
   - Rephrase message when there are no words for practice.
-  - Add animations when showing the answer.
+  - Add animations when showing the answer and when moving to the next
+    word.
   - [wish] When practicing "to Foreign", the foreign word should show up
     under the native translations.
 
