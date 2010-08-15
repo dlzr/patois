@@ -23,6 +23,8 @@ public class PracticeActivity extends Activity {
     private Trainer mTrainer;
 
     private LayoutInflater mInflater;
+    private ScoreRenderer mScoreRenderer;
+    private TextView mScoreView;
     private ViewGroup mWordPanel;
     private ViewGroup mQuestionButtons;
     private ViewGroup mAnswerButtons;
@@ -64,7 +66,11 @@ public class PracticeActivity extends Activity {
     private void resetState(Trainer.Direction direction) throws Trainer.EmptyException {
         mDirection = direction;
         mState = STATE_QUESTION;
-        mWord = mTrainer.selectWord(mDb.getActiveLanguage(), mDirection);
+        loadWord(mTrainer.selectWord(mDb.getActiveLanguage(), mDirection));
+    }
+
+    private void loadWord(long wordId) {
+        mWord = mDb.getWord(wordId);
         mTranslations = mDb.getTranslations(mWord);
     }
 
@@ -103,45 +109,37 @@ public class PracticeActivity extends Activity {
                 intent.setAction(Intent.ACTION_EDIT);
                 intent.putExtras(extras);
 
-                startActivity(intent);
-                finish();
+                startActivityForResult(intent, R.id.edit_word);
                 return true;
             }
         }
         return false;
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case R.id.edit_word:
+                loadWord(mWord.getId());
+                updateViews();
+                break;
+        }
+    }
+
+
     private void setupViews() {
         setContentView(R.layout.practice_activity);
 
         mInflater = getLayoutInflater();
 
-        ScoreRenderer scoreRenderer = new ScoreRenderer(this,
-                                                        R.style.practice_score_good,
-                                                        R.style.practice_score_average,
-                                                        R.style.practice_score_bad);
-        TextView scoreView = (TextView) findViewById(R.id.score);
-        scoreView.setText(scoreRenderer.renderScore(mDb.getPracticeInfo(mWord, mDirection)));
-
+        mScoreRenderer = new ScoreRenderer(this,
+                                           R.style.practice_score_good,
+                                           R.style.practice_score_average,
+                                           R.style.practice_score_bad);
+        mScoreView = (TextView) findViewById(R.id.score);
         mWordPanel = (ViewGroup) findViewById(R.id.word_panel);
-
-        if (mState == STATE_ANSWER || mDirection == Trainer.Direction.FROM_FOREIGN)
-            mWordPanel.addView(buildWordView(mWord, true), 0);
-
-        if (mState == STATE_ANSWER || mDirection == Trainer.Direction.TO_FOREIGN) {
-            for (Word word : mTranslations)
-                mWordPanel.addView(buildWordView(word, false));
-        }
-
         mQuestionButtons = (ViewGroup) findViewById(R.id.question_side);
         mAnswerButtons = (ViewGroup) findViewById(R.id.answer_side);
-        if (mState == STATE_QUESTION) {
-            mQuestionButtons.setVisibility(View.VISIBLE);
-            mAnswerButtons.setVisibility(View.GONE);
-        } else if (mState == STATE_ANSWER) {
-            mQuestionButtons.setVisibility(View.GONE);
-            mAnswerButtons.setVisibility(View.VISIBLE);
-        }
 
         findViewById(R.id.show).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -159,6 +157,30 @@ public class PracticeActivity extends Activity {
                 saveStatsAndRestart(false);
             }
         });
+
+        updateViews();
+    }
+
+    private void updateViews() {
+        mScoreView.setText(mScoreRenderer.renderScore(mDb.getPracticeInfo(mWord, mDirection)));
+
+        mWordPanel.removeAllViews();
+
+        if (mState == STATE_ANSWER || mDirection == Trainer.Direction.FROM_FOREIGN)
+            mWordPanel.addView(buildWordView(mWord, true), 0);
+
+        if (mState == STATE_ANSWER || mDirection == Trainer.Direction.TO_FOREIGN) {
+            for (Word word : mTranslations)
+                mWordPanel.addView(buildWordView(word, false));
+        }
+
+        if (mState == STATE_QUESTION) {
+            mQuestionButtons.setVisibility(View.VISIBLE);
+            mAnswerButtons.setVisibility(View.GONE);
+        } else if (mState == STATE_ANSWER) {
+            mQuestionButtons.setVisibility(View.GONE);
+            mAnswerButtons.setVisibility(View.VISIBLE);
+        }
     }
 
     private View buildWordView(Word word, boolean isMainWord) {

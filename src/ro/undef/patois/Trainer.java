@@ -16,9 +16,9 @@ public class Trainer {
         mRandom = new Random();
     }
 
-    // Returns a random word for practice.  The probablility of a word being
+    // Returns a random word ID for practice.  The probablility of a word being
     // selected is directly proportional with its weight.
-    public Word selectWord(Language language, Direction direction) throws EmptyException {
+    public long selectWord(Language language, Direction direction) throws EmptyException {
         ArrayList<Weight> weights = mDb.getWordWeights(language, direction);
         int numWeights = weights.size();
         long maxWeight = -1;
@@ -54,13 +54,13 @@ public class Trainer {
             long randomWeight = mRandom.nextLong(maxWeight);
 
             if (randomWeight < picked.weight)
-                return mDb.getWord(picked.wordId);
+                return picked.wordId;
 
             if (best == null || best.weight < picked.weight)
                 best = picked;
         }
 
-        return mDb.getWord(best.wordId);
+        return best.wordId;
     }
 
     public void updatePracticeInfo(Word word, Direction direction, boolean successful) {
