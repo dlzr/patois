@@ -36,6 +36,8 @@ Trainer:
   - Randomize the next_practice time by at most a day.
   - Switch the selectWord() implementation from rejection sampling to
     binary search.
+  - When filtering words for practice, recently practiced words should
+    be removed regardless of the practice direction.
 
 Database:
   - [OK]
