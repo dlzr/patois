@@ -3,12 +3,19 @@ package ro.undef.patois;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.util.ArrayList;
@@ -179,10 +186,8 @@ public class PracticeActivity extends Activity {
         if (mState == STATE_ANSWER || mDirection == Trainer.Direction.FROM_FOREIGN)
             mWordPanel.addView(buildWordView(mWord, true), 0);
 
-        if (mState == STATE_ANSWER || mDirection == Trainer.Direction.TO_FOREIGN) {
-            for (Word word : mTranslations)
-                mWordPanel.addView(buildWordView(word, false));
-        }
+        if (mState == STATE_ANSWER || mDirection == Trainer.Direction.TO_FOREIGN)
+            mWordPanel.addView(buildTranslationsPanel());
 
         if (mState == STATE_QUESTION) {
             mQuestionButtons.setVisibility(View.VISIBLE);
@@ -210,19 +215,58 @@ public class PracticeActivity extends Activity {
         return view;
     }
 
+    private ViewGroup buildTranslationsPanel() {
+        LinearLayout panel = new LinearLayout(this);
+        panel.setOrientation(LinearLayout.VERTICAL);
+
+        for (Word word : mTranslations)
+            panel.addView(buildWordView(word, false));
+
+        return panel;
+    }
+
     private void showAnswer() {
         mState = STATE_ANSWER;
 
-        // TODO: Should use animations when showing the answers.
         if (mDirection == Trainer.Direction.FROM_FOREIGN) {
-            for (Word word : mTranslations)
-                mWordPanel.addView(buildWordView(word, false));
+            addToWordPanel(buildTranslationsPanel(), -1);
         } else if (mDirection == Trainer.Direction.TO_FOREIGN) {
-            mWordPanel.addView(buildWordView(mWord, true), 0);
+            addToWordPanel(buildWordView(mWord, true), 0);
         }
 
         mQuestionButtons.setVisibility(View.GONE);
         mAnswerButtons.setVisibility(View.VISIBLE);
+    }
+
+    private void addToWordPanel(final View view, final int index) {
+        // First we need to measure the view to be added, since we need to move
+        // the existing elements with half the height of the new component.
+        view.measure(MeasureSpec.makeMeasureSpec(mWordPanel.getMeasuredWidth(),
+                                                 MeasureSpec.AT_MOST),
+                     MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+
+        // If we're adding the new view at the top (index == 0), then we need
+        // to move the existing elements downwards; otherwise, we move them
+        // upwards.
+        final float offset = (index == 0 ? 1 : -1) * view.getMeasuredHeight() / 2.0f;
+
+        Animation animation = new TranslateAnimation(0.0f, 0.0f, 0.0f, offset);
+        animation.setInterpolator(new AccelerateInterpolator(1.0f));
+        animation.setDuration(150);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            public void onAnimationEnd(Animation a) {
+                mWordPanel.addView(view, index);
+                mWordPanel.clearAnimation();
+
+                Animation animation = new AlphaAnimation(0.0f, 1.0f);
+                animation.setDuration(200);
+                view.startAnimation(animation);
+            }
+            public void onAnimationStart(Animation animation) {}
+            public void onAnimationRepeat(Animation animation) {}
+        });
+
+        mWordPanel.startAnimation(animation);
     }
 
     private void saveStatsAndRestart(boolean knewAnswer) {
