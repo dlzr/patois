@@ -259,7 +259,7 @@ public class PracticeActivity extends Activity {
                 mWordPanel.clearAnimation();
 
                 Animation animation = new AlphaAnimation(0.0f, 1.0f);
-                animation.setDuration(200);
+                animation.setDuration(150);
                 view.startAnimation(animation);
             }
             public void onAnimationStart(Animation animation) {}
