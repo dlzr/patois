@@ -172,12 +172,12 @@ public class PracticeActivity extends Activity {
 
         findViewById(R.id.yes).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                saveStatsAndRestart(true);
+                saveStatsAndRestartAnimated(true);
             }
         });
         findViewById(R.id.no).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                saveStatsAndRestart(false);
+                saveStatsAndRestartAnimated(false);
             }
         });
 
@@ -305,15 +305,13 @@ public class PracticeActivity extends Activity {
         mAnswerButtons.setVisibility(View.VISIBLE);
     }
 
-    private void saveStatsAndRestart(boolean knewAnswer) {
-        mTrainer.updatePracticeInfo(mWord, mDirection, knewAnswer);
-
+    private void saveStatsAndRestartAnimated(final boolean knewAnswer) {
         final Animation animation_out = mRestartOutAnimation[knewAnswer ? 1 : 0];
         final Animation animation_in = mRestartInAnimation[knewAnswer ? 1 : 0];
 
         animation_out.setAnimationListener(new Animation.AnimationListener() {
             public void onAnimationEnd(Animation a) {
-                restart();
+                saveStatsAndRestart(knewAnswer);
                 mWholeScreen.startAnimation(animation_in);
             }
             public void onAnimationStart(Animation animation) {}
@@ -323,7 +321,9 @@ public class PracticeActivity extends Activity {
         mWholeScreen.startAnimation(animation_out);
     }
 
-    private void restart() {
+    private void saveStatsAndRestart(boolean knewAnswer) {
+        mTrainer.updatePracticeInfo(mWord, mDirection, knewAnswer);
+
         try {
             resetState(mDirection);
             updateViews();
