@@ -21,7 +21,8 @@ public class ScoreRenderer {
         mTimeNow = System.currentTimeMillis() / 1000;
     }
 
-    public Spannable renderScore(Trainer.PracticeInfo info) {
+    public Spannable resetAndRenderScore(Trainer.PracticeInfo info) {
+        mTimeNow = System.currentTimeMillis() / 1000;
         SpannableStringBuilder ssb = new SpannableStringBuilder();
         renderStarsTo(ssb, info.level, info.nextPractice);
         return ssb;

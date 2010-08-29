@@ -211,7 +211,8 @@ public class PracticeActivity extends Activity {
     }
 
     private void updateViews() {
-        mScoreView.setText(mScoreRenderer.renderScore(mDb.getPracticeInfo(mWord, mDirection)));
+        mScoreView.setText(
+                mScoreRenderer.resetAndRenderScore(mDb.getPracticeInfo(mWord, mDirection)));
 
         mWordPanel.removeAllViews();
 
