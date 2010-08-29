@@ -12,8 +12,8 @@ import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -32,9 +32,15 @@ public class PracticeActivity extends Activity {
     private LayoutInflater mInflater;
     private ScoreRenderer mScoreRenderer;
     private TextView mScoreView;
+    private ViewGroup mWholeScreen;
     private ViewGroup mWordPanel;
     private ViewGroup mQuestionButtons;
     private ViewGroup mAnswerButtons;
+    private Animation mFadeInAnimation;
+    private Animation[] mButtonsOutAnimation;
+    private Animation[] mButtonsInAnimation;
+    private Animation[] mRestartOutAnimation;
+    private Animation[] mRestartInAnimation;
 
     // These fields are saved across restarts.
     private Trainer.Direction mDirection;
@@ -143,7 +149,6 @@ public class PracticeActivity extends Activity {
         }
     }
 
-
     private void setupViews() {
         setContentView(R.layout.practice_activity);
 
@@ -154,6 +159,7 @@ public class PracticeActivity extends Activity {
                                            R.style.practice_score_average,
                                            R.style.practice_score_bad);
         mScoreView = (TextView) findViewById(R.id.score);
+        mWholeScreen = (ViewGroup) findViewById(R.id.whole_screen);
         mWordPanel = (ViewGroup) findViewById(R.id.word_panel);
         mQuestionButtons = (ViewGroup) findViewById(R.id.question_side);
         mAnswerButtons = (ViewGroup) findViewById(R.id.answer_side);
@@ -174,6 +180,32 @@ public class PracticeActivity extends Activity {
                 saveStatsAndRestart(false);
             }
         });
+
+        mFadeInAnimation = AnimationUtils.loadAnimation(this, R.anim.practice_word_fade_in);
+
+        mButtonsOutAnimation = new Animation[2];
+        mButtonsOutAnimation[Trainer.Direction.FROM_FOREIGN.getValue()] =
+            AnimationUtils.loadAnimation(this, R.anim.practice_buttons_from_out);
+        mButtonsOutAnimation[Trainer.Direction.TO_FOREIGN.getValue()] =
+            AnimationUtils.loadAnimation(this, R.anim.practice_buttons_to_out);
+
+        mButtonsInAnimation = new Animation[2];
+        mButtonsInAnimation[Trainer.Direction.FROM_FOREIGN.getValue()] =
+            AnimationUtils.loadAnimation(this, R.anim.practice_buttons_from_in);
+        mButtonsInAnimation[Trainer.Direction.TO_FOREIGN.getValue()] =
+            AnimationUtils.loadAnimation(this, R.anim.practice_buttons_to_in);
+
+        mRestartOutAnimation = new Animation[2];
+        mRestartOutAnimation[0] =
+            AnimationUtils.loadAnimation(this, R.anim.practice_restart_no_out);
+        mRestartOutAnimation[1] =
+            AnimationUtils.loadAnimation(this, R.anim.practice_restart_yes_out);
+
+        mRestartInAnimation = new Animation[2];
+        mRestartInAnimation[0] =
+            AnimationUtils.loadAnimation(this, R.anim.practice_restart_no_in);
+        mRestartInAnimation[1] =
+            AnimationUtils.loadAnimation(this, R.anim.practice_restart_yes_in);
 
         updateViews();
     }
@@ -234,8 +266,7 @@ public class PracticeActivity extends Activity {
             addToWordPanel(buildWordView(mWord, true), 0);
         }
 
-        mQuestionButtons.setVisibility(View.GONE);
-        mAnswerButtons.setVisibility(View.VISIBLE);
+        flipButtons();
     }
 
     private void addToWordPanel(final View view, final int index) {
@@ -257,10 +288,7 @@ public class PracticeActivity extends Activity {
             public void onAnimationEnd(Animation a) {
                 mWordPanel.addView(view, index);
                 mWordPanel.clearAnimation();
-
-                Animation animation = new AlphaAnimation(0.0f, 1.0f);
-                animation.setDuration(150);
-                view.startAnimation(animation);
+                view.startAnimation(mFadeInAnimation);
             }
             public void onAnimationStart(Animation animation) {}
             public void onAnimationRepeat(Animation animation) {}
@@ -269,10 +297,32 @@ public class PracticeActivity extends Activity {
         mWordPanel.startAnimation(animation);
     }
 
+    private void flipButtons() {
+        mQuestionButtons.startAnimation(mButtonsOutAnimation[mDirection.getValue()]);
+        mQuestionButtons.setVisibility(View.GONE);
+        mAnswerButtons.startAnimation(mButtonsInAnimation[mDirection.getValue()]);
+        mAnswerButtons.setVisibility(View.VISIBLE);
+    }
+
     private void saveStatsAndRestart(boolean knewAnswer) {
         mTrainer.updatePracticeInfo(mWord, mDirection, knewAnswer);
 
-        // TODO: Should use animations when restarting.
+        final Animation animation_out = mRestartOutAnimation[knewAnswer ? 1 : 0];
+        final Animation animation_in = mRestartInAnimation[knewAnswer ? 1 : 0];
+
+        animation_out.setAnimationListener(new Animation.AnimationListener() {
+            public void onAnimationEnd(Animation a) {
+                restart();
+                mWholeScreen.startAnimation(animation_in);
+            }
+            public void onAnimationStart(Animation animation) {}
+            public void onAnimationRepeat(Animation animation) {}
+        });
+
+        mWholeScreen.startAnimation(animation_out);
+    }
+
+    private void restart() {
         try {
             resetState(mDirection);
             updateViews();

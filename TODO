@@ -27,10 +27,6 @@ ViewWordActivity:
 
 PracticeActivity:
   - Rephrase message when there are no words for practice.
-  - Add animations when showing the answer and when moving to the next
-    word.
-  - [wish] When practicing "to Foreign", the foreign word should show up
-    under the native translations.
 
 Trainer:
   - Randomize the next_practice time by at most a day.
