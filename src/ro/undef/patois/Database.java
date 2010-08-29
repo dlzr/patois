@@ -348,8 +348,8 @@ public class Database {
                 "    language_id == ? AND " +
                 "    weight > 0 AND " +
                 "    num_translations > 0 AND " +
-                "    last_practice" + direction.getSuffix() +
-                "        < strftime('%s', 'now') - 3600 ",
+                "    last_practice_from < strftime('%s', 'now') - 3600 AND " +
+                "    last_practice_to < strftime('%s', 'now') - 3600 ",
                 new String[] {
                     language.getIdString(),
                 });
