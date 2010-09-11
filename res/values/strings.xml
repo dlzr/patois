@@ -2,6 +2,16 @@
 <resources>
     <string name="app_name">Patois</string>
 
+    <!-- Strings in the intro activity. -->
+    <string name="welcome_to_patois">Welcome to Patois</string>
+    <string name="getting_started_text">If this is the first time you\'re using Patois, click the button below for a short introduction.</string>
+    <string name="start_tutorial">Start tutorial</string>
+    <string name="import_database_text">If you\'ve used this program before on a different device, you can import now the database you\'ve exported from your old device.</string>
+    <string name="import_database">Import database</string>
+    <string name="skip_introduction_text">You can also just skip the introduction and go straight to the app.</string>
+    <string name="start_patois">Start Patois</string>
+    <string name="thanks_text">Thanks for trying out Patois, and have fun learning new languages!</string>
+
     <!-- Strings in the main activity. -->
     <string name="vocabulary">Vocabulary:</string>
     <string name="browse_words">Browse words</string>

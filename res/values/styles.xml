@@ -1,5 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Used in the IntroActivity. -->
+    <color name="intro_text">#d0d0d0</color>
+    <color name="intro_background">#373c42</color>
+
+    <style name="Theme.IntroActivity" parent="android:Theme">
+        <item name="android:windowBackground">@color/intro_background</item>
+        <item name="android:colorBackgroundCacheHint">@color/intro_background</item>
+    </style>
+
+    <style name="intro_title">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="intro_text">
+        <item name="android:textColor">@color/intro_text</item>
+        <item name="android:textSize">17sp</item>
+    </style>
+
     <!-- Used in the EditLanguages and EditWord activities. -->
     <style name="add_button">
         <item name="android:background">@android:drawable/btn_default_small</item>
