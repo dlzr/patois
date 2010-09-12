@@ -502,12 +502,14 @@ public class Database {
         return context.getDatabasePath(DATABASE_NAME);
     }
 
-    public static class Lock {
+    public static class Lock implements CopyFileTask.Lock {
         private SQLiteDatabase mDb;
 
         public Lock(String dbFileName) {
             mDb = SQLiteDatabase.openDatabase(dbFileName, null, SQLiteDatabase.OPEN_READWRITE);
+        }
 
+        public void acquire() {
             // As per http://www.sqlite.org/backup.html, in order to back up an
             // SQLite database, one has to:
             //   1. Establish a shared lock on the database file.

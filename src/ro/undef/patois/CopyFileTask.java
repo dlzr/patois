@@ -13,12 +13,26 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
     // The calling activity needs to implement this interface to be notified
     // about the various stages of the copy process.  All methods in this
     // interface are called from the UI thread.
-    public static interface Listener {
+    public interface Listener {
         // Called before the copying begins.
         public void onStartCopy();
 
         // Called after the copying is finished.
         public void onFinishCopy(boolean successful);
+    }
+
+    // If locking/unlocking operations need to be done around the copy
+    // operation, the caller should provide a Lock implementation.  This
+    // interface is provided separately from the Listener one above because the
+    // Lock operations are done regardless of the attached state.
+    public interface Lock {
+        public void acquire();
+        public void release();
+    }
+
+    public static class EmptyLock implements Lock {
+        public void acquire() {}
+        public void release() {}
     }
 
     public static String getDefaultFileName() {
@@ -34,24 +48,24 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
         }
     }
 
-    private Listener mListener;  // Should only be accessed from the UI thread.
     private File mInputFile;
     private File mOutputFile;
+    private Listener mListener;  // Should only be accessed from the UI thread.
+    private Lock mLock;  // Should only be accessed from the UI thread.
     private boolean mDetached;
     private boolean mFinished;
     private boolean mSuccessful;
-    private Database.Lock mDbLock;
 
     // The following methods should only be called from the UI thread.
 
-    public CopyFileTask(File inputFile, File outputFile, Listener listener) {
-        mListener = listener;
+    public CopyFileTask(File inputFile, File outputFile, Listener listener, Lock lock) {
         mInputFile = inputFile;
         mOutputFile = outputFile;
+        mListener = listener;
+        mLock = lock;
         mDetached = false;
         mFinished = false;
         mSuccessful = false;
-        mDbLock = null;
     }
 
     public boolean fileExists() {
@@ -86,14 +100,14 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
 
     @Override
     protected void onPreExecute() {
-        mDbLock = new Database.Lock(mInputFile.getPath());
+        mLock.acquire();
         mListener.onStartCopy();
     }
 
     @Override
     protected void onPostExecute(Boolean successful) {
-        mDbLock.release();
-        mDbLock = null;
+        mLock.release();
+        mLock = null;
         mFinished = true;
         mSuccessful = successful;
         if (mListener != null)

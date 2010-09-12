@@ -128,10 +128,10 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
                     .setPositiveButton(R.string.export,
                                        new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
+                            File dbFile = Database.getDatabaseFile(MainActivity.this);
                             mCopyFileTask = new CopyFileTask(
-                                    Database.getDatabaseFile(MainActivity.this),
-                                    new File(fileNameEditText.getText().toString()),
-                                    MainActivity.this);
+                                    dbFile, new File(fileNameEditText.getText().toString()),
+                                    MainActivity.this, new Database.Lock(dbFile.getPath()));
                             if (mCopyFileTask.fileExists()) {
                                 showDialog(CONFIRM_OVERWRITE_DIALOG);
                             } else {
