@@ -29,12 +29,12 @@ public class MainActivity extends Activity {
     private static final int EXPORT_DATABASE_PROGRESS = 4;
 
     private Database mDb;
-    // Note that mExportTask is null most of the times.  The only time it
+    // Note that mCopyFileTask is null most of the times.  The only time it
     // points to a valid object is between the user clicking the "Export"
     // button in the "Export database" dialog, and the export operation
     // finishing.
-    // As such, whenever accessing mExportTask, make sure it's not null.
-    private ExportTask mExportTask;
+    // As such, whenever accessing mCopyFileTask, make sure it's not null.
+    private CopyFileTask mCopyFileTask;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -42,9 +42,9 @@ public class MainActivity extends Activity {
 
         mDb = new Database(this);
 
-        mExportTask = (ExportTask) getLastNonConfigurationInstance();
-        if (mExportTask != null)
-            mExportTask.resume(this);
+        mCopyFileTask = (CopyFileTask) getLastNonConfigurationInstance();
+        if (mCopyFileTask != null)
+            mCopyFileTask.resume(this);
 
         setupViews();
     }
@@ -53,15 +53,15 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         mDb.close();
-        if (mExportTask != null)
-            mExportTask.onDestroy();
+        if (mCopyFileTask != null)
+            mCopyFileTask.onDestroy();
     }
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        if (mExportTask != null)
-            mExportTask.suspend();
-        return mExportTask;
+        if (mCopyFileTask != null)
+            mCopyFileTask.suspend();
+        return mCopyFileTask;
     }
 
     @Override
@@ -90,7 +90,7 @@ public class MainActivity extends Activity {
         // We don't want the activity to cache this dialog.
         // See above for details.
         removeDialog(CONFIRM_OVERWRITE_DIALOG);
-        mExportTask = null;
+        mCopyFileTask = null;
         showDialog(EXPORT_DATABASE_DIALOG);
     }
 
@@ -119,7 +119,7 @@ public class MainActivity extends Activity {
             case EXPORT_DATABASE_DIALOG: {
                 View view = getLayoutInflater().inflate(R.layout.export_database_dialog, null);
                 final EditText fileNameEditText = (EditText) view.findViewById(R.id.file_name);
-                fileNameEditText.setText(ExportTask.getDefaultFileName());
+                fileNameEditText.setText(CopyFileTask.getDefaultFileName());
 
                 return new AlertDialog.Builder(this)
                     .setTitle(R.string.export_database)
@@ -127,12 +127,12 @@ public class MainActivity extends Activity {
                     .setPositiveButton(R.string.export,
                                        new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            mExportTask = new ExportTask(MainActivity.this,
-                                                         fileNameEditText.getText().toString());
-                            if (mExportTask.fileExists()) {
+                            mCopyFileTask = new CopyFileTask(MainActivity.this,
+                                                             fileNameEditText.getText().toString());
+                            if (mCopyFileTask.fileExists()) {
                                 showDialog(CONFIRM_OVERWRITE_DIALOG);
                             } else {
-                                mExportTask.execute();
+                                mCopyFileTask.execute();
                             }
                         }
                     })
@@ -143,7 +143,7 @@ public class MainActivity extends Activity {
                 return new AlertDialog.Builder(this)
                     .setTitle(R.string.confirm_overwrite)
                     .setMessage(String.format(getResources().getString(R.string.file_exists),
-                                              mExportTask.getFileName()))
+                                              mCopyFileTask.getFileName()))
                     .setPositiveButton(R.string.yes,
                                        new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
@@ -151,11 +151,11 @@ public class MainActivity extends Activity {
                             // so we call removeDialog() explicitly.  If this
                             // dialog were to be cached, the activity would
                             // call onCreateDialog() when resuming from
-                            // configuration changes, and mExportTask could be
-                            // null at that point, leading to a
+                            // configuration changes, and mCopyFileTask could
+                            // be null at that point, leading to a
                             // NullPointerException in the setup code above.
                             removeDialog(CONFIRM_OVERWRITE_DIALOG);
-                            mExportTask.execute();
+                            mCopyFileTask.execute();
                         }
                     })
                     .setNegativeButton(R.string.no,
@@ -177,7 +177,7 @@ public class MainActivity extends Activity {
                 dialog.setCancelable(false);
                 dialog.setMessage(
                         String.format(getResources().getString(R.string.exporting_database),
-                                      mExportTask.getFileName()));
+                                      mCopyFileTask.getFileName()));
                 return dialog;
             }
         }
@@ -204,7 +204,7 @@ public class MainActivity extends Activity {
         // comment in onCreateDialog(CONFIRM_OVERWRITE_DIALOG) why we don't
         // want that.
         removeDialog(EXPORT_DATABASE_PROGRESS);
-        mExportTask = null;
+        mCopyFileTask = null;
 
         int messageId = successful ? R.string.export_successful : R.string.export_failed;
         Toast.makeText(this, messageId, Toast.LENGTH_SHORT).show();

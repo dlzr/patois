@@ -8,8 +8,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
-public class ExportTask extends AsyncTask<Void, Void, Boolean> {
-    private final static String TAG = "ExportTask";
+public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
+    private final static String TAG = "CopyFileTask";
 
     public static String getDefaultFileName() {
         return normalizeFileName(new File(Environment.getExternalStorageDirectory(),
@@ -34,7 +34,7 @@ public class ExportTask extends AsyncTask<Void, Void, Boolean> {
 
     // The following methods should only be called from the UI thread.
 
-    public ExportTask(MainActivity activity, String fileName) {
+    public CopyFileTask(MainActivity activity, String fileName) {
         mActivity = activity;
         mInputFile = Database.getDatabaseFile(activity);
         mOutputFile = new File(fileName);
