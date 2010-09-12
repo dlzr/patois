@@ -54,8 +54,7 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
     protected void onDestroy() {
         super.onDestroy();
         mDb.close();
-        if (mCopyFileTask != null)
-            mCopyFileTask.onDestroy();
+        // TODO: Maybe we should support canceling the export operation.
     }
 
     @Override

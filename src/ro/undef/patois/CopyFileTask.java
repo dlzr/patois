@@ -52,7 +52,6 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
     private File mOutputFile;
     private Listener mListener;  // Should only be accessed from the UI thread.
     private Lock mLock;  // Should only be accessed from the UI thread.
-    private boolean mDetached;
     private boolean mFinished;
     private boolean mSuccessful;
 
@@ -63,7 +62,6 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
         mOutputFile = outputFile;
         mListener = listener;
         mLock = lock;
-        mDetached = false;
         mFinished = false;
         mSuccessful = false;
     }
@@ -77,12 +75,10 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
     }
 
     public void detachFromListener() {
-        mDetached = true;
         mListener = null;
     }
 
     public void attachToListener(Listener listener) {
-        mDetached = false;
         mListener = listener;
         if (mFinished) {
             // We're being resumed after a configuration change, and the
@@ -93,15 +89,11 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
         }
     }
 
-    public void onDestroy() {
-        if (!mDetached)
-            cancel(false);
-    }
-
     @Override
     protected void onPreExecute() {
         mLock.acquire();
-        mListener.onStartCopy();
+        if (mListener != null)
+            mListener.onStartCopy();
     }
 
     @Override
