@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
 import android.util.Log;
 import java.io.BufferedReader;
 import java.io.File;
@@ -500,6 +501,10 @@ public class Database {
 
     public static File getDatabaseFile(Context context) {
         return context.getDatabasePath(DATABASE_NAME);
+    }
+
+    public static File getDefaultExportFile() {
+        return new File(Environment.getExternalStorageDirectory(), Database.DATABASE_NAME);
     }
 
     public static class Lock implements CopyFileTask.Lock {

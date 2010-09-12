@@ -119,7 +119,7 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
             case EXPORT_DATABASE_DIALOG: {
                 View view = getLayoutInflater().inflate(R.layout.export_database_dialog, null);
                 final EditText fileNameEditText = (EditText) view.findViewById(R.id.file_name);
-                fileNameEditText.setText(CopyFileTask.getDefaultFileName());
+                fileNameEditText.setText(Database.getDefaultExportFile().getPath());
 
                 return new AlertDialog.Builder(this)
                     .setTitle(R.string.export_database)

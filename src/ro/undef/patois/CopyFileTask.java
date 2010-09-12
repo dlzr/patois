@@ -1,7 +1,6 @@
 package ro.undef.patois;
 
 import android.os.AsyncTask;
-import android.os.Environment;
 import android.util.Log;
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,11 +32,6 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
     public static class EmptyLock implements Lock {
         public void acquire() {}
         public void release() {}
-    }
-
-    public static String getDefaultFileName() {
-        return normalizeFileName(new File(Environment.getExternalStorageDirectory(),
-                                          Database.DATABASE_NAME));
     }
 
     private static String normalizeFileName(File file) {
