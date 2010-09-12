@@ -45,7 +45,7 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
 
         mCopyFileTask = (CopyFileTask) getLastNonConfigurationInstance();
         if (mCopyFileTask != null)
-            mCopyFileTask.resume(this);
+            mCopyFileTask.attachToListener(this);
 
         setupViews();
     }
@@ -61,7 +61,7 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
     @Override
     public Object onRetainNonConfigurationInstance() {
         if (mCopyFileTask != null)
-            mCopyFileTask.suspend();
+            mCopyFileTask.detachFromListener();
         return mCopyFileTask;
     }
 

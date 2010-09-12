@@ -37,7 +37,7 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
     private Listener mListener;  // Should only be accessed from the UI thread.
     private File mInputFile;
     private File mOutputFile;
-    private boolean mSuspended;
+    private boolean mDetached;
     private boolean mFinished;
     private boolean mSuccessful;
     private Database.Lock mDbLock;
@@ -48,7 +48,7 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
         mListener = listener;
         mInputFile = inputFile;
         mOutputFile = outputFile;
-        mSuspended = false;
+        mDetached = false;
         mFinished = false;
         mSuccessful = false;
         mDbLock = null;
@@ -62,25 +62,25 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
         return normalizeFileName(mOutputFile);
     }
 
-    public void suspend() {
-        mSuspended = true;
+    public void detachFromListener() {
+        mDetached = true;
         mListener = null;
     }
 
-    public void resume(Listener listener) {
-        mSuspended = false;
+    public void attachToListener(Listener listener) {
+        mDetached = false;
         mListener = listener;
         if (mFinished) {
             // We're being resumed after a configuration change, and the
-            // background thread finished while we were disconnected from the
-            // activity.  As such, the current activity still has the progress
-            // dialog open, and we need to dismiss it.
+            // background thread finished while we were detached from the
+            // listening activity.  As such, the new activity still has the
+            // progress dialog open, and we need to dismiss it.
             mListener.onFinishCopy(mSuccessful);
         }
     }
 
     public void onDestroy() {
-        if (!mSuspended)
+        if (!mDetached)
             cancel(false);
     }
 
