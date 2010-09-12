@@ -1,6 +1,5 @@
 package ro.undef.patois;
 
-import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
@@ -11,9 +10,20 @@ import java.io.FileOutputStream;
 public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
     private final static String TAG = "CopyFileTask";
 
+    // The calling activity needs to implement this interface to be notified
+    // about the various stages of the copy process.  All methods in this
+    // interface are called from the UI thread.
+    public static interface Listener {
+        // Called before the copying begins.
+        public void onStartCopy();
+
+        // Called after the copying is finished.
+        public void onFinishCopy(boolean successful);
+    }
+
     public static String getDefaultFileName() {
         return normalizeFileName(new File(Environment.getExternalStorageDirectory(),
-                                            Database.DATABASE_NAME));
+                                          Database.DATABASE_NAME));
     }
 
     private static String normalizeFileName(File file) {
@@ -24,7 +34,7 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
         }
     }
 
-    private MainActivity mActivity;  // Should only be accessed from the UI thread.
+    private Listener mListener;  // Should only be accessed from the UI thread.
     private File mInputFile;
     private File mOutputFile;
     private boolean mSuspended;
@@ -34,10 +44,10 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
 
     // The following methods should only be called from the UI thread.
 
-    public CopyFileTask(MainActivity activity, String fileName) {
-        mActivity = activity;
-        mInputFile = Database.getDatabaseFile(activity);
-        mOutputFile = new File(fileName);
+    public CopyFileTask(File inputFile, File outputFile, Listener listener) {
+        mListener = listener;
+        mInputFile = inputFile;
+        mOutputFile = outputFile;
         mSuspended = false;
         mFinished = false;
         mSuccessful = false;
@@ -54,18 +64,18 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
 
     public void suspend() {
         mSuspended = true;
-        mActivity = null;
+        mListener = null;
     }
 
-    public void resume(MainActivity activity) {
+    public void resume(Listener listener) {
         mSuspended = false;
-        mActivity = activity;
+        mListener = listener;
         if (mFinished) {
             // We're being resumed after a configuration change, and the
             // background thread finished while we were disconnected from the
             // activity.  As such, the current activity still has the progress
             // dialog open, and we need to dismiss it.
-            mActivity.onFinishExport(mSuccessful);
+            mListener.onFinishCopy(mSuccessful);
         }
     }
 
@@ -77,7 +87,7 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPreExecute() {
         mDbLock = new Database.Lock(mInputFile.getPath());
-        mActivity.onStartExport();
+        mListener.onStartCopy();
     }
 
     @Override
@@ -86,8 +96,8 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
         mDbLock = null;
         mFinished = true;
         mSuccessful = successful;
-        if (mActivity != null)
-            mActivity.onFinishExport(mSuccessful);
+        if (mListener != null)
+            mListener.onFinishCopy(mSuccessful);
     }
 
     // What follows is/can be called from the background thread.

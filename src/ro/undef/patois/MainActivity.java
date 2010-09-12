@@ -18,9 +18,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import java.io.File;
 
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements CopyFileTask.Listener {
     private final static String TAG = "MainActivity";
 
     private static final int SELECT_LANGUAGE_DIALOG = 1;
@@ -127,8 +128,10 @@ public class MainActivity extends Activity {
                     .setPositiveButton(R.string.export,
                                        new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            mCopyFileTask = new CopyFileTask(MainActivity.this,
-                                                             fileNameEditText.getText().toString());
+                            mCopyFileTask = new CopyFileTask(
+                                    Database.getDatabaseFile(MainActivity.this),
+                                    new File(fileNameEditText.getText().toString()),
+                                    MainActivity.this);
                             if (mCopyFileTask.fileExists()) {
                                 showDialog(CONFIRM_OVERWRITE_DIALOG);
                             } else {
@@ -194,11 +197,11 @@ public class MainActivity extends Activity {
         }
     }
 
-    public void onStartExport() {
+    public void onStartCopy() {
         showDialog(EXPORT_DATABASE_PROGRESS);
     }
 
-    public void onFinishExport(boolean successful) {
+    public void onFinishCopy(boolean successful) {
         // We use removeDialog() instead of dismissDialog() here to stop the
         // activity from caching the EXPORT_DATABASE_PROGRESS dialog.  See
         // comment in onCreateDialog(CONFIRM_OVERWRITE_DIALOG) why we don't
