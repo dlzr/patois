@@ -20,7 +20,7 @@
             android:layout_marginLeft="16dip"
             android:layout_marginRight="16dip"
             android:gravity="center"
-            android:text="@string/welcome_to_patois"
+            android:text="@string/welcome_text"
             android:textAppearance="@style/intro_title"
             />
 
@@ -28,8 +28,9 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dip"
-            android:layout_marginLeft="24dip"
+            android:layout_marginLeft="16dip"
             android:layout_marginRight="16dip"
+            android:gravity="center"
             android:text="@string/getting_started_text"
             android:textAppearance="@style/intro_text"
             />
@@ -47,8 +48,9 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dip"
-            android:layout_marginLeft="24dip"
+            android:layout_marginLeft="16dip"
             android:layout_marginRight="16dip"
+            android:gravity="center"
             android:text="@string/import_database_text"
             android:textAppearance="@style/intro_text"
             />
@@ -66,8 +68,9 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dip"
-            android:layout_marginLeft="24dip"
+            android:layout_marginLeft="16dip"
             android:layout_marginRight="16dip"
+            android:gravity="center"
             android:text="@string/skip_introduction_text"
             android:textAppearance="@style/intro_text"
             />
@@ -86,9 +89,10 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dip"
             android:layout_marginBottom="16dip"
-            android:layout_marginLeft="24dip"
+            android:layout_marginLeft="16dip"
             android:layout_marginRight="16dip"
-            android:text="@string/thanks_text"
+            android:gravity="center"
+            android:text="@string/final_intro_text"
             android:textAppearance="@style/intro_text"
             />
 
@@ -96,7 +100,6 @@
             android:src="@drawable/patois"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dip"
             android:layout_marginBottom="24dip"
             android:layout_marginLeft="16dip"
             android:layout_marginRight="16dip"

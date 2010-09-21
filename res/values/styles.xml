@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Used in the IntroActivity. -->
-    <color name="intro_text">#d0d0d0</color>
+    <color name="intro_text">#eeeeee</color>
     <color name="intro_background">#373c42</color>
 
     <style name="Theme.IntroActivity" parent="android:Theme">
