@@ -131,7 +131,7 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
                             mCopyFileTask = new CopyFileTask(
                                     dbFile, new File(fileNameEditText.getText().toString()),
                                     MainActivity.this, new Database.Lock(dbFile.getPath()));
-                            if (mCopyFileTask.fileExists()) {
+                            if (mCopyFileTask.outputFileExists()) {
                                 showDialog(CONFIRM_OVERWRITE_DIALOG);
                             } else {
                                 mCopyFileTask.execute();
@@ -145,7 +145,7 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
                 return new AlertDialog.Builder(this)
                     .setTitle(R.string.confirm_overwrite)
                     .setMessage(String.format(getResources().getString(R.string.file_exists),
-                                              mCopyFileTask.getFileName()))
+                                              mCopyFileTask.getOutputFileName()))
                     .setPositiveButton(R.string.yes,
                                        new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
@@ -179,7 +179,7 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
                 dialog.setCancelable(false);
                 dialog.setMessage(
                         String.format(getResources().getString(R.string.exporting_database),
-                                      mCopyFileTask.getFileName()));
+                                      mCopyFileTask.getOutputFileName()));
                 return dialog;
             }
         }

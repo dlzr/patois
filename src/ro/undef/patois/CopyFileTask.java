@@ -34,14 +34,6 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
         public void release() {}
     }
 
-    private static String normalizeFileName(File file) {
-        try {
-            return file.getCanonicalPath();
-        } catch (java.io.IOException e) {
-            return file.getAbsolutePath();
-        }
-    }
-
     private File mInputFile;
     private File mOutputFile;
     private Listener mListener;  // Should only be accessed from the UI thread.
@@ -60,12 +52,12 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
         mSuccessful = false;
     }
 
-    public boolean fileExists() {
+    public boolean outputFileExists() {
         return mOutputFile.exists();
     }
 
-    public String getFileName() {
-        return normalizeFileName(mOutputFile);
+    public String getOutputFileName() {
+        return mOutputFile.getPath();
     }
 
     public void detachFromListener() {
