@@ -86,14 +86,6 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
         return false;
     }
 
-    private void cancelConfirmOverwriteDialog() {
-        // We don't want the activity to cache this dialog.
-        // See above for details.
-        removeDialog(CONFIRM_OVERWRITE_DIALOG);
-        mCopyFileTask = null;
-        showDialog(EXPORT_DATABASE_DIALOG);
-    }
-
     @Override
     protected Dialog onCreateDialog(int id) {
         switch (id) {
@@ -144,8 +136,9 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
             case CONFIRM_OVERWRITE_DIALOG: {
                 return new AlertDialog.Builder(this)
                     .setTitle(R.string.confirm_overwrite)
-                    .setMessage(String.format(getResources().getString(R.string.file_exists),
-                                              mCopyFileTask.getOutputFileName()))
+                    .setMessage(String.format(
+                            getResources().getString(R.string.external_file_exists),
+                            mCopyFileTask.getOutputFileName()))
                     .setPositiveButton(R.string.yes,
                                        new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
@@ -186,14 +179,12 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
         return null;
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case R.id.select_language:
-                mDb.clearLanguagesCache();
-                updateLabels();
-                break;
-        }
+    private void cancelConfirmOverwriteDialog() {
+        // We don't want the activity to cache this dialog.
+        // See above for details.
+        removeDialog(CONFIRM_OVERWRITE_DIALOG);
+        mCopyFileTask = null;
+        showDialog(EXPORT_DATABASE_DIALOG);
     }
 
     public void onStartCopy() {
@@ -315,5 +306,15 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
         intent.setClass(this, PracticeActivity.class);
         intent.setAction(direction.getAction());
         startActivity(intent);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case R.id.select_language:
+                mDb.clearLanguagesCache();
+                updateLabels();
+                break;
+        }
     }
 }

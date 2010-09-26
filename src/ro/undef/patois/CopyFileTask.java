@@ -56,6 +56,10 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
         return mOutputFile.exists();
     }
 
+    public String getInputFileName() {
+        return mInputFile.getPath();
+    }
+
     public String getOutputFileName() {
         return mOutputFile.getPath();
     }

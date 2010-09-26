@@ -22,16 +22,22 @@
     <string name="to_foreign">To %1$s</string>
     <string name="select_language">Select language</string>
     <string name="edit_languages">Edit languages</string>
-    <string name="export_database">Export database</string>
-    <string name="enter_file_name">Enter destination file name:</string>
-    <string name="export">Export</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="confirm_overwrite">Confirm overwrite</string>
-    <string name="file_exists">The file %1$s already exists.  Are you sure you want to replace it?</string>
+    <string name="export_database">Export database</string>
+    <string name="enter_destination_file_name">Enter destination file name:</string>
+    <string name="export">Export</string>
+    <string name="external_file_exists">The file %1$s already exists.  Are you sure you want to replace it?</string>
     <string name="exporting_database">Exporting database to %1$s.</string>
     <string name="export_successful">Database exported successfully.</string>
     <string name="export_failed">Failed to export the database.</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
+    <string name="enter_source_file_name">Enter source file name:</string>
+    <string name="import_">Import</string>
+    <string name="internal_file_exists">You seem to already have a database.  Importing a new one will permanently destroy the contents of your existing database: you will lose all your existing words and languages.  Are you sure you want to continue with the database import?</string>
+    <string name="importing_database">Importing database from %1$s.</string>
+    <string name="import_successful">Database imported successfully.</string>
+    <string name="import_failed">Failed to import the database.</string>
 
     <!-- Strings in the "edit languages" activity. -->
     <string name="enter_languages">Native and foreign languages:</string>
