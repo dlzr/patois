@@ -1,8 +1,7 @@
 IntroActivity:
   - Give a short tutorial.
   - Offer database import function.
-    - see why it doesn't work without a preexisting database
-    - handle the case when the input file is missing
+    - After importing successfully, finish the IntroActivity.
 
 MainActivity:
   - Add "About" dialog.

@@ -5,6 +5,7 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
     private final static String TAG = "CopyFileTask";
@@ -105,27 +106,45 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected Boolean doInBackground(Void... unused) {
         try {
-            FileInputStream in = new FileInputStream(mInputFile);
-            try {
-                FileOutputStream out = new FileOutputStream(mOutputFile);
-                try {
-                    byte buffer[] = new byte[32768];
-                    int count = 0;
+            if (!validateOutputPath())
+                return false;
 
-                    while ((count = in.read(buffer)) >= 0) {
-                        if (count > 0)
-                            out.write(buffer, 0, count);
-                    }
-                } finally {
-                    out.close();
-                }
-            } finally {
-                in.close();
-            }
-        } catch (java.io.IOException e) {
+            copyFile();
+        } catch (IOException e) {
             return false;
         }
 
         return true;
+    }
+
+    private boolean validateOutputPath() {
+        File parent = mOutputFile.getParentFile();
+        if (parent == null)
+            return true;
+
+        if (parent.exists())
+            return true;
+
+        return parent.mkdirs();
+    }
+
+    private void copyFile() throws IOException {
+        FileInputStream in = new FileInputStream(mInputFile);
+        try {
+            FileOutputStream out = new FileOutputStream(mOutputFile);
+            try {
+                byte buffer[] = new byte[32768];
+                int count = 0;
+
+                while ((count = in.read(buffer)) >= 0) {
+                    if (count > 0)
+                        out.write(buffer, 0, count);
+                }
+            } finally {
+                out.close();
+            }
+        } finally {
+            in.close();
+        }
     }
 }
