@@ -64,11 +64,17 @@ public class IntroActivity extends Activity implements CopyFileTask.Listener {
                     .setPositiveButton(R.string.import_,
                                        new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            File dbFile = Database.getDatabaseFile(IntroActivity.this);
                             mCopyFileTask = new CopyFileTask(
-                                    new File(fileNameEditText.getText().toString()), dbFile,
-                                    IntroActivity.this, new CopyFileTask.EmptyLock());
-                            if (mCopyFileTask.outputFileExists()) {
+                                    new File(fileNameEditText.getText().toString()),
+                                    Database.getDatabaseFile(IntroActivity.this),
+                                    IntroActivity.this,
+                                    new CopyFileTask.EmptyLock());
+
+                            if (!mCopyFileTask.inputFileExists()) {
+                                showErrorAndRestartImport(String.format(
+                                        getResources().getString(R.string.external_file_missing),
+                                        mCopyFileTask.getInputFileName()));
+                            } else if (mCopyFileTask.outputFileExists()) {
                                 showDialog(CONFIRM_OVERWRITE_DIALOG);
                             } else {
                                 mCopyFileTask.execute();
@@ -120,6 +126,13 @@ public class IntroActivity extends Activity implements CopyFileTask.Listener {
             }
         }
         return null;
+    }
+
+    private void showErrorAndRestartImport(String message) {
+        removeDialog(IMPORT_DATABASE_DIALOG);
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+        mCopyFileTask = null;
+        showDialog(IMPORT_DATABASE_DIALOG);
     }
 
     private void cancelConfirmOverwriteDialog() {

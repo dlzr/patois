@@ -52,16 +52,20 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
         mSuccessful = false;
     }
 
-    public boolean outputFileExists() {
-        return mOutputFile.exists();
-    }
-
     public String getInputFileName() {
         return mInputFile.getPath();
     }
 
     public String getOutputFileName() {
         return mOutputFile.getPath();
+    }
+
+    public boolean inputFileExists() {
+        return mInputFile.exists();
+    }
+
+    public boolean outputFileExists() {
+        return mOutputFile.exists();
     }
 
     public void detachFromListener() {

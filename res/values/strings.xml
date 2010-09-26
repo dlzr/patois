@@ -35,6 +35,7 @@
     <string name="enter_source_file_name">Enter source file name:</string>
     <string name="import_">Import</string>
     <string name="internal_file_exists">You seem to already have a database.  Importing a new one will permanently destroy the contents of your existing database: you will lose all your existing words and languages.  Are you sure you want to continue with the database import?</string>
+    <string name="external_file_missing">The file %1$s doesn\'t seem to exist.  Enter the correct file name of your database backup.</string>
     <string name="importing_database">Importing database from %1$s.</string>
     <string name="import_successful">Database imported successfully.</string>
     <string name="import_failed">Failed to import the database.</string>
