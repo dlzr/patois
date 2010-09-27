@@ -492,8 +492,8 @@ public class Database {
         return mDb.insert("preferences", null, values) != -1;
     }
 
-    private static final String ACTIVE_LANGUAGE_PREF = "active_language";
-    private static final String SORT_ORDER_PREF = "sort_order";
+    private static final String ACTIVE_LANGUAGE_PREF = "main.active_language";
+    private static final String SORT_ORDER_PREF = "browse.sort_order";
 
     public Language getActiveLanguage() {
         long id = getLongPreference(ACTIVE_LANGUAGE_PREF, -1);
