@@ -1,7 +1,5 @@
 IntroActivity:
   - Give a short tutorial.
-  - Offer database import function.
-    - After importing successfully, finish the IntroActivity.
 
 MainActivity:
   - Add "About" dialog.

@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -156,16 +157,39 @@ public class IntroActivity extends Activity implements CopyFileTask.Listener {
 
         int messageId = successful ? R.string.import_successful : R.string.import_failed;
         Toast.makeText(this, messageId, Toast.LENGTH_SHORT).show();
+
+        startMainActivity();
     }
 
     private void setupViews() {
         setContentView(R.layout.intro_activity);
 
-        Button button = (Button) findViewById(R.id.import_database);
+        Button button = (Button) findViewById(R.id.start_tutorial);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                // TODO: Start the TutorialActivity.
+            }
+        });
+
+        button = (Button) findViewById(R.id.import_database);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 showDialog(IMPORT_DATABASE_DIALOG);
             }
         });
+
+        button = (Button) findViewById(R.id.start_patois);
+        button.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startMainActivity();
+            }
+        });
+    }
+
+    private void startMainActivity() {
+        Intent intent = new Intent();
+        intent.setClass(this, MainActivity.class);
+        startActivity(intent);
+        finish();
     }
 }
