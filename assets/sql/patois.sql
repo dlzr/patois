@@ -82,6 +82,13 @@ CREATE TABLE practice_log (
     timestamp INTEGER NOT NULL DEFAULT (strftime('%s', 'now'))
 );
 
+CREATE TABLE preferences (
+    -- The name of the preference.
+    name TEXT NOT NULL,
+    -- The value of the preference.  This field is weakly typed.
+    value NOT NULL
+);
+
 CREATE TRIGGER delete_words_when_deleting_language DELETE ON languages
     BEGIN
         DELETE FROM words

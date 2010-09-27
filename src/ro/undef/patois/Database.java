@@ -3,7 +3,6 @@ package ro.undef.patois;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -21,12 +20,10 @@ public class Database {
 
     public static final String DATABASE_NAME = "patois.db";
     private static final int DATABASE_VERSION = 1;
-    private static final String PREFERENCES_NAME = "patois.prefs";
 
     private Activity mActivity;
     private DatabaseHelper mDbHelper;
     private SQLiteDatabase mDb;
-    private SharedPreferences mPrefs;
     private TreeMap<Long, Language> mLanguagesCache;
 
     private static class DatabaseHelper extends SQLiteOpenHelper {
@@ -96,7 +93,6 @@ public class Database {
         mActivity = activity;
         mDbHelper = new DatabaseHelper(mActivity.getApplicationContext());
         mDb = mDbHelper.getWritableDatabase();
-        mPrefs = mActivity.getSharedPreferences(PREFERENCES_NAME, 0);
         mLanguagesCache = new TreeMap<Long, Language>();
     }
 
@@ -192,39 +188,6 @@ public class Database {
 
     public void clearLanguagesCache() {
         mLanguagesCache.clear();
-    }
-
-
-    private static final String ACTIVE_LANGUAGE_PREF = "active_language";
-    private static final String SORT_ORDER_PREF = "sort_order";
-
-    public Language getActiveLanguage() {
-        long id = mPrefs.getLong(ACTIVE_LANGUAGE_PREF, -1);
-        if (id == -1)
-            return null;
-
-        return getLanguage(id);
-    }
-
-    public void setActiveLanguageId(long id) {
-        SharedPreferences.Editor editor = mPrefs.edit();
-        editor.putLong(ACTIVE_LANGUAGE_PREF, id);
-        editor.commit();
-    }
-
-    public static final int SORT_ORDER_BY_NAME = 0;
-    public static final int SORT_ORDER_BY_SCORE = 1;
-    public static final int SORT_ORDER_NEWEST_FIRST = 2;
-    public static final int SORT_ORDER_OLDEST_FIRST = 3;
-
-    public int getSortOrder() {
-        return mPrefs.getInt(SORT_ORDER_PREF, 0);
-    }
-
-    public void setSortOrder(int order) {
-        SharedPreferences.Editor editor = mPrefs.edit();
-        editor.putInt(SORT_ORDER_PREF, order);
-        editor.commit();
     }
 
 
@@ -499,6 +462,65 @@ public class Database {
                           new String[] { word.getIdString() }) == 1;
     }
 
+
+    private long getLongPreference(String name, long defValue) {
+        Cursor cursor = mDb.query("preferences",
+                                  new String[] { "value" },
+                                  "name == ?", new String[] { name },
+                                  null, null, null);
+        try {
+            if (cursor.getCount() != 1)
+                return defValue;
+
+            cursor.moveToFirst();
+            return cursor.getLong(0);
+        } finally {
+            cursor.close();
+        }
+    }
+
+    private boolean setLongPreference(String name, long value) {
+        ContentValues values = new ContentValues();
+        values.put("value", value);
+
+        if (mDb.update("preferences", values, "name == ?", new String[] { name }) == 1)
+            return true;
+
+        // This preference wasn't previously in the "preferences" table, so we
+        // insert it now.
+        values.put("name", name);
+        return mDb.insert("preferences", null, values) != -1;
+    }
+
+    private static final String ACTIVE_LANGUAGE_PREF = "active_language";
+    private static final String SORT_ORDER_PREF = "sort_order";
+
+    public Language getActiveLanguage() {
+        long id = getLongPreference(ACTIVE_LANGUAGE_PREF, -1);
+        if (id == -1)
+            return null;
+
+        return getLanguage(id);
+    }
+
+    public void setActiveLanguageId(long id) {
+        setLongPreference(ACTIVE_LANGUAGE_PREF, id);
+    }
+
+    public static final int SORT_ORDER_BY_NAME = 0;
+    public static final int SORT_ORDER_BY_SCORE = 1;
+    public static final int SORT_ORDER_NEWEST_FIRST = 2;
+    public static final int SORT_ORDER_OLDEST_FIRST = 3;
+
+    public int getSortOrder() {
+        return (int) getLongPreference(SORT_ORDER_PREF, 0);
+    }
+
+    public void setSortOrder(int order) {
+        setLongPreference(SORT_ORDER_PREF, order);
+    }
+
+
     public static File getDatabaseFile(Context context) {
         return context.getDatabasePath(DATABASE_NAME);
     }
@@ -506,6 +528,7 @@ public class Database {
     public static File getDefaultExportFile() {
         return new File(Environment.getExternalStorageDirectory(), Database.DATABASE_NAME);
     }
+
 
     public static class Lock implements CopyFileTask.Lock {
         private SQLiteDatabase mDb;
