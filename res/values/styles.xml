@@ -2,7 +2,7 @@
 <resources>
     <!-- Used in the IntroActivity. -->
     <color name="intro_text">#eeeeee</color>
-    <color name="intro_background">#373c42</color>
+    <color name="intro_background">#3b3e42</color>
 
     <style name="Theme.IntroActivity" parent="android:Theme">
         <item name="android:windowBackground">@color/intro_background</item>
