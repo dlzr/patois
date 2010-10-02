@@ -29,6 +29,15 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 
+/**
+ * Class to add a new word or edit an existing one.
+ *
+ * If the intent contains an extras bundle which contains the key "word_id"
+ * (the value is a Long), that word is loaded from the database for editting.
+ *
+ * If the intent action is Intent.ACTION_INSERT, then a "New Word" button is
+ * shown, to make it easy to add many words in a row.
+ */
 public class EditWordActivity extends Activity {
     private final static String TAG = "EditWordActivity";
 
@@ -58,16 +67,30 @@ public class EditWordActivity extends Activity {
 
         mDb = new Database(this);
 
-        Intent intent = getIntent();
         if (savedInstanceState != null) {
             loadStateFromBundle(savedInstanceState);
-        } else if (intent.getAction().equals(Intent.ACTION_EDIT)) {
-            loadStateFromDatabase(intent.getExtras().getLong("word_id"));
         } else {
-            resetState();
+            long wordId = getWordToEdit(getIntent());
+
+            if (wordId != -1)
+                loadStateFromDatabase(wordId);
+            else
+                resetState();
         }
 
-        setupViews(intent.getAction());
+        setupViews();
+    }
+
+    private long getWordToEdit(Intent intent) {
+        Bundle extras = intent.getExtras();
+        if (extras == null)
+            return -1;
+
+        Object o = extras.get("word_id");
+        if (o == null || !(o instanceof Long))
+            return -1;
+
+        return (Long) o;
     }
 
     @Override
@@ -165,7 +188,7 @@ public class EditWordActivity extends Activity {
         outState.putBoolean("cancel", mCancelButton.hasFocus());
     }
 
-    private void setupViews(String action) {
+    private void setupViews() {
         setContentView(R.layout.edit_word);
 
         mMainWordEntry.setupView(this, findViewById(R.id.main_word));
@@ -201,7 +224,7 @@ public class EditWordActivity extends Activity {
             mDoneButton.requestFocus();
 
         mNewWordButton = findViewById(R.id.new_word);
-        if (action.equals(Intent.ACTION_INSERT)) {
+        if (getIntent().getAction().equals(Intent.ACTION_INSERT)) {
             mNewWordButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     saveStateToDatabase();
@@ -453,7 +476,7 @@ language_search:
 
                     Intent intent = new Intent();
                     intent.setClass(mActivity, mActivity.getClass());
-                    intent.setAction(Intent.ACTION_EDIT);
+                    intent.setAction(mActivity.getIntent().getAction());
                     intent.putExtras(extras);
 
                     mActivity.startActivity(intent);
