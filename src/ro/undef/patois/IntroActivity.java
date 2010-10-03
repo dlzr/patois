@@ -158,7 +158,7 @@ public class IntroActivity extends Activity implements CopyFileTask.Listener {
         int messageId = successful ? R.string.import_successful : R.string.import_failed;
         Toast.makeText(this, messageId, Toast.LENGTH_SHORT).show();
 
-        startMainActivity();
+        forwardToActivity(MainActivity.class);
     }
 
     private void setupViews() {
@@ -167,7 +167,7 @@ public class IntroActivity extends Activity implements CopyFileTask.Listener {
         Button button = (Button) findViewById(R.id.start_tutorial);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // TODO: Start the TutorialActivity.
+                forwardToActivity(TutorialActivity.class);
             }
         });
 
@@ -181,14 +181,14 @@ public class IntroActivity extends Activity implements CopyFileTask.Listener {
         button = (Button) findViewById(R.id.start_patois);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                startMainActivity();
+                forwardToActivity(MainActivity.class);
             }
         });
     }
 
-    private void startMainActivity() {
+    private void forwardToActivity(Class<?> cls) {
         Intent intent = new Intent();
-        intent.setClass(this, MainActivity.class);
+        intent.setClass(this, cls);
         startActivity(intent);
         finish();
     }
