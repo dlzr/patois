@@ -32,14 +32,17 @@ import java.util.ArrayList;
 /**
  * Class to add a new word or edit an existing one.
  *
- * If the intent contains an extras bundle which contains the key "word_id"
- * (the value is a Long), that word is loaded from the database for editting.
+ * If the intent contains an extras bundle which contains the key
+ * EditWordActivity.EXTRA_WORD_ID (the value is a Long), that word is loaded
+ * from the database for editting.
  *
  * If the intent action is Intent.ACTION_INSERT, then a "New Word" button is
  * shown, to make it easy to add many words in a row.
  */
 public class EditWordActivity extends Activity {
     private final static String TAG = "EditWordActivity";
+
+    public final static String EXTRA_WORD_ID = "ro.undef.patois.WordId";
 
     private final static int SELECT_LANGUAGE_DIALOG = 1;
 
@@ -70,7 +73,7 @@ public class EditWordActivity extends Activity {
         if (savedInstanceState != null) {
             loadStateFromBundle(savedInstanceState);
         } else {
-            long wordId = getWordToEdit(getIntent());
+            long wordId = getIntent().getLongExtra(EXTRA_WORD_ID, -1);
 
             if (wordId != -1)
                 loadStateFromDatabase(wordId);
@@ -79,18 +82,6 @@ public class EditWordActivity extends Activity {
         }
 
         setupViews();
-    }
-
-    private long getWordToEdit(Intent intent) {
-        Bundle extras = intent.getExtras();
-        if (extras == null)
-            return -1;
-
-        Object o = extras.get("word_id");
-        if (o == null || !(o instanceof Long))
-            return -1;
-
-        return (Long) o;
     }
 
     @Override
@@ -471,13 +462,10 @@ language_search:
                 public void onClick(View v) {
                     mActivity.saveStateToDatabase();
 
-                    Bundle extras = new Bundle();
-                    extras.putLong("word_id", mWord.getId());
-
                     Intent intent = new Intent();
                     intent.setClass(mActivity, mActivity.getClass());
                     intent.setAction(mActivity.getIntent().getAction());
-                    intent.putExtras(extras);
+                    intent.putExtra(EXTRA_WORD_ID, mWord.getId());
 
                     mActivity.startActivity(intent);
                     mActivity.finish();

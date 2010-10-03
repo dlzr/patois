@@ -119,13 +119,10 @@ public class PracticeActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.edit_word: {
-                Bundle extras = new Bundle();
-                extras.putLong("word_id", mWord.getId());
-
                 Intent intent = new Intent();
                 intent.setClass(this, EditWordActivity.class);
                 intent.setAction(Intent.ACTION_EDIT);
-                intent.putExtras(extras);
+                intent.putExtra(EditWordActivity.EXTRA_WORD_ID, mWord.getId());
 
                 startActivityForResult(intent, R.id.edit_word);
                 return true;

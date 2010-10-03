@@ -174,9 +174,7 @@ public class BrowseWordsActivity extends ListActivity {
 
         if (id != -1) {
             intent.setAction(Intent.ACTION_EDIT);
-            Bundle extras = new Bundle();
-            extras.putLong("word_id", id);
-            intent.putExtras(extras);
+            intent.putExtra(EditWordActivity.EXTRA_WORD_ID, id);
         } else {
             intent.setAction(Intent.ACTION_INSERT);
         }
