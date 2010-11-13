@@ -6,6 +6,8 @@ MainActivity:
   - Redesign the layout to include more information:
     - the number of words in the active language
     - the average score of the words.
+    - for the "practice to/from" buttons, use a "health-bar" to show how
+      many words there are for each color
   - When there are no languages defined, forward directly to
     EditLanguagesActivity.
   - Add support for importing/exporting words from/to a human-readable
