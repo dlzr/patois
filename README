@@ -1,0 +1,27 @@
+Patois is an Android app for practicing words in foreign languages.
+
+To build it, you need to download and install the Android SDK:
+
+    http://developer.android.com/sdk/index.html
+
+Use 'git' to get the source:
+
+    $ git clone git://github.com/dlzr/patois.git patois
+
+Create a file called 'local.properties' specifying the location where
+you installed the Android SDK:
+
+    $ cd patois/
+    $ echo "sdk.dir=/path/to/your/android/sdk" > local.properties
+
+You should now be able to build the app with 'ant':
+
+    $ ant debug
+
+You now have the 'bin/patois-debug.apk' file which you can install with
+'adb'.  You can also do the build and install steps in one go, like
+this:
+
+    $ ant install
+
+Happy hacking!
