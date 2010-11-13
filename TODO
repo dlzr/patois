@@ -1,14 +1,20 @@
 IntroActivity:
-  - Give a short tutorial.
+  - Use "restore database" instead of "import database".
 
 MainActivity:
   - Add "About" dialog.
   - Redesign the layout to include more information:
     - the number of words in the active language
     - the average score of the words.
+  - When there are no languages defined, forward directly to
+    EditLanguagesActivity.
+  - Add support for importing/exporting words from/to a human-readable
+    file format.
 
 EditLanguagesActivity:
-  - [OK]
+  - [wish] Autocomplete the names/codes of languages from a list of
+    popular ones.
+  - [wish] Auto-add the language of the current phone locale.
 
 BrowseWordsActivity:
   - Show some intro message if there are no words.
