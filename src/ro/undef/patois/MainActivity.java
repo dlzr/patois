@@ -60,8 +60,12 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
         mDb = new Database(this);
 
         mCopyFileTask = (CopyFileTask) getLastNonConfigurationInstance();
-        if (mCopyFileTask != null)
+        if (mCopyFileTask != null) {
             mCopyFileTask.attachToListener(this);
+        } else {
+            if (mDb.getLanguagesCursor().getCount() == 0)
+                startEditLanguagesActivity();
+        }
 
         setupViews();
     }

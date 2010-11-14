@@ -8,8 +8,6 @@ MainActivity:
     - the average score of the words.
     - for the "practice to/from" buttons, use a "health-bar" to show how
       many words there are for each color
-  - When there are no languages defined, forward directly to
-    EditLanguagesActivity.
   - Add support for importing/exporting words from/to a human-readable
     file format.
 
