@@ -183,7 +183,7 @@ public class IntroActivity extends Activity implements CopyFileTask.Listener {
         Button button = (Button) findViewById(R.id.start_tutorial);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                forwardToActivity(TutorialActivity.class);
+                // TODO: Open the on-line tutorial in the browser.
             }
         });
 
