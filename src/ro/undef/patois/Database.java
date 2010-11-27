@@ -71,7 +71,7 @@ public class Database {
                 try {
                     String eol = System.getProperty("line.separator");
                     ArrayList<String> schema = new ArrayList<String>();
-                    StringBuffer statement = new StringBuffer("");
+                    StringBuilder statement = new StringBuilder("");
                     String line;
 
                     while ((line = in.readLine()) != null) {
