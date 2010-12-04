@@ -19,39 +19,27 @@ package ro.undef.patois;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
-import java.io.File;
 
 
-public class MainActivity extends Activity implements CopyFileTask.Listener {
+public class MainActivity extends Activity {
     private final static String TAG = "MainActivity";
 
     private static final int SELECT_LANGUAGE_DIALOG = 1;
-    private static final int EXPORT_DATABASE_DIALOG = 2;
-    private static final int CONFIRM_OVERWRITE_DIALOG = 3;
-    private static final int EXPORT_DATABASE_PROGRESS = 4;
+    private static final int DATABASE_EXPORTER_DIALOG_BASE = 100;
 
     private Database mDb;
-    // Note that mCopyFileTask is null most of the times.  The only time it
-    // points to a valid object is between the user clicking the "Export"
-    // button in the "Export database" dialog, and the export operation
-    // finishing.
-    // As such, whenever accessing mCopyFileTask, make sure it's not null.
-    private CopyFileTask mCopyFileTask;
+    private DatabaseExporter mDbExporter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,13 +47,17 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
 
         mDb = new Database(this);
 
-        mCopyFileTask = (CopyFileTask) getLastNonConfigurationInstance();
-        if (mCopyFileTask != null) {
-            mCopyFileTask.attachToListener(this);
-        } else {
+        mDbExporter = (DatabaseExporter) getLastNonConfigurationInstance();
+        if (mDbExporter == null) {
+            mDbExporter = new DatabaseExporter(DATABASE_EXPORTER_DIALOG_BASE);
+
+            // We only check for an empty database when the activity is first
+            // started.  If we're being restarted because of a configuration
+            // change, mDbExporter will be non-null at this point.
             if (mDb.getLanguagesCursor().getCount() == 0)
                 startEditLanguagesActivity();
         }
+        mDbExporter.attachToActivity(this);
 
         setupViews();
     }
@@ -79,9 +71,8 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        if (mCopyFileTask != null)
-            mCopyFileTask.detachFromListener();
-        return mCopyFileTask;
+        mDbExporter.detachFromActivity();
+        return mDbExporter;
     }
 
     @Override
@@ -99,7 +90,7 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
                 return true;
             }
             case R.id.export_database: {
-                showDialog(EXPORT_DATABASE_DIALOG);
+                mDbExporter.start();
                 return true;
             }
         }
@@ -108,6 +99,10 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
 
     @Override
     protected Dialog onCreateDialog(int id) {
+        Dialog dialog = mDbExporter.onCreateDialog(id);
+        if (dialog != null)
+            return dialog;
+
         switch (id) {
             case SELECT_LANGUAGE_DIALOG: {
                 final Cursor cursor = mDb.getLanguagesCursor();
@@ -128,99 +123,8 @@ public class MainActivity extends Activity implements CopyFileTask.Listener {
                     .setNegativeButton(R.string.cancel, null)
                     .create();
             }
-            case EXPORT_DATABASE_DIALOG: {
-                View view = getLayoutInflater().inflate(R.layout.export_database_dialog, null);
-                final EditText fileNameEditText = (EditText) view.findViewById(R.id.file_name);
-                fileNameEditText.setText(Database.getDefaultExportFile().getPath());
-
-                return new AlertDialog.Builder(this)
-                    .setTitle(R.string.export_database)
-                    .setView(view)
-                    .setPositiveButton(R.string.export,
-                                       new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            File dbFile = Database.getDatabaseFile(MainActivity.this);
-                            mCopyFileTask = new CopyFileTask(
-                                    dbFile, new File(fileNameEditText.getText().toString()),
-                                    MainActivity.this, new Database.Lock(dbFile.getPath()));
-                            if (mCopyFileTask.outputFileExists()) {
-                                showDialog(CONFIRM_OVERWRITE_DIALOG);
-                            } else {
-                                mCopyFileTask.execute();
-                            }
-                        }
-                    })
-                    .setNegativeButton(R.string.cancel, null)
-                    .create();
-            }
-            case CONFIRM_OVERWRITE_DIALOG: {
-                return new AlertDialog.Builder(this)
-                    .setTitle(R.string.confirm_overwrite)
-                    .setMessage(String.format(
-                            getResources().getString(R.string.external_file_exists),
-                            mCopyFileTask.getOutputFileName()))
-                    .setPositiveButton(R.string.yes,
-                                       new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            // We don't want the activity to cache this dialog
-                            // so we call removeDialog() explicitly.  If this
-                            // dialog were to be cached, the activity would
-                            // call onCreateDialog() when resuming from
-                            // configuration changes, and mCopyFileTask could
-                            // be null at that point, leading to a
-                            // NullPointerException in the setup code above.
-                            removeDialog(CONFIRM_OVERWRITE_DIALOG);
-                            mCopyFileTask.execute();
-                        }
-                    })
-                    .setNegativeButton(R.string.no,
-                                       new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            cancelConfirmOverwriteDialog();
-                        }
-                    })
-                    .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                        public void onCancel(DialogInterface dialog) {
-                            cancelConfirmOverwriteDialog();
-                        }
-                    })
-                    .create();
-            }
-            case EXPORT_DATABASE_PROGRESS: {
-                ProgressDialog dialog = new ProgressDialog(this);
-                // TODO: Maybe we should support canceling the export operation.
-                dialog.setCancelable(false);
-                dialog.setMessage(
-                        String.format(getResources().getString(R.string.exporting_database),
-                                      mCopyFileTask.getOutputFileName()));
-                return dialog;
-            }
         }
         return null;
-    }
-
-    private void cancelConfirmOverwriteDialog() {
-        // We don't want the activity to cache this dialog.
-        // See above for details.
-        removeDialog(CONFIRM_OVERWRITE_DIALOG);
-        mCopyFileTask = null;
-        showDialog(EXPORT_DATABASE_DIALOG);
-    }
-
-    public void onStartCopy() {
-        showDialog(EXPORT_DATABASE_PROGRESS);
-    }
-
-    public void onFinishCopy(boolean successful) {
-        // We use removeDialog() instead of dismissDialog() here to stop the
-        // activity from caching the EXPORT_DATABASE_PROGRESS dialog.  See
-        // comment in onCreateDialog(CONFIRM_OVERWRITE_DIALOG) why we don't
-        // want that.
-        removeDialog(EXPORT_DATABASE_PROGRESS);
-        mCopyFileTask = null;
-
-        int messageId = successful ? R.string.export_successful : R.string.export_failed;
-        Toast.makeText(this, messageId, Toast.LENGTH_SHORT).show();
     }
 
     private void setupViews() {
