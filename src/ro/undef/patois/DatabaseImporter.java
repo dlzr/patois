@@ -79,7 +79,7 @@ public class DatabaseImporter implements CopyFileTask.Listener {
         } else if (id == CONFIRM_OVERWRITE_DIALOG) {
             return new AlertDialog.Builder(mActivity)
                 .setTitle(R.string.confirm_overwrite)
-                .setMessage(mActivity.getResources().getString(R.string.internal_file_exists))
+                .setMessage(getStringRes(R.string.internal_file_exists))
                 .setPositiveButton(R.string.yes,
                                    new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -91,9 +91,8 @@ public class DatabaseImporter implements CopyFileTask.Listener {
         } else if (id == IMPORT_DATABASE_PROGRESS) {
             ProgressDialog dialog = new ProgressDialog(mActivity);
             dialog.setCancelable(false);
-            dialog.setMessage(
-                    String.format(mActivity.getResources().getString(R.string.importing_database),
-                                  mInputFile.getPath()));
+            dialog.setMessage(String.format(getStringRes(R.string.importing_database),
+                                            mInputFile.getPath()));
             return dialog;
         }
         return null;
@@ -102,9 +101,8 @@ public class DatabaseImporter implements CopyFileTask.Listener {
     private void prepareImport(String inputFileName) {
         mInputFile = new File(inputFileName);
         if (!mInputFile.exists()) {
-            String message = String.format(
-                    mActivity.getResources().getString(R.string.external_file_missing),
-                    inputFileName);
+            String message = String.format(getStringRes(R.string.external_file_missing),
+                                           inputFileName);
             Toast.makeText(mActivity, message, Toast.LENGTH_LONG).show();
 
             mActivity.removeDialog(IMPORT_DATABASE_DIALOG);
@@ -134,5 +132,9 @@ public class DatabaseImporter implements CopyFileTask.Listener {
 
         int messageId = successful ? R.string.import_successful : R.string.import_failed;
         Toast.makeText(mActivity, messageId, Toast.LENGTH_SHORT).show();
+    }
+
+    private String getStringRes(int id) {
+        return mActivity.getResources().getString(id);
     }
 }

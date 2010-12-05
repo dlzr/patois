@@ -79,9 +79,8 @@ public class DatabaseExporter implements CopyFileTask.Listener {
         } else if (id == CONFIRM_OVERWRITE_DIALOG) {
             return new AlertDialog.Builder(mActivity)
                 .setTitle(R.string.confirm_overwrite)
-                .setMessage(String.format(
-                        mActivity.getResources().getString(R.string.external_file_exists),
-                        mOutputFile.getPath()))
+                .setMessage(String.format(getStringRes(R.string.external_file_exists),
+                                          mOutputFile.getPath()))
                 .setPositiveButton(R.string.yes,
                                    new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -103,9 +102,8 @@ public class DatabaseExporter implements CopyFileTask.Listener {
         } else if (id == EXPORT_DATABASE_PROGRESS) {
             ProgressDialog dialog = new ProgressDialog(mActivity);
             dialog.setCancelable(false);
-            dialog.setMessage(
-                    String.format(mActivity.getResources().getString(R.string.exporting_database),
-                                  mOutputFile.getPath()));
+            dialog.setMessage(String.format(getStringRes(R.string.exporting_database),
+                                            mOutputFile.getPath()));
             return dialog;
         }
         return null;
@@ -139,5 +137,9 @@ public class DatabaseExporter implements CopyFileTask.Listener {
 
         int messageId = successful ? R.string.export_successful : R.string.export_failed;
         Toast.makeText(mActivity, messageId, Toast.LENGTH_SHORT).show();
+    }
+
+    private String getStringRes(int id) {
+        return mActivity.getResources().getString(id);
     }
 }
