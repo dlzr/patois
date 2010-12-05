@@ -35,7 +35,8 @@ public class DatabaseExporter implements CopyFileTask.Listener {
     private final int EXPORT_DATABASE_PROGRESS;
 
     private Activity mActivity;
-    private CopyFileTask mCopyFileTask;
+    private File mInputFile;
+    private File mOutputFile;
 
     public DatabaseExporter(int dialogIdBase) {
         EXPORT_DATABASE_DIALOG = dialogIdBase;
@@ -43,7 +44,8 @@ public class DatabaseExporter implements CopyFileTask.Listener {
         EXPORT_DATABASE_PROGRESS = dialogIdBase + 2;
 
         mActivity = null;
-        mCopyFileTask = null;
+        mInputFile = null;
+        mOutputFile = null;
     }
 
     public void attachToActivity(Activity activity) {
@@ -67,18 +69,9 @@ public class DatabaseExporter implements CopyFileTask.Listener {
             return new AlertDialog.Builder(mActivity)
                 .setTitle(R.string.export_database)
                 .setView(view)
-                .setPositiveButton(R.string.export,
-                                   new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.export, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        File dbFile = Database.getDatabaseFile(mActivity);
-                        mCopyFileTask = new CopyFileTask(
-                                dbFile, new File(fileNameEditText.getText().toString()),
-                                DatabaseExporter.this, new Database.Lock(dbFile.getPath()));
-                        if (mCopyFileTask.outputFileExists()) {
-                            mActivity.showDialog(CONFIRM_OVERWRITE_DIALOG);
-                        } else {
-                            mCopyFileTask.execute();
-                        }
+                        prepareExport(fileNameEditText.getText().toString());
                     }
                 })
                 .setNegativeButton(R.string.cancel, null)
@@ -88,51 +81,53 @@ public class DatabaseExporter implements CopyFileTask.Listener {
                 .setTitle(R.string.confirm_overwrite)
                 .setMessage(String.format(
                         mActivity.getResources().getString(R.string.external_file_exists),
-                        mCopyFileTask.getOutputFileName()))
+                        mOutputFile.getPath()))
                 .setPositiveButton(R.string.yes,
                                    new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        // We don't want the activity to cache this dialog
-                        // so we call removeDialog() explicitly.  If this
-                        // dialog were to be cached, the activity would
-                        // call onCreateDialog() when resuming from
-                        // configuration changes, and mCopyFileTask could
-                        // be null at that point, leading to a
-                        // NullPointerException in the setup code above.
-                        mActivity.removeDialog(CONFIRM_OVERWRITE_DIALOG);
-                        mCopyFileTask.execute();
+                        startExport();
                     }
                 })
                 .setNegativeButton(R.string.no,
                                    new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        cancelConfirmOverwriteDialog();
+                        mActivity.showDialog(EXPORT_DATABASE_DIALOG);
                     }
                 })
                 .setOnCancelListener(new DialogInterface.OnCancelListener() {
                     public void onCancel(DialogInterface dialog) {
-                        cancelConfirmOverwriteDialog();
+                        mActivity.showDialog(EXPORT_DATABASE_DIALOG);
                     }
                 })
                 .create();
         } else if (id == EXPORT_DATABASE_PROGRESS) {
             ProgressDialog dialog = new ProgressDialog(mActivity);
-            // TODO: Maybe we should support canceling the export operation.
             dialog.setCancelable(false);
             dialog.setMessage(
                     String.format(mActivity.getResources().getString(R.string.exporting_database),
-                                  mCopyFileTask.getOutputFileName()));
+                                  mOutputFile.getPath()));
             return dialog;
         }
         return null;
     }
 
-    private void cancelConfirmOverwriteDialog() {
-        // We don't want the activity to cache this dialog.
-        // See above for details.
-        mActivity.removeDialog(CONFIRM_OVERWRITE_DIALOG);
-        mCopyFileTask = null;
-        mActivity.showDialog(EXPORT_DATABASE_DIALOG);
+    private void prepareExport(String outputFileName) {
+        mInputFile = Database.getDatabaseFile(mActivity);
+        if (!mInputFile.exists())
+            throw new RuntimeException("Cannot export database: missing database file.");
+
+        mOutputFile = new File(outputFileName);
+        if (mOutputFile.exists()) {
+            mActivity.showDialog(CONFIRM_OVERWRITE_DIALOG);
+            return;
+        }
+
+        startExport();
+    }
+
+    private void startExport() {
+        new CopyFileTask(mInputFile, mOutputFile, this,
+                         new Database.Lock(mInputFile.getPath())).execute();
     }
 
     public void onStartCopy() {
@@ -140,12 +135,7 @@ public class DatabaseExporter implements CopyFileTask.Listener {
     }
 
     public void onFinishCopy(boolean successful) {
-        // We use removeDialog() instead of dismissDialog() here to stop the
-        // activity from caching the EXPORT_DATABASE_PROGRESS dialog.  See
-        // comment in onCreateDialog(CONFIRM_OVERWRITE_DIALOG) why we don't
-        // want that.
-        mActivity.removeDialog(EXPORT_DATABASE_PROGRESS);
-        mCopyFileTask = null;
+        mActivity.dismissDialog(EXPORT_DATABASE_PROGRESS);
 
         int messageId = successful ? R.string.export_successful : R.string.export_failed;
         Toast.makeText(mActivity, messageId, Toast.LENGTH_SHORT).show();
