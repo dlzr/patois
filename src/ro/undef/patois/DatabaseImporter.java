@@ -35,7 +35,8 @@ public class DatabaseImporter implements CopyFileTask.Listener {
     private final int IMPORT_DATABASE_PROGRESS;
 
     private Activity mActivity;
-    private CopyFileTask mCopyFileTask;
+    private File mInputFile;
+    private File mOutputFile;
 
     public DatabaseImporter(int dialogIdBase) {
         IMPORT_DATABASE_DIALOG = dialogIdBase;
@@ -43,7 +44,8 @@ public class DatabaseImporter implements CopyFileTask.Listener {
         IMPORT_DATABASE_PROGRESS = dialogIdBase + 2;
 
         mActivity = null;
-        mCopyFileTask = null;
+        mInputFile = null;
+        mOutputFile = null;
     }
 
     public void attachToActivity(Activity activity) {
@@ -67,24 +69,9 @@ public class DatabaseImporter implements CopyFileTask.Listener {
             return new AlertDialog.Builder(mActivity)
                 .setTitle(R.string.import_database)
                 .setView(view)
-                .setPositiveButton(R.string.import_,
-                                   new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.import_, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        mCopyFileTask = new CopyFileTask(
-                                new File(fileNameEditText.getText().toString()),
-                                Database.getDatabaseFile(mActivity),
-                                DatabaseImporter.this,
-                                new CopyFileTask.EmptyLock());
-
-                        if (!mCopyFileTask.inputFileExists()) {
-                            showErrorAndRestartImport(String.format(
-                                    mActivity.getResources().getString(R.string.external_file_missing),
-                                    mCopyFileTask.getInputFileName()));
-                        } else if (mCopyFileTask.outputFileExists()) {
-                            mActivity.showDialog(CONFIRM_OVERWRITE_DIALOG);
-                        } else {
-                            mCopyFileTask.execute();
-                        }
+                        prepareImport(fileNameEditText.getText().toString());
                     }
                 })
                 .setNegativeButton(R.string.cancel, null)
@@ -96,53 +83,46 @@ public class DatabaseImporter implements CopyFileTask.Listener {
                 .setPositiveButton(R.string.yes,
                                    new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
-                        // We don't want the activity to cache this dialog
-                        // so we call removeDialog() explicitly.  If this
-                        // dialog were to be cached, the activity would
-                        // call onCreateDialog() when resuming from
-                        // configuration changes, and mCopyFileTask could
-                        // be null at that point, leading to a
-                        // NullPointerException in the setup code above.
-                        mActivity.removeDialog(CONFIRM_OVERWRITE_DIALOG);
-                        mCopyFileTask.execute();
+                        startImport();
                     }
                 })
-                .setNegativeButton(R.string.no,
-                                   new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        cancelConfirmOverwriteDialog();
-                    }
-                })
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    public void onCancel(DialogInterface dialog) {
-                        cancelConfirmOverwriteDialog();
-                    }
-                })
+                .setNegativeButton(R.string.no, null)
                 .create();
         } else if (id == IMPORT_DATABASE_PROGRESS) {
             ProgressDialog dialog = new ProgressDialog(mActivity);
-            // TODO: Maybe we should support canceling the import operation.
             dialog.setCancelable(false);
             dialog.setMessage(
                     String.format(mActivity.getResources().getString(R.string.importing_database),
-                                  mCopyFileTask.getInputFileName()));
+                                  mInputFile.getPath()));
             return dialog;
         }
         return null;
     }
 
-    private void showErrorAndRestartImport(String message) {
-        mActivity.removeDialog(IMPORT_DATABASE_DIALOG);
-        Toast.makeText(mActivity, message, Toast.LENGTH_LONG).show();
-        mCopyFileTask = null;
-        mActivity.showDialog(IMPORT_DATABASE_DIALOG);
+    private void prepareImport(String inputFileName) {
+        mInputFile = new File(inputFileName);
+        if (!mInputFile.exists()) {
+            String message = String.format(
+                    mActivity.getResources().getString(R.string.external_file_missing),
+                    inputFileName);
+            Toast.makeText(mActivity, message, Toast.LENGTH_LONG).show();
+
+            mActivity.removeDialog(IMPORT_DATABASE_DIALOG);
+            mActivity.showDialog(IMPORT_DATABASE_DIALOG);
+            return;
+        }
+
+        mOutputFile = Database.getDatabaseFile(mActivity);
+        if (mOutputFile.exists()) {
+            mActivity.showDialog(CONFIRM_OVERWRITE_DIALOG);
+            return;
+        }
+
+        startImport();
     }
 
-    private void cancelConfirmOverwriteDialog() {
-        // We don't want the activity to cache this dialog.
-        // See above for details.
-        mActivity.removeDialog(CONFIRM_OVERWRITE_DIALOG);
-        mCopyFileTask = null;
+    private void startImport() {
+        new CopyFileTask(mInputFile, mOutputFile, this, new CopyFileTask.EmptyLock()).execute();
     }
 
     public void onStartCopy() {
@@ -150,12 +130,7 @@ public class DatabaseImporter implements CopyFileTask.Listener {
     }
 
     public void onFinishCopy(boolean successful) {
-        // We use removeDialog() instead of dismissDialog() here to stop the
-        // activity from caching the IMPORT_DATABASE_PROGRESS dialog.  See
-        // comment in onCreateDialog(CONFIRM_OVERWRITE_DIALOG) why we don't
-        // want that.
-        mActivity.removeDialog(IMPORT_DATABASE_PROGRESS);
-        mCopyFileTask = null;
+        mActivity.dismissDialog(IMPORT_DATABASE_PROGRESS);
 
         int messageId = successful ? R.string.import_successful : R.string.import_failed;
         Toast.makeText(mActivity, messageId, Toast.LENGTH_SHORT).show();
