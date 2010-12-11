@@ -140,6 +140,8 @@ public class CopyFileTask extends AsyncTask<Void, Void, Boolean> {
                     if (count > 0)
                         out.write(buffer, 0, count);
                 }
+
+                out.getFD().sync();
             } finally {
                 out.close();
             }
