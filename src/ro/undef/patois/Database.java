@@ -546,11 +546,12 @@ public class Database {
     }
 
 
-    public static class Lock implements CopyFileTask.Lock {
+    public static class Lock {
         private SQLiteDatabase mDb;
 
-        public Lock(String dbFileName) {
-            mDb = SQLiteDatabase.openDatabase(dbFileName, null, SQLiteDatabase.OPEN_READWRITE);
+        public Lock(Context context) {
+            mDb = SQLiteDatabase.openDatabase(getDatabaseFile(context).getPath(), null,
+                                              SQLiteDatabase.OPEN_READWRITE);
         }
 
         public void acquire() {

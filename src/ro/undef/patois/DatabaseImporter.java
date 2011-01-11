@@ -27,7 +27,7 @@ import android.widget.Toast;
 import java.io.File;
 
 
-public class DatabaseImporter implements CopyFileTask.Listener {
+public class DatabaseImporter {
     private final static String TAG = "DatabaseImporter";
 
     private final int IMPORT_DATABASE_DIALOG;
@@ -37,6 +37,7 @@ public class DatabaseImporter implements CopyFileTask.Listener {
     private Activity mActivity;
     private File mInputFile;
     private File mOutputFile;
+    private CopyFileTask mCopyFileTask;
 
     public DatabaseImporter(int dialogIdBase) {
         IMPORT_DATABASE_DIALOG = dialogIdBase;
@@ -46,13 +47,18 @@ public class DatabaseImporter implements CopyFileTask.Listener {
         mActivity = null;
         mInputFile = null;
         mOutputFile = null;
+        mCopyFileTask = null;
     }
 
     public void attachToActivity(Activity activity) {
         mActivity = activity;
+        if (mCopyFileTask != null)
+            mCopyFileTask.attach(activity);
     }
 
     public void detachFromActivity() {
+        if (mCopyFileTask != null)
+            mCopyFileTask.detach();
         mActivity = null;
     }
 
@@ -120,18 +126,22 @@ public class DatabaseImporter implements CopyFileTask.Listener {
     }
 
     private void startImport() {
-        new CopyFileTask(mInputFile, mOutputFile, this, new CopyFileTask.EmptyLock()).execute();
-    }
+        mCopyFileTask = new CopyFileTask(mActivity, mInputFile, mOutputFile) {
+            protected void onStart() {
+                getActivity().showDialog(IMPORT_DATABASE_PROGRESS);
+            }
 
-    public void onStartCopy() {
-        mActivity.showDialog(IMPORT_DATABASE_PROGRESS);
-    }
+            protected void onFinish(Boolean successful) {
+                getActivity().dismissDialog(IMPORT_DATABASE_PROGRESS);
 
-    public void onFinishCopy(boolean successful) {
-        mActivity.dismissDialog(IMPORT_DATABASE_PROGRESS);
+                int messageId = successful ? R.string.import_successful : R.string.import_failed;
+                Toast.makeText(getActivity(), messageId, Toast.LENGTH_SHORT).show();
 
-        int messageId = successful ? R.string.import_successful : R.string.import_failed;
-        Toast.makeText(mActivity, messageId, Toast.LENGTH_SHORT).show();
+                mCopyFileTask = null;
+            }
+        };
+
+        mCopyFileTask.execute();
     }
 
     private String getStringRes(int id) {

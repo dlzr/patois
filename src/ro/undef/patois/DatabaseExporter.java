@@ -27,7 +27,7 @@ import android.widget.Toast;
 import java.io.File;
 
 
-public class DatabaseExporter implements CopyFileTask.Listener {
+public class DatabaseExporter {
     private final static String TAG = "DatabaseExporter";
 
     private final int EXPORT_DATABASE_DIALOG;
@@ -37,6 +37,7 @@ public class DatabaseExporter implements CopyFileTask.Listener {
     private Activity mActivity;
     private File mInputFile;
     private File mOutputFile;
+    private CopyFileTask mCopyFileTask;
 
     public DatabaseExporter(int dialogIdBase) {
         EXPORT_DATABASE_DIALOG = dialogIdBase;
@@ -46,13 +47,18 @@ public class DatabaseExporter implements CopyFileTask.Listener {
         mActivity = null;
         mInputFile = null;
         mOutputFile = null;
+        mCopyFileTask = null;
     }
 
     public void attachToActivity(Activity activity) {
         mActivity = activity;
+        if (mCopyFileTask != null)
+            mCopyFileTask.attach(activity);
     }
 
     public void detachFromActivity() {
+        if (mCopyFileTask != null)
+            mCopyFileTask.detach();
         mActivity = null;
     }
 
@@ -124,19 +130,31 @@ public class DatabaseExporter implements CopyFileTask.Listener {
     }
 
     private void startExport() {
-        new CopyFileTask(mInputFile, mOutputFile, this,
-                         new Database.Lock(mInputFile.getPath())).execute();
-    }
+        mCopyFileTask = new CopyFileTask(mActivity, mInputFile, mOutputFile) {
+            private Database.Lock mLock;
 
-    public void onStartCopy() {
-        mActivity.showDialog(EXPORT_DATABASE_PROGRESS);
-    }
+            protected void onStart() {
+                getActivity().showDialog(EXPORT_DATABASE_PROGRESS);
 
-    public void onFinishCopy(boolean successful) {
-        mActivity.dismissDialog(EXPORT_DATABASE_PROGRESS);
+                mLock = new Database.Lock(getActivity());
+                mLock.acquire();
+            }
 
-        int messageId = successful ? R.string.export_successful : R.string.export_failed;
-        Toast.makeText(mActivity, messageId, Toast.LENGTH_SHORT).show();
+            protected void onFinishImmediate(Boolean successful) {
+                mLock.release();
+            }
+
+            protected void onFinish(Boolean successful) {
+                getActivity().dismissDialog(EXPORT_DATABASE_PROGRESS);
+
+                int messageId = successful ? R.string.export_successful : R.string.export_failed;
+                Toast.makeText(getActivity(), messageId, Toast.LENGTH_SHORT).show();
+
+                mCopyFileTask = null;
+            }
+        };
+
+        mCopyFileTask.execute();
     }
 
     private String getStringRes(int id) {
