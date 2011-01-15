@@ -84,7 +84,9 @@ CREATE TABLE translations (
 );
 
 CREATE TABLE practice_log (
-    -- The version of the trainer algorithm that saved this trial.
+    -- The version of the trainer algorithm that saved this trial:
+    --    0 - the original trainer
+    --    1 - manual score reset
     trainer INTEGER NOT NULL,
     -- The ID of the word being tested.
     word_id INTEGER NOT NULL,

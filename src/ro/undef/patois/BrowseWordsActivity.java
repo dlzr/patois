@@ -105,6 +105,11 @@ public class BrowseWordsActivity extends ListActivity {
             (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 
         switch (item.getItemId()) {
+            case R.id.reset_score: {
+                mDb.resetPracticeInfoById(info.id);
+                mCursor.requery();
+                return true;
+            }
             case R.id.edit_word: {
                 startEditWordActivity(info.id);
                 return true;

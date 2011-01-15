@@ -41,6 +41,7 @@ import android.widget.CursorAdapter;
 import android.widget.FilterQueryProvider;
 import android.widget.LinearLayout;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
 import java.io.Serializable;
 import java.util.ArrayList;
 
@@ -114,8 +115,21 @@ public class EditWordActivity extends Activity {
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+
+        // We only show the menu if the word is in the database, because
+        // neither "reset score" nor "delete word" make sense otherwise.
+        return mMainWordEntry.getWord().isInDatabase();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.reset_score: {
+                resetScore();
+                return true;
+            }
             case R.id.delete_word: {
                 if (mMainWordEntry.getWord().isInDatabase())
                     mDb.deleteWord(mMainWordEntry.getWord());
@@ -318,6 +332,17 @@ language_search:
             return selected;
 
         return most_words;
+    }
+
+    private void resetScore() {
+        if (!mMainWordEntry.getWord().isInDatabase())
+            return;
+
+        mDb.resetPracticeInfoById(mMainWordEntry.getWord().getId());
+
+        String message = String.format(getResources().getString(R.string.score_was_reset),
+                                       mMainWordEntry.getWord().getName());
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     @Override

@@ -78,7 +78,9 @@
     <string name="translation">Translation</string>
     <string name="add_translation">Add a new translation</string>
     <string name="new_word">New word</string>
+    <string name="reset_score">Reset score</string>
     <string name="delete_word">Delete word</string>
+    <string name="score_was_reset">The score for \'%1$s\' was reset.</string>
 
     <!-- Strings in the "practice" activity. -->
     <string name="show_answer">Show answer</string>

@@ -22,7 +22,10 @@ public class Trainer {
     private final static String TAG = "Trainer";
 
     // The version of the training algorithm.
-    public final static int VERSION = 0;
+    // See patois.sql for already used version numbers.  In particular,
+    // version 1 has been reserved for manual score resets.
+    public final static int TRAINER_VERSION = 0;
+    public final static int MANUAL_SCORE_RESET_VERSION = 1;
 
     private Database mDb;
     private Random mRandom;
@@ -90,12 +93,11 @@ public class Trainer {
             info.level = 0;
         }
 
-        mDb.insertPracticeLogEntry(VERSION, word, direction, successful);
-        mDb.updatePracticeInfo(word, info);
+        mDb.updatePracticeInfo(word, info, TRAINER_VERSION, successful);
     }
 
-    public static long scheduleNextPractice(long now_timestamp, int level) {
-        return now_timestamp + getInterval(level);
+    public static long scheduleNextPractice(long now, int level) {
+        return now + getInterval(level);
     }
 
     // The minimum time in seconds between two practices of the same word.

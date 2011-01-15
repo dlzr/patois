@@ -362,13 +362,13 @@ public class Database {
 
     public boolean insertWord(Word word) {
         final int level = 0;
-        final long timestamp = System.currentTimeMillis() / 1000;
-        final long nextPractice = Trainer.scheduleNextPractice(timestamp, level);
+        final long now = System.currentTimeMillis() / 1000;
+        final long nextPractice = Trainer.scheduleNextPractice(now, level);
 
         ContentValues values = new ContentValues();
         values.put("name", word.getName());
         values.put("language_id", word.getLanguage().getId());
-        values.put("timestamp", timestamp);
+        values.put("timestamp", now);
         values.put("level_from", level);
         values.put("next_practice_from", nextPractice);
         values.put("level_to", level);
@@ -437,17 +437,6 @@ public class Database {
                    });
     }
 
-    public void insertPracticeLogEntry(int trainerVersion, Word word,
-                                       Trainer.Direction direction, boolean successful) {
-        ContentValues values = new ContentValues();
-        values.put("trainer", trainerVersion);
-        values.put("word_id", word.getId());
-        values.put("direction", direction.getValue());
-        values.put("successful", successful);
-
-        mDb.insert("practice_log", null, values);
-    }
-
     public Trainer.PracticeInfo getPracticeInfo(Word word, Trainer.Direction direction) {
         Cursor cursor = mDb.query("words",
                                   new String[] {
@@ -468,14 +457,50 @@ public class Database {
         }
     }
 
-    public boolean updatePracticeInfo(Word word, Trainer.PracticeInfo info) {
+    public boolean updatePracticeInfo(Word word, Trainer.PracticeInfo info,
+                                      int trainerVersion, boolean successful) {
+        final long now = System.currentTimeMillis() / 1000;
+
+        insertPracticeLogEntry(trainerVersion, word.getId(), info.direction, successful, now);
+
         ContentValues values = new ContentValues();
         values.put("level" + info.direction.getSuffix(), info.level);
-        values.put("last_practice" + info.direction.getSuffix(), System.currentTimeMillis() / 1000);
+        values.put("last_practice" + info.direction.getSuffix(), now);
         values.put("next_practice" + info.direction.getSuffix(), info.nextPractice);
 
         return mDb.update("words", values, "_id == ?",
                           new String[] { word.getIdString() }) == 1;
+    }
+
+    public boolean resetPracticeInfoById(long wordId) {
+        final long now = System.currentTimeMillis() / 1000;
+
+        insertPracticeLogEntry(Trainer.MANUAL_SCORE_RESET_VERSION, wordId,
+                               Trainer.Direction.FROM_FOREIGN, false, now);
+        insertPracticeLogEntry(Trainer.MANUAL_SCORE_RESET_VERSION, wordId,
+                               Trainer.Direction.TO_FOREIGN, false, now);
+
+        ContentValues values = new ContentValues();
+        values.put("level_to", 0);
+        values.put("next_practice_to", now);
+        values.put("level_from", 0);
+        values.put("next_practice_from", now);
+
+        return mDb.update("words", values, "_id == ?",
+                          new String[] { Long.toString(wordId) }) == 1;
+    }
+
+    private void insertPracticeLogEntry(int trainerVersion, long wordId,
+                                        Trainer.Direction direction,
+                                        boolean successful, long timestamp) {
+        ContentValues values = new ContentValues();
+        values.put("trainer", trainerVersion);
+        values.put("word_id", wordId);
+        values.put("direction", direction.getValue());
+        values.put("successful", successful);
+        values.put("timestamp", timestamp);
+
+        mDb.insert("practice_log", null, values);
     }
 
 
