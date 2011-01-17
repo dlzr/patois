@@ -47,6 +47,8 @@ public class CopyFileTask extends PersistentTask<Void, Boolean> {
             copyFile();
         } catch (IOException e) {
             return false;
+        } catch (IllegalArgumentException e) {
+            return false;
         }
 
         return true;
@@ -64,9 +66,12 @@ public class CopyFileTask extends PersistentTask<Void, Boolean> {
     }
 
     private void copyFile() throws IOException {
+        File tempFile = File.createTempFile(mOutputFile.getName() + ".", ".tmp",
+                                            mOutputFile.getParentFile());
+
         FileInputStream in = new FileInputStream(mInputFile);
         try {
-            FileOutputStream out = new FileOutputStream(mOutputFile);
+            FileOutputStream out = new FileOutputStream(tempFile);
             try {
                 byte buffer[] = new byte[32768];
                 int count = 0;
@@ -83,5 +88,7 @@ public class CopyFileTask extends PersistentTask<Void, Boolean> {
         } finally {
             in.close();
         }
+
+        tempFile.renameTo(mOutputFile);
     }
 }
