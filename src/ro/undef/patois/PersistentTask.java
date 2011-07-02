@@ -19,12 +19,12 @@ package ro.undef.patois;
 import android.app.Activity;
 import android.os.AsyncTask;
 
-public abstract class PersistentTask<Params, Result> extends AsyncTask<Params, Void, Result> {
+public abstract class PersistentTask extends AsyncTask<Void, Void, Boolean> {
     private final static String TAG = "PersistentTask";
 
     private Activity mActivity = null;
     private boolean mOnFinishPending = false;
-    private Result mResult = null;
+    private boolean mSuccessful = false;
 
     public PersistentTask(Activity activity) {
         mActivity = activity;
@@ -42,7 +42,7 @@ public abstract class PersistentTask<Params, Result> extends AsyncTask<Params, V
             // listening activity.  As such, the new activity still has the
             // progress dialog open, and we need to dismiss it.
             mOnFinishPending = false;
-            onFinish(mResult);
+            onFinish(mSuccessful);
         }
     }
 
@@ -56,12 +56,12 @@ public abstract class PersistentTask<Params, Result> extends AsyncTask<Params, V
     }
 
     @Override
-    protected void onPostExecute(Result result) {
-        onFinishImmediate(result);
+    protected void onPostExecute(Boolean successful) {
+        onFinishImmediate(successful);
         if (mActivity != null) {
-            onFinish(result);
+            onFinish(successful);
         } else {
-            mResult = result;
+            mSuccessful = successful;
             mOnFinishPending = true;
         }
     }
@@ -74,11 +74,11 @@ public abstract class PersistentTask<Params, Result> extends AsyncTask<Params, V
     // is finished, regardless of the connected state.  You can use this for
     // cleanup tasks that don't depend on the owning activity and must be done
     // even if we never get re-attached to an activity.
-    protected void onFinishImmediate(Result result) {
+    protected void onFinishImmediate(boolean successful) {
     }
 
     // Use onFinish() instead of onPostExecute().  onFinish() will only be
     // called when attached to an activity.
-    protected void onFinish(Result result) {
+    protected void onFinish(boolean successful) {
     }
 }

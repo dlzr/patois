@@ -27,124 +27,61 @@ import android.widget.Toast;
 import java.io.File;
 
 
-public class DatabaseImporter {
+public class DatabaseImporter extends FilePicker {
     private final static String TAG = "DatabaseImporter";
 
-    private final int IMPORT_DATABASE_DIALOG;
-    private final int CONFIRM_OVERWRITE_DIALOG;
-    private final int IMPORT_DATABASE_PROGRESS;
-
-    private Activity mActivity;
     private File mInputFile;
     private File mOutputFile;
-    private CopyFileTask mCopyFileTask;
 
     public DatabaseImporter(int dialogIdBase) {
-        IMPORT_DATABASE_DIALOG = dialogIdBase;
-        CONFIRM_OVERWRITE_DIALOG = dialogIdBase + 1;
-        IMPORT_DATABASE_PROGRESS = dialogIdBase + 2;
+        super(Database.getDefaultExportFile().getPath(),
+              dialogIdBase,
+              R.string.import_database,
+              R.layout.import_database_dialog,
+              R.string.import_,
+              R.string.internal_file_exists,
+              R.string.importing_database);
 
-        mActivity = null;
         mInputFile = null;
         mOutputFile = null;
-        mCopyFileTask = null;
     }
 
-    public void attachToActivity(Activity activity) {
-        mActivity = activity;
-        if (mCopyFileTask != null)
-            mCopyFileTask.attach(activity);
-    }
-
-    public void detachFromActivity() {
-        if (mCopyFileTask != null)
-            mCopyFileTask.detach();
-        mActivity = null;
-    }
-
-    public void start() {
-        mActivity.showDialog(IMPORT_DATABASE_DIALOG);
-    }
-
-    public Dialog onCreateDialog(int id) {
-        if (id == IMPORT_DATABASE_DIALOG) {
-            View view = mActivity.getLayoutInflater().inflate(R.layout.import_database_dialog, null);
-            final EditText fileNameEditText = (EditText) view.findViewById(R.id.file_name);
-            fileNameEditText.setText(Database.getDefaultExportFile().getPath());
-
-            return new AlertDialog.Builder(mActivity)
-                .setTitle(R.string.import_database)
-                .setView(view)
-                .setPositiveButton(R.string.import_, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        prepareImport(fileNameEditText.getText().toString());
-                    }
-                })
-                .setNegativeButton(R.string.cancel, null)
-                .create();
-        } else if (id == CONFIRM_OVERWRITE_DIALOG) {
-            return new AlertDialog.Builder(mActivity)
-                .setTitle(R.string.confirm_overwrite)
-                .setMessage(getStringRes(R.string.internal_file_exists))
-                .setPositiveButton(R.string.yes,
-                                   new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        startImport();
-                    }
-                })
-                .setNegativeButton(R.string.no, null)
-                .create();
-        } else if (id == IMPORT_DATABASE_PROGRESS) {
-            ProgressDialog dialog = new ProgressDialog(mActivity);
-            dialog.setCancelable(false);
-            dialog.setMessage(String.format(getStringRes(R.string.importing_database),
-                                            mInputFile.getPath()));
-            return dialog;
-        }
-        return null;
-    }
-
-    private void prepareImport(String inputFileName) {
-        mInputFile = new File(inputFileName);
+    @Override
+    protected void prepareTask() {
+        mInputFile = new File(getFileName());
         if (!mInputFile.exists()) {
             String message = String.format(getStringRes(R.string.external_file_missing),
-                                           inputFileName);
-            Toast.makeText(mActivity, message, Toast.LENGTH_LONG).show();
+                                           getFileName());
+            Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
 
-            mActivity.removeDialog(IMPORT_DATABASE_DIALOG);
-            mActivity.showDialog(IMPORT_DATABASE_DIALOG);
+            showFilePickerDialog();
             return;
         }
 
-        mOutputFile = Database.getDatabaseFile(mActivity);
+        mOutputFile = Database.getDatabaseFile(getActivity());
         if (mOutputFile.exists()) {
-            mActivity.showDialog(CONFIRM_OVERWRITE_DIALOG);
+            showOverwriteConfirmationDialog();
             return;
         }
 
-        startImport();
+        startTask();
     }
 
-    private void startImport() {
-        mCopyFileTask = new CopyFileTask(mActivity, mInputFile, mOutputFile) {
+    @Override
+    protected PersistentTask getTask() {
+        return new CopyFileTask(getActivity(), mInputFile, mOutputFile) {
             protected void onStart() {
-                getActivity().showDialog(IMPORT_DATABASE_PROGRESS);
+                showProgressDialog();
             }
 
-            protected void onFinish(Boolean successful) {
-                getActivity().dismissDialog(IMPORT_DATABASE_PROGRESS);
+            protected void onFinish(boolean successful) {
+                dismissProgressDialog();
 
                 int messageId = successful ? R.string.import_successful : R.string.import_failed;
                 Toast.makeText(getActivity(), messageId, Toast.LENGTH_SHORT).show();
 
-                mCopyFileTask = null;
+                finishTask();
             }
         };
-
-        mCopyFileTask.execute();
-    }
-
-    private String getStringRes(int id) {
-        return mActivity.getResources().getString(id);
     }
 }

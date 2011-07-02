@@ -23,7 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class CopyFileTask extends PersistentTask<Void, Boolean> {
+public class CopyFileTask extends PersistentTask {
     private final static String TAG = "CopyFileTask";
 
     private File mInputFile;

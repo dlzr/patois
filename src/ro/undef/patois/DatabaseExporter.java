@@ -27,137 +27,64 @@ import android.widget.Toast;
 import java.io.File;
 
 
-public class DatabaseExporter {
+public class DatabaseExporter extends FilePicker {
     private final static String TAG = "DatabaseExporter";
 
-    private final int EXPORT_DATABASE_DIALOG;
-    private final int CONFIRM_OVERWRITE_DIALOG;
-    private final int EXPORT_DATABASE_PROGRESS;
-
-    private Activity mActivity;
     private File mInputFile;
     private File mOutputFile;
-    private CopyFileTask mCopyFileTask;
 
     public DatabaseExporter(int dialogIdBase) {
-        EXPORT_DATABASE_DIALOG = dialogIdBase;
-        CONFIRM_OVERWRITE_DIALOG = dialogIdBase + 1;
-        EXPORT_DATABASE_PROGRESS = dialogIdBase + 2;
+        super(Database.getDefaultExportFile().getPath(),
+              dialogIdBase,
+              R.string.export_database,
+              R.layout.export_database_dialog,
+              R.string.export,
+              R.string.external_file_exists,
+              R.string.exporting_database);
 
-        mActivity = null;
         mInputFile = null;
         mOutputFile = null;
-        mCopyFileTask = null;
     }
 
-    public void attachToActivity(Activity activity) {
-        mActivity = activity;
-        if (mCopyFileTask != null)
-            mCopyFileTask.attach(activity);
-    }
-
-    public void detachFromActivity() {
-        if (mCopyFileTask != null)
-            mCopyFileTask.detach();
-        mActivity = null;
-    }
-
-    public void start() {
-        mActivity.showDialog(EXPORT_DATABASE_DIALOG);
-    }
-
-    public Dialog onCreateDialog(int id) {
-        if (id == EXPORT_DATABASE_DIALOG) {
-            View view = mActivity.getLayoutInflater().inflate(R.layout.export_database_dialog, null);
-            final EditText fileNameEditText = (EditText) view.findViewById(R.id.file_name);
-            fileNameEditText.setText(Database.getDefaultExportFile().getPath());
-
-            return new AlertDialog.Builder(mActivity)
-                .setTitle(R.string.export_database)
-                .setView(view)
-                .setPositiveButton(R.string.export, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        prepareExport(fileNameEditText.getText().toString());
-                    }
-                })
-                .setNegativeButton(R.string.cancel, null)
-                .create();
-        } else if (id == CONFIRM_OVERWRITE_DIALOG) {
-            return new AlertDialog.Builder(mActivity)
-                .setTitle(R.string.confirm_overwrite)
-                .setMessage(String.format(getStringRes(R.string.external_file_exists),
-                                          mOutputFile.getPath()))
-                .setPositiveButton(R.string.yes,
-                                   new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        startExport();
-                    }
-                })
-                .setNegativeButton(R.string.no,
-                                   new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        mActivity.showDialog(EXPORT_DATABASE_DIALOG);
-                    }
-                })
-                .setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    public void onCancel(DialogInterface dialog) {
-                        mActivity.showDialog(EXPORT_DATABASE_DIALOG);
-                    }
-                })
-                .create();
-        } else if (id == EXPORT_DATABASE_PROGRESS) {
-            ProgressDialog dialog = new ProgressDialog(mActivity);
-            dialog.setCancelable(false);
-            dialog.setMessage(String.format(getStringRes(R.string.exporting_database),
-                                            mOutputFile.getPath()));
-            return dialog;
-        }
-        return null;
-    }
-
-    private void prepareExport(String outputFileName) {
-        mInputFile = Database.getDatabaseFile(mActivity);
+    @Override
+    protected void prepareTask() {
+        mInputFile = Database.getDatabaseFile(getActivity());
         if (!mInputFile.exists())
             throw new RuntimeException("Cannot export database: missing database file.");
 
-        mOutputFile = new File(outputFileName);
+        mOutputFile = new File(getFileName());
         if (mOutputFile.exists()) {
-            mActivity.showDialog(CONFIRM_OVERWRITE_DIALOG);
+            showOverwriteConfirmationDialog();
             return;
         }
 
-        startExport();
+        startTask();
     }
 
-    private void startExport() {
-        mCopyFileTask = new CopyFileTask(mActivity, mInputFile, mOutputFile) {
+    @Override
+    protected PersistentTask getTask() {
+        return new CopyFileTask(getActivity(), mInputFile, mOutputFile) {
             private Database.Lock mLock;
 
             protected void onStart() {
-                getActivity().showDialog(EXPORT_DATABASE_PROGRESS);
+                showProgressDialog();
 
                 mLock = new Database.Lock(getActivity());
                 mLock.acquire();
             }
 
-            protected void onFinishImmediate(Boolean successful) {
+            protected void onFinishImmediate(boolean successful) {
                 mLock.release();
             }
 
-            protected void onFinish(Boolean successful) {
-                getActivity().dismissDialog(EXPORT_DATABASE_PROGRESS);
+            protected void onFinish(boolean successful) {
+                dismissProgressDialog();
 
                 int messageId = successful ? R.string.export_successful : R.string.export_failed;
                 Toast.makeText(getActivity(), messageId, Toast.LENGTH_SHORT).show();
 
-                mCopyFileTask = null;
+                finishTask();
             }
         };
-
-        mCopyFileTask.execute();
-    }
-
-    private String getStringRes(int id) {
-        return mActivity.getResources().getString(id);
     }
 }

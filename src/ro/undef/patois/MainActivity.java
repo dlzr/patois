@@ -57,7 +57,7 @@ public class MainActivity extends Activity {
             if (mDb.getLanguagesCursor().getCount() == 0)
                 startEditLanguagesActivity();
         }
-        mDbExporter.attachToActivity(this);
+        mDbExporter.attach(this);
 
         setupViews();
     }
@@ -71,7 +71,7 @@ public class MainActivity extends Activity {
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        mDbExporter.detachFromActivity();
+        mDbExporter.detach();
         return mDbExporter;
     }
 

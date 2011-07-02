@@ -38,7 +38,7 @@ public class IntroActivity extends Activity {
         mDbImporter = (DatabaseImporter) getLastNonConfigurationInstance();
         if (mDbImporter == null)
             mDbImporter = new DatabaseImporter(DATABASE_IMPORTER_DIALOG_BASE);
-        mDbImporter.attachToActivity(this);
+        mDbImporter.attach(this);
 
         setupViews();
     }
@@ -51,7 +51,7 @@ public class IntroActivity extends Activity {
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        mDbImporter.detachFromActivity();
+        mDbImporter.detach();
         return mDbImporter;
     }
 
