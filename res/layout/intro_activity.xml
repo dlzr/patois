@@ -67,17 +67,17 @@
             android:layout_marginLeft="16dip"
             android:layout_marginRight="16dip"
             android:gravity="center"
-            android:text="@string/import_database_text"
+            android:text="@string/restore_database_text"
             android:textAppearance="@style/intro_text"
             />
 
-        <Button android:id="@+id/import_database"
+        <Button android:id="@+id/restore_database"
             android:layout_marginTop="18dip"
             android:layout_marginLeft="40dip"
             android:layout_marginRight="40dip"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/import_database"
+            android:text="@string/restore_database"
             />
 
         <TextView

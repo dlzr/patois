@@ -1,5 +1,5 @@
 IntroActivity:
-  - Use "restore database" instead of "import database".
+  - Finish implementation.
 
 MainActivity:
   - Add "About" dialog.

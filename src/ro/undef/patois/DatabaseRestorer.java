@@ -27,20 +27,20 @@ import android.widget.Toast;
 import java.io.File;
 
 
-public class DatabaseImporter extends FilePicker {
-    private final static String TAG = "DatabaseImporter";
+public class DatabaseRestorer extends FilePicker {
+    private final static String TAG = "DatabaseRestorer";
 
     private File mInputFile;
     private File mOutputFile;
 
-    public DatabaseImporter(int dialogIdBase) {
+    public DatabaseRestorer(int dialogIdBase) {
         super(Database.getDefaultExportFile().getPath(),
               dialogIdBase,
-              R.string.import_database,
-              R.layout.import_database_dialog,
-              R.string.import_,
+              R.string.restore_database,
+              R.layout.restore_database_dialog,
+              R.string.restore,
               R.string.internal_file_exists,
-              R.string.importing_database);
+              R.string.restoring_database);
 
         mInputFile = null;
         mOutputFile = null;
@@ -77,7 +77,7 @@ public class DatabaseImporter extends FilePicker {
             protected void onFinish(boolean successful) {
                 dismissProgressDialog();
 
-                int messageId = successful ? R.string.import_successful : R.string.import_failed;
+                int messageId = successful ? R.string.restore_successful : R.string.restore_failed;
                 Toast.makeText(getActivity(), messageId, Toast.LENGTH_SHORT).show();
 
                 finishTask();

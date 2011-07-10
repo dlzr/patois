@@ -27,18 +27,18 @@ import android.widget.Button;
 public class IntroActivity extends Activity {
     private final static String TAG = "IntroActivity";
 
-    private static final int DATABASE_IMPORTER_DIALOG_BASE = 100;
+    private static final int DATABASE_RESTORER_DIALOG_BASE = 100;
 
-    private DatabaseImporter mDbImporter;
+    private DatabaseRestorer mDbRestorer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mDbImporter = (DatabaseImporter) getLastNonConfigurationInstance();
-        if (mDbImporter == null)
-            mDbImporter = new DatabaseImporter(DATABASE_IMPORTER_DIALOG_BASE);
-        mDbImporter.attach(this);
+        mDbRestorer = (DatabaseRestorer) getLastNonConfigurationInstance();
+        if (mDbRestorer == null)
+            mDbRestorer = new DatabaseRestorer(DATABASE_RESTORER_DIALOG_BASE);
+        mDbRestorer.attach(this);
 
         setupViews();
     }
@@ -46,18 +46,17 @@ public class IntroActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // TODO: Maybe we should support canceling the import operation.
     }
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        mDbImporter.detach();
-        return mDbImporter;
+        mDbRestorer.detach();
+        return mDbRestorer;
     }
 
     @Override
     protected Dialog onCreateDialog(int id) {
-        return mDbImporter.onCreateDialog(id);
+        return mDbRestorer.onCreateDialog(id);
     }
 
     private void setupViews() {
@@ -70,10 +69,10 @@ public class IntroActivity extends Activity {
             }
         });
 
-        button = (Button) findViewById(R.id.import_database);
+        button = (Button) findViewById(R.id.restore_database);
         button.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                mDbImporter.start();
+                mDbRestorer.start();
             }
         });
 
