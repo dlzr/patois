@@ -1,0 +1,98 @@
+The Patois CSV format
+~~~~~~~~~~~~~~~~~~~~~
+
+Patois can export and import comma-separated-values files containg
+language and word definitions.  The general format is CSV, as defined by
+RFC 4180.  The character encoding is UTF-8.
+
+
+Schema Version 1
+~~~~~~~~~~~~~~~~
+
+Empty and whitespace-only cells are ignored at EOL.
+Empty rows are ignored.
+
+The first cell in each row is the "tag", identifying the row type.
+Currently defined row types:
+
+  - version row (tag: "V")
+  - language row (tag: "L")
+  - word row (tag: "W")
+
+
+Version row
+~~~~~~~~~~~
+
+Only one version row is allowed per file, and it must be the first
+non-empty row in the file.
+
+Row content:
+
+  - column 1: the string "V"
+  - column 2: the schema version, as an integer (currently: 1)
+  - column 3: the string "Patois"
+
+
+Language rows
+~~~~~~~~~~~~~
+
+Language rows define new languages.
+
+Row content:
+
+  - column 1: the string "L"
+  - column 2: the language code (an abbreviation of the language name)
+  - column 3: the full language name
+
+
+Word rows
+~~~~~~~~~
+
+Word rows define new words and the relationship between them.
+
+Row content:
+
+  - column 1: the string "W"
+  - column 2k: the language code of the k-th word in the row
+  - column 2k+1: the k-th word itself
+
+The language codes (columns 2k) must have been defined before being used
+in word definitions.
+
+The first word on the line (columns 2 and 3) is the main word, and must
+be present for the row to be valid.  The subsequent words are added as
+translations (or synonyms) of the main word.  No relation is recorded
+between the non-main words.  For instance, the line:
+
+  W,de,die Kost,de,das Essen,en,food
+
+will record that "food" in English is a translation for "die Kost" in
+German, but it will not say that "food" in English is a translation for
+"das Essen" in German.  If that is desired, a separate word row must be
+used:
+
+  W,de,das Essen,en,food,de,die Kost
+
+Repeating the fact that "das Essen" and "die Kost" are synonyms is
+harmless.
+
+It is valid to have only the main word without translations: the word
+will be added to the database as untranslated.
+
+To avoid duplicates, each word (whether main word or not) will be looked
+up in the database before adding it.  If the word is already present,
+the existing word will be used.
+
+
+Example
+~~~~~~~
+
+V,1,Patois
+
+L,ro,Romanian
+L,en,English
+L,de,German
+
+W,de,das Pferd,en,horse,ro,cal
+W,de,die Kost,de,das Essen,en,food,ro,mâncare
+W,de,die Vergangenheit
