@@ -36,10 +36,10 @@ public class MainActivity extends Activity {
     private final static String TAG = "MainActivity";
 
     private static final int SELECT_LANGUAGE_DIALOG = 1;
-    private static final int DATABASE_EXPORTER_DIALOG_BASE = 100;
+    private static final int DATABASE_SAVER_DIALOG_BASE = 100;
 
     private Database mDb;
-    private DatabaseExporter mDbExporter;
+    private DatabaseSaver mDbSaver;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,17 +47,17 @@ public class MainActivity extends Activity {
 
         mDb = new Database(this);
 
-        mDbExporter = (DatabaseExporter) getLastNonConfigurationInstance();
-        if (mDbExporter == null) {
-            mDbExporter = new DatabaseExporter(DATABASE_EXPORTER_DIALOG_BASE);
+        mDbSaver = (DatabaseSaver) getLastNonConfigurationInstance();
+        if (mDbSaver == null) {
+            mDbSaver = new DatabaseSaver(DATABASE_SAVER_DIALOG_BASE);
 
             // We only check for an empty database when the activity is first
             // started.  If we're being restarted because of a configuration
-            // change, mDbExporter will be non-null at this point.
+            // change, mDbSaver will be non-null at this point.
             if (mDb.getLanguagesCursor().getCount() == 0)
                 startEditLanguagesActivity();
         }
-        mDbExporter.attach(this);
+        mDbSaver.attach(this);
 
         setupViews();
     }
@@ -66,13 +66,12 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         mDb.close();
-        // TODO: Maybe we should support canceling the export operation.
     }
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        mDbExporter.detach();
-        return mDbExporter;
+        mDbSaver.detach();
+        return mDbSaver;
     }
 
     @Override
@@ -89,8 +88,8 @@ public class MainActivity extends Activity {
                 showDialog(SELECT_LANGUAGE_DIALOG);
                 return true;
             }
-            case R.id.export_database: {
-                mDbExporter.start();
+            case R.id.save_database: {
+                mDbSaver.start();
                 return true;
             }
         }
@@ -99,7 +98,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected Dialog onCreateDialog(int id) {
-        Dialog dialog = mDbExporter.onCreateDialog(id);
+        Dialog dialog = mDbSaver.onCreateDialog(id);
         if (dialog != null)
             return dialog;
 

@@ -34,7 +34,7 @@ public class DatabaseRestorer extends FilePicker {
     private File mOutputFile;
 
     public DatabaseRestorer(int dialogIdBase) {
-        super(Database.getDefaultExportFile().getPath(),
+        super(Database.getDefaultBackupFile().getPath(),
               dialogIdBase,
               R.string.restore_database,
               R.layout.restore_database_dialog,

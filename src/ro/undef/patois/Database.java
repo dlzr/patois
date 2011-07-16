@@ -566,7 +566,7 @@ public class Database {
         return context.getDatabasePath(DATABASE_NAME);
     }
 
-    public static File getDefaultExportFile() {
+    public static File getDefaultBackupFile() {
         return new File(Environment.getExternalStorageDirectory(), Database.DATABASE_NAME);
     }
 

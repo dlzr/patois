@@ -27,20 +27,20 @@ import android.widget.Toast;
 import java.io.File;
 
 
-public class DatabaseExporter extends FilePicker {
-    private final static String TAG = "DatabaseExporter";
+public class DatabaseSaver extends FilePicker {
+    private final static String TAG = "DatabaseSaver";
 
     private File mInputFile;
     private File mOutputFile;
 
-    public DatabaseExporter(int dialogIdBase) {
-        super(Database.getDefaultExportFile().getPath(),
+    public DatabaseSaver(int dialogIdBase) {
+        super(Database.getDefaultBackupFile().getPath(),
               dialogIdBase,
-              R.string.export_database,
-              R.layout.export_database_dialog,
-              R.string.export,
+              R.string.save_database,
+              R.layout.save_database_dialog,
+              R.string.save,
               R.string.external_file_exists,
-              R.string.exporting_database);
+              R.string.saving_database);
 
         mInputFile = null;
         mOutputFile = null;
@@ -50,7 +50,7 @@ public class DatabaseExporter extends FilePicker {
     protected void prepareTask() {
         mInputFile = Database.getDatabaseFile(getActivity());
         if (!mInputFile.exists())
-            throw new RuntimeException("Cannot export database: missing database file.");
+            throw new RuntimeException("Cannot save database backup: missing database file.");
 
         mOutputFile = new File(getFileName());
         if (mOutputFile.exists()) {
@@ -80,7 +80,7 @@ public class DatabaseExporter extends FilePicker {
             protected void onFinish(boolean successful) {
                 dismissProgressDialog();
 
-                int messageId = successful ? R.string.export_successful : R.string.export_failed;
+                int messageId = successful ? R.string.save_successful : R.string.save_failed;
                 Toast.makeText(getActivity(), messageId, Toast.LENGTH_SHORT).show();
 
                 finishTask();
