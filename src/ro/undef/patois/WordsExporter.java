@@ -17,7 +17,6 @@
 package ro.undef.patois;
 
 import android.os.Environment;
-import android.widget.Toast;
 import java.io.File;
 
 
@@ -35,7 +34,9 @@ public class WordsExporter extends FilePicker {
               R.layout.export_words_dialog,
               R.string.export,
               R.string.external_file_exists,
-              R.string.exporting_words);
+              R.string.exporting_words,
+              R.string.export_successful,
+              R.string.export_failed);
 
         mOutputFile = null;
     }
@@ -61,7 +62,6 @@ public class WordsExporter extends FilePicker {
             private Database mDb;
 
             protected void onStart() {
-                showProgressDialog();
                 mDb = new Database(getActivity());
             }
 
@@ -70,12 +70,7 @@ public class WordsExporter extends FilePicker {
             }
 
             protected void onFinish(boolean successful) {
-                dismissProgressDialog();
-
-                int messageId = successful ? R.string.export_successful : R.string.export_failed;
-                Toast.makeText(getActivity(), messageId, Toast.LENGTH_SHORT).show();
-
-                finishTask();
+                finishTask(successful);
             }
 
             protected Boolean doInBackground(Void... unused) {

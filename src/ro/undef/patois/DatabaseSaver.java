@@ -16,14 +16,6 @@
 
 package ro.undef.patois;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.Toast;
 import java.io.File;
 
 
@@ -40,7 +32,9 @@ public class DatabaseSaver extends FilePicker {
               R.layout.save_database_dialog,
               R.string.save,
               R.string.external_file_exists,
-              R.string.saving_database);
+              R.string.saving_database,
+              R.string.save_successful,
+              R.string.save_failed);
 
         mInputFile = null;
         mOutputFile = null;
@@ -67,8 +61,6 @@ public class DatabaseSaver extends FilePicker {
             private Database.Lock mLock;
 
             protected void onStart() {
-                showProgressDialog();
-
                 mLock = new Database.Lock(getActivity());
                 mLock.acquire();
             }
@@ -78,12 +70,7 @@ public class DatabaseSaver extends FilePicker {
             }
 
             protected void onFinish(boolean successful) {
-                dismissProgressDialog();
-
-                int messageId = successful ? R.string.save_successful : R.string.save_failed;
-                Toast.makeText(getActivity(), messageId, Toast.LENGTH_SHORT).show();
-
-                finishTask();
+                finishTask(successful);
             }
         };
     }

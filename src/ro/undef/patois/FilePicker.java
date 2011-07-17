@@ -23,6 +23,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
 
 
 public abstract class FilePicker {
@@ -39,6 +40,8 @@ public abstract class FilePicker {
     private final int ACTION_BUTTON_NAME;
     private final int OVERWRITE_CONFIRMATION_MESSAGE;
     private final int ACTION_PROGRESS_MESSAGE;
+    private final int ACTION_SUCCESSFUL_MESSAGE;
+    private final int ACTION_FAILED_MESSAGE;
 
     private String mFileName;
     private Activity mActivity;
@@ -50,7 +53,9 @@ public abstract class FilePicker {
                       int filePickerLayout,
                       int actionButtonName,
                       int overwriteConfirmationMessage,
-                      int actionProgressMessage) {
+                      int actionProgressMessage,
+                      int actionSuccessfulMessage,
+                      int actionFailedMessage) {
         FILE_PICKER_DIALOG = dialogIdBase;
         OVERWRITE_CONFIRMATION_DIALOG = dialogIdBase + 1;
         ACTION_PROGRESS_DIALOG = dialogIdBase + 2;
@@ -60,6 +65,8 @@ public abstract class FilePicker {
         ACTION_BUTTON_NAME = actionButtonName;
         OVERWRITE_CONFIRMATION_MESSAGE = overwriteConfirmationMessage;
         ACTION_PROGRESS_MESSAGE = actionProgressMessage;
+        ACTION_SUCCESSFUL_MESSAGE = actionSuccessfulMessage;
+        ACTION_FAILED_MESSAGE = actionFailedMessage;
 
         mFileName = defaultFileName;
         mActivity = null;
@@ -135,14 +142,6 @@ public abstract class FilePicker {
         mActivity.showDialog(OVERWRITE_CONFIRMATION_DIALOG);
     }
 
-    protected void showProgressDialog() {
-        mActivity.showDialog(ACTION_PROGRESS_DIALOG);
-    }
-
-    protected void dismissProgressDialog() {
-        mActivity.dismissDialog(ACTION_PROGRESS_DIALOG);
-    }
-
 
     protected Activity getActivity() {
         return mActivity;
@@ -157,12 +156,20 @@ public abstract class FilePicker {
     }
 
     protected void startTask() {
+        mActivity.showDialog(ACTION_PROGRESS_DIALOG);
+
         mTask = getTask();
         mTask.execute();
     }
 
-    protected void finishTask() {
+    protected void finishTask(boolean successful) {
         mTask = null;
+
+        mActivity.dismissDialog(ACTION_PROGRESS_DIALOG);
+
+        int messageId = successful ? ACTION_SUCCESSFUL_MESSAGE
+                                   : ACTION_FAILED_MESSAGE;
+        Toast.makeText(getActivity(), messageId, Toast.LENGTH_SHORT).show();
     }
 
     // Methods for subclasses to override.
@@ -172,5 +179,7 @@ public abstract class FilePicker {
         startTask();
     }
 
+    // The task which will perform the actual work.
+    // This task MUST call finishTask() from its onFinish() method.
     protected abstract PersistentTask getTask();
 }

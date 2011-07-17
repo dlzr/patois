@@ -16,13 +16,6 @@
 
 package ro.undef.patois;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
-import android.view.View;
-import android.widget.EditText;
 import android.widget.Toast;
 import java.io.File;
 
@@ -40,7 +33,9 @@ public class DatabaseRestorer extends FilePicker {
               R.layout.restore_database_dialog,
               R.string.restore,
               R.string.internal_file_exists,
-              R.string.restoring_database);
+              R.string.restoring_database,
+              R.string.restore_successful,
+              R.string.restore_failed);
 
         mInputFile = null;
         mOutputFile = null;
@@ -70,17 +65,8 @@ public class DatabaseRestorer extends FilePicker {
     @Override
     protected PersistentTask getTask() {
         return new CopyFileTask(getActivity(), mInputFile, mOutputFile) {
-            protected void onStart() {
-                showProgressDialog();
-            }
-
             protected void onFinish(boolean successful) {
-                dismissProgressDialog();
-
-                int messageId = successful ? R.string.restore_successful : R.string.restore_failed;
-                Toast.makeText(getActivity(), messageId, Toast.LENGTH_SHORT).show();
-
-                finishTask();
+                finishTask(successful);
             }
         };
     }
