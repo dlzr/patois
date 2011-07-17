@@ -24,4 +24,8 @@
         android:title="@string/save_database"
         android:icon="@android:drawable/ic_menu_save"
         />
+    <item android:id="@+id/export_words"
+        android:title="@string/export_words"
+        android:icon="@android:drawable/ic_menu_share"
+        />
 </menu>

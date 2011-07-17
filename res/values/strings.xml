@@ -55,6 +55,12 @@
     <string name="restoring_database">Restoring database from %1$s.</string>
     <string name="restore_successful">Database restored successfully.</string>
     <string name="restore_failed">Failed to restore the database.</string>
+    <string name="export_words">Export words</string>
+    <string name="export_words_to_csv">Export words to CSV</string>
+    <string name="export">Export</string>
+    <string name="exporting_words">Exporting words to %1$s.</string>
+    <string name="export_successful">Words exported to CSV succesfully.</string>
+    <string name="export_failed">Failed to export words to CSV.</string>
 
     <!-- Strings in the "edit languages" activity. -->
     <string name="enter_languages">Native and foreign languages:</string>
