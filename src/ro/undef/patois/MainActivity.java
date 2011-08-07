@@ -37,9 +37,10 @@ public class MainActivity extends Activity {
 
     private static final int SELECT_LANGUAGE_DIALOG = 1;
     private static final int DATABASE_SAVER_DIALOG_BASE = 100;
+    private static final int WORDS_EXPORTER_DIALOG_BASE = 200;
 
     private Database mDb;
-    private DatabaseSaver mDbSaver;
+    private BackgroundWorkers mWorkers;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,17 +48,17 @@ public class MainActivity extends Activity {
 
         mDb = new Database(this);
 
-        mDbSaver = (DatabaseSaver) getLastNonConfigurationInstance();
-        if (mDbSaver == null) {
-            mDbSaver = new DatabaseSaver(DATABASE_SAVER_DIALOG_BASE);
+        mWorkers = (BackgroundWorkers) getLastNonConfigurationInstance();
+        if (mWorkers == null) {
+            mWorkers = new BackgroundWorkers();
 
             // We only check for an empty database when the activity is first
             // started.  If we're being restarted because of a configuration
-            // change, mDbSaver will be non-null at this point.
+            // change, mWorkers will be non-null at this point.
             if (mDb.getLanguagesCursor().getCount() == 0)
                 startEditLanguagesActivity();
         }
-        mDbSaver.attach(this);
+        mWorkers.attach(this);
 
         setupViews();
     }
@@ -70,8 +71,8 @@ public class MainActivity extends Activity {
 
     @Override
     public Object onRetainNonConfigurationInstance() {
-        mDbSaver.detach();
-        return mDbSaver;
+        mWorkers.detach();
+        return mWorkers;
     }
 
     @Override
@@ -89,7 +90,11 @@ public class MainActivity extends Activity {
                 return true;
             }
             case R.id.save_database: {
-                mDbSaver.start();
+                mWorkers.saveDatabase();
+                return true;
+            }
+            case R.id.export_words: {
+                mWorkers.exportWords();
                 return true;
             }
         }
@@ -98,7 +103,7 @@ public class MainActivity extends Activity {
 
     @Override
     protected Dialog onCreateDialog(int id) {
-        Dialog dialog = mDbSaver.onCreateDialog(id);
+        Dialog dialog = mWorkers.onCreateDialog(id);
         if (dialog != null)
             return dialog;
 
@@ -123,6 +128,7 @@ public class MainActivity extends Activity {
                     .create();
             }
         }
+
         return null;
     }
 
@@ -238,6 +244,46 @@ public class MainActivity extends Activity {
                 mDb.clearLanguagesCache();
                 updateLabels();
                 break;
+        }
+    }
+
+    private class BackgroundWorkers {
+        private DatabaseSaver mDbSaver;
+        private WordsExporter mWordsExporter;
+
+        public BackgroundWorkers() {
+            mDbSaver = new DatabaseSaver(DATABASE_SAVER_DIALOG_BASE);
+            mWordsExporter = new WordsExporter(WORDS_EXPORTER_DIALOG_BASE);
+        }
+
+        public void attach(Activity activity) {
+            mDbSaver.attach(activity);
+            mWordsExporter.attach(activity);
+        }
+
+        public void detach() {
+            mDbSaver.detach();
+            mWordsExporter.detach();
+        }
+
+        public Dialog onCreateDialog(int id) {
+            Dialog dialog = mDbSaver.onCreateDialog(id);
+            if (dialog != null)
+                return dialog;
+
+            dialog = mWordsExporter.onCreateDialog(id);
+            if (dialog != null)
+                return dialog;
+
+            return null;
+        }
+
+        public void saveDatabase() {
+            mDbSaver.start();
+        }
+
+        public void exportWords() {
+            mWordsExporter.start();
         }
     }
 }
