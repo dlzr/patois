@@ -29,8 +29,8 @@ non-empty row in the file.
 Row content:
 
   - column 1: the string "V"
-  - column 2: the schema version, as an integer (currently: 1)
-  - column 3: the string "Patois"
+  - column 2: the string "Patois"
+  - column 3: the schema version, as an integer (currently: 1)
 
 
 Language rows
@@ -87,7 +87,7 @@ the existing word will be used.
 Example
 ~~~~~~~
 
-V,1,Patois
+V,Patois,1
 
 L,ro,Romanian
 L,en,English

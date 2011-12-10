@@ -122,10 +122,14 @@ public class Database {
     public static final int LANGUAGES_NAME_COLUMN = 2;
 
     public Cursor getLanguagesCursor() {
+        Cursor cursor = getExportLanguagesCursor();
+        mActivity.startManagingCursor(cursor);
+        return cursor;
+    }
+
+    public Cursor getExportLanguagesCursor() {
         Cursor cursor = mDb.query("languages", new String[] { "_id", "code", "name" },
                                   null, null, null, null, null);
-        mActivity.startManagingCursor(cursor);
-
         return cursor;
     }
 
@@ -342,6 +346,10 @@ public class Database {
         }
 
         return weights;
+    }
+
+    public Cursor getExportWordsCursor() {
+        return mDb.query("words", new String[] { "_id" }, "", null, null, null, "language_id");
     }
 
     public Word getWord(long id) {
